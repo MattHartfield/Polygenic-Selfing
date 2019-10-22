@@ -1,0 +1,38 @@
+// 22nd October 2019
+// Modification of recipe 13.2
+// Polygenic selection under self–fertilisation
+// Is there a transition from gene-level to genome-level selection?
+// How do the sweep dynamics differ?
+
+// Function for calculating gaussian fitness
+function (f)gaussfit(float z, float z0, float vs){
+	fitout  = exp(-((z - z0)^2)/(2*vs)); 
+ 	return mean(fitout);
+}
+
+initialize() {
+	initializeMutationRate(1e-7);
+	initializeMutationType("m1", 0.5, "n", 0.0, 0.005);  // QTLs
+	m1.convertToSubstitution = F;
+	initializeGenomicElementType("g1", m1, 1);
+	initializeGenomicElement(g1, 0, 99999);
+	initializeRecombinationRate(1e-8);
+}
+fitness(m1) { return 1.0; }
+1 {
+	sim.addSubpop("p1", 500); 
+	p1.setSelfingRate(0);
+}
+1:35000 late() {
+	inds = sim.subpopulations.individuals;
+	phenotypes = inds.sumOfMutationsOfType(m1);
+	if(sim.generation <= 5000){inds.fitnessScaling = gaussfit(phenotypes,0.0,0.1);}
+	if(sim.generation > 5000){inds.fitnessScaling = gaussfit(phenotypes,0.1,0.1);}	
+	
+	if (sim.generation % 100 == 0){
+		catn(c(sim.generation,mean(phenotypes),var(phenotypes)));
+	}
+}
+35000 late() {sim.simulationFinished();}
+
+// EOF
