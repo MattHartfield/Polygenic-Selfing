@@ -4,7 +4,7 @@
 // Is there a transition from gene-level to genome-level selection?
 // How do the sweep dynamics differ?
 
-// Function for calculating gaussian fitness
+// Function for calculating gaussian fitness function
 function (f)gaussfit(float z, float z0, float vs){
 	fitout  = exp(-((z - z0)^2)/(2*vs)); 
  	return mean(fitout);
@@ -18,21 +18,37 @@ initialize() {
 	initializeGenomicElement(g1, 0, 99999);
 	initializeRecombinationRate(1e-8);
 }
+
 fitness(m1) { return 1.0; }
+
 1 {
 	sim.addSubpop("p1", 500); 
 	p1.setSelfingRate(0);
+	line = paste(c("Generation", "MeanFitness", "MeanTrait", "VarTrait", "FixedMuts"));
+	writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/output.dat", line, append=F);
 }
-1:35000 late() {
+
+1:15000 late() {
 	inds = sim.subpopulations.individuals;
 	phenotypes = inds.sumOfMutationsOfType(m1);
-	if(sim.generation <= 5000){inds.fitnessScaling = gaussfit(phenotypes,0.0,0.1);}
-	if(sim.generation > 5000){inds.fitnessScaling = gaussfit(phenotypes,0.1,0.1);}	
+	if(sim.generation <= 5000){
+		inds.fitnessScaling = gaussfit(phenotypes,0.0,1.0);
+	}else if(sim.generation > 5000){
+		inds.fitnessScaling = gaussfit(phenotypes,0.5,1.0);
+	}
 	
 	if (sim.generation % 100 == 0){
-		catn(c(sim.generation,mean(phenotypes),var(phenotypes)));
+		// Outputting key statistics (mean fitness, mean trait value, variance in trait)
+		qtls = sim.mutationsOfType(m1);
+		fmuts = sum(sim.mutationFrequencies(NULL, qtls) == 1.0);
+		line = paste(c(sim.generation, mean(inds.fitnessScaling), mean(phenotypes), var(phenotypes), fmuts));
+		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/output.dat", line, append=T);
 	}
 }
-35000 late() {sim.simulationFinished();}
+
+15000 late() {
+	catn("End of simulation");
+	sim.simulationFinished();
+}
 
 // EOF
