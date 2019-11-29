@@ -7,33 +7,35 @@
 // Function for calculating gaussian fitness function for multiple traits
 function (f)gaussfit(float z, float z0, float vs){
 	fitout = exp(-(0.5)*sum(((z-z0)^2/(vs))));
- 	return fitout;
+	return fitout;
 }
 
 initialize() {
-
-	defineConstant("N",2500);
-
-	initializeMutationType("m1", 0.2, "f", -0.00); 	 // Deleterious mutations (set fitness to zero for neutral background)
-	initializeMutationType("m2", 0.5, "f", 0.0);  	 // QTLs		
-	m2.convertToSubstitution = F;
-	m2.color="red";
 	
-	initializeGenomicElementType("g1", c(m1,m2), c(0.9,0.1));
+	defineConstant("N",2500);
+	
+	initializeMutationType("m1", 0.02, "f", 0.0); 	 // Deleterious mutations (set fitness to zero for neutral background)
+	initializeMutationType("m2", 0.5, "f", 0.0);  	 	 // QTLs		
+	m2.convertToSubstitution = F;
+	m2.color="green";
+	
+	QTLf = 0.05;	// Fraction of mutations that code for QTLs
+	initializeGenomicElementType("g1", c(m1,m2), c(1.0-QTLf,QTLf));
 	initializeGenomicElement(g1, 0, 99999);
-
-	mu = 0.028/(100000*0.9);
+	
+	mu = 0.028/(100000*(1.0-QTLf));
 	rec = (2.5*0.01)/(1000000);
 	initializeMutationRate(mu);
 	initializeRecombinationRate(rec);
 	
 	// Setting up multivariate trait matrix
-	defineConstant("nt",5); 	// Number of traits under selection
+	defineConstant("nt",1); 	// Number of traits under selection
 	// NEED TO UPDATE CODE SO CAN PROCEED IF NT == 1
-	defineConstant("QTL_mean",rep(1.0,nt));
-	defineConstant("QTL_optima",rep(0.0,nt));
-	defineConstant("QTL_V",0.005);	
-	defineConstant("QTL_CV",0.0);
+	defineConstant("QTL_mean",rep(0.0,nt));
+	defineConstant("QTL_io",rep(0.0,nt));			// Initial optimum = 0
+	defineConstant("QTL_so",rep(0.1,nt));			// Shifted optimum	
+	defineConstant("QTL_V",0.005);					// Variance in mutational effects
+	defineConstant("QTL_CV",0.0);						// Co-variance in mutational effects
 	
 	// Setting up array to be used to define QTL covariance matrix
 	mat_ent = rep(QTL_CV,nt*nt);
@@ -46,40 +48,52 @@ initialize() {
 	print(QTL_matrix);
 }
 
-// Defining fitness of QTL mutations using MVM setup
+// Defining fitness of QTL mutations using MVN setup
 mutation(m2)
 {
-	effects = rmvnorm(1,QTL_mean,QTL_matrix);
-	for(i in 1:nt)
+	if(nt > 1)
 	{
-		mut.setValue( paste0(c("e",(i-1))) , effects[i-1]);
+		effects = rmvnorm(1,QTL_mean,QTL_matrix);
+		for(i in 1:nt)
+		{
+			mut.setValue( paste0(c("e",(i-1))) , effects[i-1]);
+		}
+	}
+	else if (nt == 1)
+	{
+		effects = rnorm(1,QTL_mean,QTL_V);
+		mut.setValue( "e0" , effects);
 	}
 	return T;
 }
 
-// Code to define fitness of each individual, based on both QTL and background loci
+// Code to define fitness changes due to effects of QTLs
 late () {
+	
 	for (ind in sim.subpopulations.individuals)
 	{
+			
+		// QTL loci
 		phens = rep(0.0,nt);
 		mQTL = ind.genomes.mutationsOfType(m2);
 		if(size(mQTL) != 0){
 			for(i in 1:nt)
 			{
 				phens[(i-1)] = sum(mQTL.getValue(paste0(c("e",(i-1)))));
-			}		
+			}
 		}
-					
-		ind.fitnessScaling = gaussfit(phens,QTL_mean,rep(1.0,nt));
-				
+		
+		// Fitness scaling of QTLs based on Gaussian function with selection variance = 1
+		// QTL_mean = optimum (need to change to consider shift in optimum?)
+		ind.fitnessScaling = gaussfit(phens,QTL_io,rep(1.0,nt));
 	}
 }
 
 1 {
 	sim.addSubpop("p1", N);
 	p1.setSelfingRate(0);
-//	line = paste(c("Generation", "MeanFitness", "MeanTrait", "VarTrait", "FixedMuts"));
-//	writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/output.dat", line, append=F);
+	//	line = paste(c("Generation", "MeanFitness", "MeanTrait", "VarTrait", "FixedMuts"));
+	//	writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/output.dat", line, append=F);
 }
 
 //1:15000 late() {
@@ -90,7 +104,7 @@ late () {
 //	}else if(sim.generation > 10000){
 //		inds.fitnessScaling = gaussfit(phenotypes,1.0,1.0);
 //	}
-	
+
 //	if (sim.generation % 100 == 0){
 //		// Outputting key statistics (mean fitness, mean trait value, variance in trait)
 //		qtls = sim.mutationsOfType(m1);
