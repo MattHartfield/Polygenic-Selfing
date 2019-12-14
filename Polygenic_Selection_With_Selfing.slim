@@ -12,17 +12,21 @@ function (f)gaussfit(float z, float z0, float vs){
 
 initialize() {
 	
-	defineConstant("N",2500);
-	defineConstant("s",0.0);
-	defineConstant("h",0.2);
-	defineConstant("QTLf",0.05);	// Fraction of mutations that code for QTLs
-	defineConstant("sfrate",0.0);
-	defineConstant("nt",1); 		// Number of traits under selection
-	defineConstant("newo",0.1);
-	defineConstant("mutvar",0.005);
+	defineConstant("N",5000);			// Population size
+	defineConstant("QTLf",0.05);		// Fraction of mutations that code for QTLs
+	defineConstant("mutvar",0.005);	// Mutational variance
+	
+//	defineConstant("s",0.0);			// Background mutation selection coefficient
+//	defineConstant("h",0.2);			// Background mutation dominance coefficient
+//	defineConstant("sfrate",0.0);		// Self-fertilisation rate
+//	defineConstant("nt",1); 			// Number of traits to optimise
+//	defineConstant("newo",1.0);		// New optimum after trait shift
 	
 	defineConstant("ShiftTime",5*N);
-	defineConstant("MaxTime",3*ShiftTime);	
+	defineConstant("MaxTime",3*ShiftTime);
+	
+	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,".dat")));
+//	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,".dat")));
 	
 	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
 	initializeMutationType("m2", 0.5, "f", 0.0);  	 	// QTLs		
@@ -79,6 +83,14 @@ mutation(m2)
 // Code to define fitness changes due to effects of QTLs
 // Then output key statistics
 late () {
+
+	if (sim.generation % 500 == 0){
+		catn("Generation number " + sim.generation);
+	}
+	
+	if (sim.generation == ShiftTime){
+		catn("Optimum shift at generation " + sim.generation);
+	}
 	
 	if (sim.generation % 100 == 0){
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
@@ -105,11 +117,11 @@ late () {
 		}
 		
 		// Fitness scaling of QTLs based on Gaussian function with selection variance = 1
-		if(sim.generation <= ShiftTime)
+		if(sim.generation < ShiftTime)
 		{
 			ind.fitnessScaling = gaussfit(phens,QTL_io,rep(1.0,nt));
 		}
-		else if(sim.generation > ShiftTime)
+		else if(sim.generation >= ShiftTime)
 		{
 			ind.fitnessScaling = gaussfit(phens,QTL_so,rep(1.0,nt));
 		}
@@ -146,7 +158,7 @@ late () {
 //			print((abs((cumphen/N) - QTL_so)/QTL_so));
 //			catn();
 //		}	
-		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/output.dat", paste(line), append=T);
+		writeFile(fname, paste(line), append=T);
 		
 		// If fitness following optimum shift gets to within 1% of pre-shift fitness, end simulation
 		if(sim.generation > ShiftTime) 
@@ -156,10 +168,8 @@ late () {
 				catn("Population reached new optimum.");
 				sim.simulationFinished();
 			}
-		}
-		
-	}
-	
+		}	
+	}	
 }
 
 1 {
@@ -172,7 +182,7 @@ late () {
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
 	}
-	writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/output.dat", paste(line), append=F);
+	writeFile(fname, paste(line), append=F);
 	sim.rescheduleScriptBlock(s1,MaxTime,MaxTime);
 }
 
