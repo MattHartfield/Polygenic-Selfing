@@ -166,7 +166,32 @@ late () {
 		{
 		
 			if( sim.getValue('hasfixed') == 0 ){
-				if((abs(((cumfit/N) - mpfit)/mpfit) < 0.01))
+			
+				// Conditions for fixation:
+				// If fitness is within 95% of that before optimum shift
+				// And at least 50% of traits have reached optimum value (within 95% of new value)
+				
+				isfit=0;
+				isopt=0;
+				if((abs(((cumfit/N) - mpfit)/mpfit) < 0.05))
+				{
+					isfit = 1;
+				}
+				
+				noph = 0;
+				for(i in 1:nt)
+				{
+					if((abs(((cumphen[(i-1)]/N) - newo)/newo) < 0.05))
+					{
+						noph = noph + 1;
+					}
+				}
+				if(noph >= (nt/2))
+				{
+					isopt = 1;
+				}
+				
+				if( (isfit+isopt)==2 )
 				{
 					catn("Population reached new optimum at generation " + sim.generation + ".");
 					catn("Running for " + ExtraTime + "N more generations.");
