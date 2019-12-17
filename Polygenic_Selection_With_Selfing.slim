@@ -12,18 +12,19 @@ function (f)gaussfit(float z, float z0, float vs){
 
 initialize() {
 	
-	defineConstant("N",5000);			// Population size
+	defineConstant("N",1000);			// Population size
 	defineConstant("QTLf",0.05);		// Fraction of mutations that code for QTLs
 	defineConstant("mutvar",0.005);	// Mutational variance
 	
-//	defineConstant("s",0.0);			// Background mutation selection coefficient
-//	defineConstant("h",0.2);			// Background mutation dominance coefficient
-//	defineConstant("sfrate",0.0);		// Self-fertilisation rate
-//	defineConstant("nt",1); 			// Number of traits to optimise
-//	defineConstant("newo",1.0);		// New optimum after trait shift
-	
+	defineConstant("s",0.0);			// Background mutation selection coefficient
+	defineConstant("h",0.2);			// Background mutation dominance coefficient
+	defineConstant("sfrate",0.0);		// Self-fertilisation rate
+	defineConstant("nt",1); 			// Number of traits to optimise
+	defineConstant("newo",0.1);		// New optimum after trait shift
+
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",3*ShiftTime);
+	defineConstant("ExtraTime",4);	// 'ExtraTime'*N reps to be run after optimum reached
 	
 	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,".dat")));
 //	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,".dat")));
@@ -44,11 +45,11 @@ initialize() {
 	initializeRecombinationRate(rec);
 	
 	// Setting up multivariate trait matrix
-	defineConstant("QTL_mean",rep(0.0,nt));
-	defineConstant("QTL_io",rep(0.0,nt));			// Initial optimum = 0
-	defineConstant("QTL_so",rep(newo,nt));			// Shifted optimum	
-	defineConstant("QTL_V",mutvar);					// Variance in mutational effects
-	defineConstant("QTL_CV",0.0);						// Co-variance in mutational effects
+//	defineConstant("QTL_mean",rep(0.0,nt));
+//	defineConstant("QTL_io",rep(0.0,nt));			// Initial optimum = 0
+//	defineConstant("QTL_so",rep(newo,nt));			// Shifted optimum	
+//	defineConstant("QTL_V",mutvar);					// Variance in mutational effects
+//	defineConstant("QTL_CV",0.0);						// Co-variance in mutational effects
 	
 	// Setting up array to be used to define QTL covariance matrix
 	mat_ent = rep(QTL_CV,nt*nt);
@@ -142,7 +143,7 @@ late () {
 		{
 			// Fitness before optimum shift
 			defineConstant("mpfit",cumfit/N);
-			print(mpfit);
+//			print(mpfit);
 		}
 		for(i in 1:nt)
 		{
@@ -163,12 +164,30 @@ late () {
 		// If fitness following optimum shift gets to within 1% of pre-shift fitness, end simulation
 		if(sim.generation > ShiftTime) 
 		{
-			if((abs(((cumfit/N) - mpfit)/mpfit) < 0.01))
-			{
-				catn("Population reached new optimum.");
-				sim.simulationFinished();
+		
+			if( sim.getValue('hasfixed') == 0 ){
+				if((abs(((cumfit/N) - mpfit)/mpfit) < 0.01))
+				{
+					catn("Population reached new optimum at generation " + sim.generation + ".");
+					catn("Running for " + ExtraTime + "N more generations.");
+					sim.setValue('optime',sim.generation);
+					sim.setValue('hasfixed',1);
+					// Reschedule end block so extra time is sure to run
+					sim.rescheduleScriptBlock(s1,(sim.getValue('optime') + 2*ExtraTime*N),(sim.getValue('optime') + 2*ExtraTime*N));
+				}
 			}
-		}	
+			
+			if( sim.getValue('hasfixed') == 1 ){
+				if(sim.generation > (sim.getValue('optime') + ExtraTime*N)) 
+				{
+					catn("End of simulation after optimum reached.");
+					sim.simulationFinished();
+				}
+			}
+
+			
+		}
+		
 	}	
 }
 
@@ -184,6 +203,7 @@ late () {
 	}
 	writeFile(fname, paste(line), append=F);
 	sim.rescheduleScriptBlock(s1,MaxTime,MaxTime);
+	sim.setValue('hasfixed',0);
 }
 
 // To be run after 'MaxTime' generations: terminate simulation if new optimum not reached
