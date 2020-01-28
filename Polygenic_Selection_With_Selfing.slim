@@ -14,33 +14,36 @@ initialize() {
 	
 	defineConstant("N",5000);			// Population size
 	defineConstant("QTLf",0.05);		// Fraction of mutations that code for QTLs
-	defineConstant("mutvar",0.005);	// Mutational variance
-	
+
 //	defineConstant("s",0.0);			// Background mutation selection coefficient
 //	defineConstant("h",0.2);			// Background mutation dominance coefficient
 //	defineConstant("sfrate",0.0);		// Self-fertilisation rate
 //	defineConstant("nt",1); 			// Number of traits to optimise
-//	defineConstant("newo",0.1);		// New optimum after trait shift
+//	defineConstant("newo",0.5);		// New optimum after trait shift
+//	defineConstant("mvar",0.05);		// New optimum after trait shift
 
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",3*ShiftTime);
 	defineConstant("ExtraTime",4);	// 'ExtraTime'*N reps to be run after optimum reached
+	defineConstant("mutvar",mvar);		// Mutational variance
 	
-	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,".dat")));
-//	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,".dat")));
+	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,".dat")));
+//	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,".dat")));
 	
 	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
 	initializeMutationType("m2", 0.5, "f", 0.0);  	 	// QTLs		
 	m2.convertToSubstitution = F;
+	m2.mutationStackPolicy = "f";
 	m2.color="green";
 	
 	initializeGenomicElementType("g1", c(m1,m2), c(1.0-QTLf,QTLf));
 //	initializeGenomicElementType("g1", m2, 1.0);
 	initializeGenomicElement(g1, 0, 99999);
 	
-	mu = 0.028/(100000*(1.0-QTLf));
-//	mu = 1e-7;
+	mu = 0.028/(100000);
+//	mu = 2.5e-8;
 	rec = (2.5*0.01)/(1000000);
+//	rec = 0.0005;
 	initializeMutationRate(mu);
 	initializeRecombinationRate(rec);
 	
@@ -91,6 +94,7 @@ late () {
 	
 	if (sim.generation == ShiftTime){
 		catn("Optimum shift at generation " + sim.generation);
+//		sim.simulationFinished();		
 	}
 	
 	if (sim.generation % 100 == 0){
@@ -98,11 +102,16 @@ late () {
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
 		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
+		genvar = rep(0.0,nt);			// Genetic variance
+//		allphens = rep(0.0,1);			// All phenotype values
 	}
+	
+	// Calculating genetic variance
+	qtls = sim.mutationsOfType(m2);
 	
 	for (ind in sim.subpopulations.individuals)
 	{
-			
+		
 		// QTL loci
 		phens = rep(0.0,nt);
 		mQTL = ind.genomes.mutationsOfType(m2);
@@ -130,14 +139,29 @@ late () {
 		if (sim.generation % 100 == 0){
 			cumfit = cumfit + ind.fitnessScaling;
 			cumfitsq = cumfitsq + (ind.fitnessScaling)^2;
+//			allphens = c(allphens,phens[0]);
 		}
 		
 	}
 	
 	// Outputting key statistics
 	if (sim.generation % 100 == 0){
+	
+		// Histogram of phenotype values (using code from recipe 14.8)
+//		rstr = paste(c('{',
+//		'quartz(width=4, height=4, type="pdf", file="' + pdfPath + '")',
+//		'y <- c(' + paste(allphens, sep=", ") + ')',
+//		'hist(y)',
+//		'box()',
+//		'dev.off()',
+//		'}'), sep="\n");
+//		
+//		scriptPath = writeTempFile("plot_", ".R", rstr);
+//		system("/usr/local/bin/Rscript", args=scriptPath);
+	
 		qtls = sim.mutationsOfType(m2);
-		fmuts = sum(sim.mutationFrequencies(NULL, qtls) == 1.0);
+		qtlf = sim.mutationFrequencies(NULL,qtls);
+		fmuts = sum(qtlf == 1.0);
 		line = paste(c(sim.generation, cumfit/N, (cumfitsq/N) - (cumfit/N)^2, fmuts));
 		if(sim.generation == ShiftTime)
 		{
@@ -147,9 +171,16 @@ late () {
 		}
 		for(i in 1:nt)
 		{
+			// Calculating genetic variance
+			qtle = qtls.getValue(paste0(c("e",(i-1))));
+			genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
+			
+			// Printing out mean individual phenotype; variance in indv phenotype; population genetic variance
 			line = c(line,cumphen[(i-1)]/N);
 			line = c(line,(cumphensq[(i-1)]/N) - (cumphen[(i-1)]/N)^2);
+			line = c(line,genvar[(i-1)]);
 		}
+//		catn(genvar);
 
 //		if(sim.generation > ShiftTime)
 //		{
@@ -225,10 +256,17 @@ late () {
 	{
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
+		line = c(line,paste0(c("GenVar",i)));		
 	}
 	writeFile(fname, paste(line), append=F);
 	sim.rescheduleScriptBlock(s1,MaxTime,MaxTime);
 	sim.setValue('hasfixed',0);
+	
+//	defineConstant("pdfPath", writeTempFile("plot_", ".pdf", ""));
+//	
+//	// If we're running in SLiMgui, open a plot window
+//	if (exists("slimgui"))
+//		slimgui.openDocument(pdfPath);
 }
 
 // To be run after 'MaxTime' generations: terminate simulation if new optimum not reached
