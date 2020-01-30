@@ -26,7 +26,7 @@ for(N in no){
 	maxmf <- 0
 	minmf <- 1
 	maxvf <- 0
-	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/PolyselPlot_Fitness_neutral_',N,'Traits.pdf'),width=8*gr,height=8)
+	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/PolyselPlot_Fitness_neutral_',N,'T.pdf'),width=8*gr,height=8)
 	par(mfrow=c(2,1),oma = c(0, 0, 2, 0))
 	# First: read in data, determine x, y axes
 	for(S in self)
@@ -62,100 +62,77 @@ for(N in no){
 			lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$VarFitness,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 		}
 	}
-	mtext(paste0("Fitness over time, no background deleterious mutation. ",N," traits."), outer = TRUE, cex = 1.5)
+	if(N==1){
+		mtext(paste0("Fitness over time, no background deleterious mutation. 1 trait."), outer = TRUE, cex = 1.5)
+	}else{
+		mtext(paste0("Fitness over time, no background deleterious mutation. ",N," traits."), outer = TRUE, cex = 1.5)
+	}
+	
 	dev.off()
 }
 
 # Second plot: trait values over time
 # Focus on N = 1 for now, update to consider average over all traits
-traitmat <- vector(mode="list",length=length(self))
-maxmt <- 0
-minmt <- 0
-varmt <- 0
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/PolyselPlot_Traits_neutral.pdf'),width=8*gr,height=8)
-par(mfcol=c(2,1),oma = c(0, 0, 2, 0))
-for(S in self)
-{
-	incol <- parse(text=paste0("dat$MeanTrait",1))
-	incv <- parse(text=paste0("dat$GenVar",1))
-	dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",1,"_newo",z0,"_mvar",mvar,".dat"),head=T)
-	traitmat[[which(self%in%S)]] <- dat[,c("Generation","MeanTrait1","GenVar1")]
-	maxmt <- max(maxmt,max(eval(incol)))
-	minmt <- min(minmt,min(eval(incol)))	
-	varmt <- max(varmt,max(eval(incv)))
+for(N in no){
+	traitmat <- vector(mode="list",length=length(self))
+	maxmt <- 0
+	minmt <- 0
+	varmt <- 0
+	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/PolyselPlot_Traits_neutral_',N,'T.pdf'),width=8*gr,height=8)
+	par(mfcol=c(2,1),oma = c(0, 0, 2, 0))
+	for(S in self)
+	{
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z0,"_mvar",mvar,".dat"),head=T)
+		if(N == 1){
+			tf <- dat[,c("Generation","MeanTrait1","GenVar1")]
+		}else{
+			tf <- cbind(dat[,c("Generation")],rowMeans(dat[,paste0("MeanTrait",1:N)]),rowMeans(dat[,paste0("GenVar",1:N)]))
+		}
+		tf <- as.data.frame(tf)
+		colnames(tf) <- c("Generation","MeanTrait","MeanGenVar")
+		traitmat[[which(self%in%S)]] <- tf
+		maxmt <- max(maxmt,max(tf$MeanTrait))
+		minmt <- min(minmt,min(tf$MeanTrait))
+		varmt <- max(varmt,max(tf$MeanGenVar))
+	}
 	if(maxmt < z0){
 		maxmt <- z0
 	}
-}
-for(S in self)
-{
-	if(which(self%in%S) == 1){
-		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait1,type='l',xlab="Time",ylab=paste0("Mean Trait Value, Trait ",1),xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-		abline(v=tchange,lty=2)
-		abline(h=0,lty=3,lwd=1.5)
-		abline(h=z0,lty=2,lwd=1.5)
-	}else{
-		lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait1,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
+	for(S in self)
+	{
+		if(which(self%in%S) == 1){
+			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+			abline(v=tchange,lty=2)
+			abline(h=0,lty=3,lwd=1.5)
+			abline(h=z0,lty=2,lwd=1.5)
+		}else{
+			lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
+		}
 	}
-}
-
-for(S in self)
-{
-	if(which(self%in%S) == 1){
-		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$GenVar1,type='l',xlab="Time",ylab=paste0("Variance in Trait Value, Trait ",1),xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-		abline(v=tchange,lty=2)
-		abline(h=0.0056,lty=2)		# Expected HoC variance, 4*0.028*0.05	
-	}else{
-		lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$GenVar1,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
+	for(S in self)
+	{
+		if(which(self%in%S) == 1){
+			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+			abline(v=tchange,lty=2)
+			abline(h=0.0056,lty=2)		# Expected HoC variance, 4*0.028*0.05
+			legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
+		}else{
+			lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
+		}
 	}
+	if(N == 1){
+		mtext(paste0("Trait values over time, no background deleterious mutation. 1 trait."), outer = TRUE, cex = 1.5)
+	}else{
+		mtext(paste0("Trait values over time, no background deleterious mutation. ",N," traits."), outer = TRUE, cex = 1.5)
+	}
+	dev.off()
 }
-mtext(paste0("Trait values over time, no background deleterious mutation. 1 traits."), outer = TRUE, cex = 1.5)
-dev.off()
-
-# for(i in no){
-	# for(S in self){
-		# if(which(self%in%S) == 1){
-			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",no,"_newo",z0,"_mvar",mvar,".dat"),head=T)
-			# incol <- parse(text=paste0("dat$MeanTrait",i))
-			# incv <- parse(text=paste0("dat$GenVar",i))
-			# if(max(eval(incol)) < z0){
-				# maxy <- z0
-			# }else if(max(eval(incol)) >= z0){
-				# maxy <- max(eval(incol))
-			# }
-			# plot(dat$Generation,eval(incol),type='l',xlab="Time",ylab=paste0("Mean Trait Value, Trait ",i),ylim=c((min(eval(incol)) - ((maxy-min(eval(incol)))*0.04)),maxy + ((maxy-min(eval(incol)))*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-			# abline(v=tchange,lty=2)
-			# abline(h=0,lty=3,lwd=1.5)
-			# abline(h=z0,lty=2,lwd=1.5)
-		# }else{
-			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",no,"_newo",z0,"_mvar",mvar,".dat"),head=T)
-			# incol <- parse(text=paste0("dat$MeanTrait",i))
-			# lines(dat$Generation,eval(incol),col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
-		# }
-	# }
-	# for(S in self){
-		# if(which(self%in%S) == 1){
-			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",no,"_newo",z0,"_mvar",mvar,".dat"),head=T)
-			# incv <- parse(text=paste0("dat$GenVar",i))
-			# plot(dat$Generation,eval(incv),type='l',xlab="Time",ylab=paste0("Variance in Trait Value, Trait ",i),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-			# abline(v=tchange,lty=2)
-			# abline(h=0.0056,lty=2)		# Expected HoC variance, 4*0.028*0.05
-			# legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
-		# }else{
-			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",no,"_newo",z0,"_mvar",mvar,".dat"),head=T)
-			# incv <- parse(text=paste0("dat$GenVar",i))
-			# lines(dat$Generation,eval(incv),col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
-		# }
-	# }
-# }
-# mtext("Trait values over time, no background deleterious mutation.", outer = TRUE, cex = 1.5)
-# dev.off()
 
 # Third plot: number of fixed mutants
 for(N in no){
 	fixedm <- vector(mode="list",length=length(self))
 	maxfix <- 0
-	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/PolyselPlot_FixedMuts_neutral_',N,'Traits.pdf'),width=8*gr,height=8)
+	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/PolyselPlot_FixedMuts_neutral_',N,'T.pdf'),width=8*gr,height=8)
 	for(S in self)
 	{
 		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z0,"_mvar",mvar,".dat"),head=T)
@@ -164,7 +141,12 @@ for(N in no){
 	}
 	for(S in self){
 		if(which(self%in%S) == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=wes_palette(n=4, name="GrandBudapest1")[1],main=paste0("Number of Fixed Mutants, no background deleterious mutation. ",N," traits."),lwd=1.5)
+			if(N==1){
+				pt <- paste0("Number of Fixed Mutants, no background deleterious mutation. 1 trait.")
+			}else{
+				pt <- paste0("Number of Fixed Mutants, no background deleterious mutation. ",N," traits.")
+			}
+			plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=wes_palette(n=4, name="GrandBudapest1")[1],main=pt,lwd=1.5)
 			abline(v=tchange,lty=2)
 			legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
 		}else{
