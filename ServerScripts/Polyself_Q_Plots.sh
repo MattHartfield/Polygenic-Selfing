@@ -19,6 +19,6 @@
 # Running plot code
 rm -rf /data/hartfield/polyself/results/*
 rm -rf /scratch/mhartfield/polyself_out/plots/
-mkdir /scratch/mhartfield/polyself_out/plots/
+mkdir /scratch/mhartfield/polyself_out/plots/ /scratch/mhartfield/polyself_out/plots/neutral/ /scratch/mhartfield/polyself_out/plots/weakdom/ /scratch/mhartfield/polyself_out/plots/strongdom/
 Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R
-rsync -avz /scratch/mhartfield/polyself_out/plots/PolyselPlot_* /data/hartfield/polyself/results/
+rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
