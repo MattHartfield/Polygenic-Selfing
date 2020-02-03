@@ -11,6 +11,8 @@ function (f)gaussfit(float z, float z0, float vs){
 }
 
 initialize() {
+
+	setSeed(1654906411617);
 	
 	defineConstant("N",500);			// Population size
 	defineConstant("QTLf",0.1);		// Fraction of mutations that code for QTLs
@@ -183,8 +185,19 @@ late () {
 			else
 			{
 				fixeff[(i-1)] = mean(qtle[which(qtlf==1.0)]);
+				catn("Mean effect of fixed QTLs: " + fixeff[(i-1)]);				
 				proppos[(i-1)] = size(qtle[which(qtlf==1.0 & qtle>0.0)])/size(qtle[which(qtlf==1.0)]);
-				fepos[(i-1)] = mean(qtle[which(qtlf==1.0 & qtle>0.0)]);
+				catn("Proportion of +ve fixed QTLs: " + proppos[(i-1)]);
+				catn("Size +ve fixed QTLs: " + size(qtle[which(qtlf==1.0 & qtle>0.0)]));
+				if(size(qtle[which(qtlf==1.0 & qtle>0.0)]) > 0)
+				{
+					fepos[(i-1)] = mean(qtle[which(qtlf==1.0 & qtle>0.0)]);
+				}
+				else
+				{
+					fepos[(i-1)] = NAN;
+				}
+				catn("Mean effect of +ve fixed QTLs: " + fepos[(i-1)]);				
 			}
 			
 			// Printing out mean individual phenotype; variance in indv phenotype; population genetic variance
@@ -255,10 +268,8 @@ late () {
 					sim.simulationFinished();
 				}
 			}
-
-			
+				
 		}
-		
 	}	
 }
 
