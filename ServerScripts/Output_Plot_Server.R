@@ -49,23 +49,25 @@ for(i in 1:dim(sel)[1]){
 			endh1 <- paste0(N," traits.")
 		}
 
-		# First plot: mean, var in fitness		
+		# First plot: mean fitness, inbreeding depression
 		fitmat <- vector(mode="list",length=length(self))
 		maxgen <- 0
 		maxmf <- 0
 		minmf <- 1
-		maxvf <- 0
+		maxid <- 0
+		minid <- 0
 		pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,'.pdf'),width=8*gr,height=8)
 		par(mfrow=c(2,1),oma = c(0, 0, 2, 0))
 		# First: read in data, determine x, y axes
 		for(S in self)
 		{
 			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z0,"_mvar",mvar,".dat"),head=T)
-			fitmat[[which(self%in%S)]] <- dat[,c("Generation","MeanFitness","VarFitness")]
+			fitmat[[which(self%in%S)]] <- dat[,c("Generation","MeanFitness","InbreedingDepression")]
 			maxgen <- max(maxgen,max(dat$Generation))
 			maxmf <- max(maxmf,max(dat$MeanFitness))
-			minmf <- min(minmf,min(dat$MeanFitness))		
-			maxvf <- max(maxvf,max(dat$VarFitness))
+			minmf <- min(minmf,min(dat$MeanFitness))
+			maxid <- max(maxid,max(dat$InbreedingDepression))
+			minid <- min(minid,min(dat$InbreedingDepression))
 		}
 		if(maxmf < 1){
 			maxmf = 1
@@ -84,15 +86,15 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(fitmat[[1]]$Generation,fitmat[[1]]$VarFitness,type='l',xlab="Time",ylab="Variance in Fitness",xlim=c(0,maxgen),ylim=c(0,maxvf),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time",ylab="Inbreeding Depression",xlim=c(0,maxgen),ylim=c(minid,maxid),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
 				abline(v=tchange,lty=2)	
 				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
 			}else{
-				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$VarFitness,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
+				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$InbreedingDepression,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			}
 		}
 		
-		mtext(paste0("Fitness over time",midh1,endh1), outer = TRUE, cex = 1.5)
+		mtext(paste0("Fitness, inbreeding depression over time",midh1,endh1), outer = TRUE, cex = 1.5)
 		dev.off()
 	
 		# Second plot: trait values over time
