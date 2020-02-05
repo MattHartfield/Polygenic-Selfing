@@ -14,22 +14,22 @@ initialize() {
 	
 	defineConstant("N",5000);			// Population size
 	defineConstant("QTLf",0.1);		// Fraction of mutations that code for QTLs
-
+	
 	// Uncomment if running on home machine; comment out otherwise
 //	defineConstant("s",0.0);			// Background mutation selection coefficient
 //	defineConstant("h",0.2);			// Background mutation dominance coefficient
-//	defineConstant("sfrate",0.99);		// Self-fertilisation rate
-//	defineConstant("nt",5); 			// Number of traits to optimise
+//	defineConstant("sfrate",0);		// Self-fertilisation rate
+//	defineConstant("nt",1); 			// Number of traits to optimise
 //	defineConstant("newo",1.0);		// New optimum after trait shift
 //	defineConstant("mvar",0.25);		// New optimum after trait shift
 //	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,".dat")));
-
+	
 	// Uncomment if running on remote machine; comment out otherwise
 	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,".dat")));
-
+	
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",2*ShiftTime);
-	defineConstant("ExtraTime",1);	// 'ExtraTime'*N reps to be run after optimum reached
+	defineConstant("ExtraTime",1);		// 'ExtraTime'*N reps to be run after optimum reached
 	defineConstant("mutvar",mvar);		// Mutational variance
 	
 	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
@@ -39,7 +39,7 @@ initialize() {
 	m2.color="green";
 	
 	initializeGenomicElementType("g1", c(m1,m2), c(1.0-QTLf,QTLf));
-//	initializeGenomicElementType("g1", m2, 1.0);
+	//	initializeGenomicElementType("g1", m2, 1.0);
 	initializeGenomicElement(g1, 0, 99999);
 	
 	// Uncomment if using Arabidopsis-type parameters
@@ -49,7 +49,7 @@ initialize() {
 	// Uncomment if using testing values
 //	mu = 1e-6;
 //	rec = 0.0005;
-
+	
 	initializeMutationRate(mu);
 	initializeRecombinationRate(rec);
 	
@@ -90,10 +90,9 @@ mutation(m2)
 	return T;
 }
 
-// Code to define fitness changes due to effects of QTLs
-// Then output key statistics
+// Code to define fitness changes due to QTLs
 late () {
-
+	
 	if (sim.generation % 500 == 0){
 		catn("Generation number " + sim.generation);
 	}
@@ -102,21 +101,8 @@ late () {
 		catn("Optimum shift at generation " + sim.generation);
 	}
 	
-	if (sim.generation % 100 == 0){
-		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
-		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
-		cumfit = 0.0;						// Cumulative fitness (for mean)
-		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
-		genvar = rep(0.0,nt);			// Genetic variance
-		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
-		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
-		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
-	}
-	
-	// Calculating genetic variance
-	qtls = sim.mutationsOfType(m2);
-	
-	for (ind in sim.subpopulations.individuals)
+	// Obtaining phenotype values per individual (only in base population p1) 
+	for (ind in p1.individuals)
 	{
 		
 		// QTL loci
@@ -126,10 +112,6 @@ late () {
 			for(i in 1:nt)
 			{
 				phens[(i-1)] = sum(mQTL.getValue(paste0(c("e",(i-1)))));
-				if (sim.generation % 100 == 0){
-					cumphen[(i-1)] = cumphen[(i-1)] + phens[(i-1)];
-					cumphensq[(i-1)] = cumphensq[(i-1)] + (phens[(i-1)])^2;
-				}
 			}
 		}
 		
@@ -142,39 +124,48 @@ late () {
 		{
 			ind.fitnessScaling = gaussfit(phens,QTL_so,rep(1.0,nt));
 		}
-		
-		if (sim.generation % 100 == 0){
-			cumfit = cumfit + ind.fitnessScaling;
-			cumfitsq = cumfitsq + (ind.fitnessScaling)^2;
-		}
-		
+	
 	}
-	
-	// Outputting key statistics
+
+}
+
+// Outputting key statistics, only every 100 generations
+early () {
 	if (sim.generation % 100 == 0){
-	
-		// Histogram of phenotype values (using code from recipe 14.8)
-//		rstr = paste(c('{',
-//		'quartz(width=4, height=4, type="pdf", file="' + pdfPath + '")',
-//		'y <- c(' + paste(allphens, sep=", ") + ')',
-//		'hist(y)',
-//		'box()',
-//		'dev.off()',
-//		'}'), sep="\n");
-//		
-//		scriptPath = writeTempFile("plot_", ".R", rstr);
-//		system("/usr/local/bin/Rscript", args=scriptPath);
-	
-		qtls = sim.mutationsOfType(m2);
-		qtlf = sim.mutationFrequencies(NULL,qtls);
-		fmuts = sum(qtlf == 1.0);
-		line = paste(c(sim.generation, cumfit/N, (cumfitsq/N) - (cumfit/N)^2, fmuts));
-		if(sim.generation == ShiftTime)
+		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
+		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
+		cumfit = 0.0;						// Cumulative fitness (for mean)
+		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
+		genvar = rep(0.0,nt);			// Genetic variance
+		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
+		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
+		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
+		
+		// QTL loci
+		phens = rep(0.0,nt);
+		for (ind in p1.individuals)
 		{
-			// Fitness before optimum shift
-			defineConstant("mpfit",cumfit/N);
-//			print(mpfit);
+			mQTL = ind.genomes.mutationsOfType(m2);
+			if(size(mQTL) != 0){
+				for(i in 1:nt)
+				{
+					phens[(i-1)] = sum(mQTL.getValue(paste0(c("e",(i-1)))));
+					cumphen[(i-1)] = cumphen[(i-1)] + phens[(i-1)];
+					cumphensq[(i-1)] = cumphensq[(i-1)] + (phens[(i-1)])^2;
+				}
+			}			
 		}
+		
+		qtls = sim.mutationsOfType(m2);
+		qtlf = sim.mutationFrequencies(p1,qtls);
+		fmuts = sum(qtlf == 1.0);
+		line = paste(c(sim.generation, mean(p1.cachedFitness(NULL)), var(p1.cachedFitness(NULL)), fmuts));
+		
+		if (sim.generation == ShiftTime){
+			// Fitness before optimum shift
+			defineConstant("mpfit",mean(p1.cachedFitness(NULL)));
+		}
+		
 		for(i in 1:nt)
 		{
 			if(size(qtls) != 0)
@@ -216,33 +207,23 @@ late () {
 			line = c(line,genvar[(i-1)]);
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
-			line = c(line,fepos[(i-1)]);			
+			line = c(line,fepos[(i-1)]);
 		}
-//		catn(genvar);
-
-//		if(sim.generation > ShiftTime)
-//		{
-//			print(cumfit/N);
-//			print(abs(((cumfit/N) - mpfit)/mpfit));
-//			print((cumphen/N));
-//			print((abs((cumphen/N) - QTL_so)/QTL_so));
-//			catn();
-//		}	
 		writeFile(fname, paste(line), append=T);
 		
 		// If fitness following optimum shift gets to within 1% of pre-shift fitness, end simulation
-		if(sim.generation > ShiftTime) 
+		if(sim.generation > ShiftTime)
 		{
-		
-			if( sim.getValue('hasfixed') == 0 ){
 			
+			if( sim.getValue('hasfixed') == 0 ){
+				
 				// Conditions for fixation:
 				// If fitness is within 95% of that before optimum shift
 				// And at least 50% of traits have reached optimum value (within 95% of new value)
 				
 				isfit=0;
 				isopt=0;
-				if((abs(((cumfit/N) - mpfit)/mpfit) < 0.05))
+				if((abs((mean(p1.cachedFitness(NULL)) - mpfit)/mpfit) < 0.05))
 				{
 					isfit = 1;
 				}
@@ -259,7 +240,7 @@ late () {
 				{
 					isopt = 1;
 				}
-				
+							
 				if( (isfit+isopt)==2 )
 				{
 					catn("Population reached new optimum at generation " + sim.generation + ".");
@@ -272,15 +253,14 @@ late () {
 			}
 			
 			if( sim.getValue('hasfixed') == 1 ){
-				if(sim.generation > (sim.getValue('optime') + ExtraTime*N)) 
+				if(sim.generation > (sim.getValue('optime') + ExtraTime*N))
 				{
 					catn("End of simulation after optimum reached.");
 					sim.simulationFinished();
 				}
 			}
-				
 		}
-	}	
+	}
 }
 
 1 {
@@ -293,19 +273,19 @@ late () {
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
 		line = c(line,paste0(c("GenVar",i)));
-		line = c(line,paste0(c("MeanFixedQTL",i)));	
-		line = c(line,paste0(c("PropPosQTL",i)));	
-		line = c(line,paste0(c("MeanPosQTL",i)));		
+		line = c(line,paste0(c("MeanFixedQTL",i)));
+		line = c(line,paste0(c("PropPosQTL",i)));
+		line = c(line,paste0(c("MeanPosQTL",i)));
 	}
 	writeFile(fname, paste(line), append=F);
 	sim.rescheduleScriptBlock(s1,MaxTime,MaxTime);
 	sim.setValue('hasfixed',0);
 	
-//	defineConstant("pdfPath", writeTempFile("plot_", ".pdf", ""));
-//	
-//	// If we're running in SLiMgui, open a plot window
-//	if (exists("slimgui"))
-//		slimgui.openDocument(pdfPath);
+	//	defineConstant("pdfPath", writeTempFile("plot_", ".pdf", ""));
+	//	
+	//	// If we're running in SLiMgui, open a plot window
+	//	if (exists("slimgui"))
+	//		slimgui.openDocument(pdfPath);
 }
 
 // To be run after 'MaxTime' generations: terminate simulation if new optimum not reached
