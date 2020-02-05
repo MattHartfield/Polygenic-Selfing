@@ -16,8 +16,8 @@ initialize() {
 	defineConstant("QTLf",0.1);		// Fraction of mutations that code for QTLs
 	
 	// Uncomment if running on home machine; comment out otherwise
-//	defineConstant("s",0.0);			// Background mutation selection coefficient
-//	defineConstant("h",0.2);			// Background mutation dominance coefficient
+//	defineConstant("s",-0.02);			// Background mutation selection coefficient
+//	defineConstant("h",0.02);			// Background mutation dominance coefficient
 //	defineConstant("sfrate",0);		// Self-fertilisation rate
 //	defineConstant("nt",1); 			// Number of traits to optimise
 //	defineConstant("newo",1.0);		// New optimum after trait shift
@@ -71,8 +71,8 @@ initialize() {
 	print(QTL_matrix);
 }
 
-// Defining fitness of QTL mutations using MVN setup
-mutation(m2)
+// Defining fitness of QTL mutations using MVN setup (in base population)
+mutation(m2,p1)
 {
 	if(nt > 1)
 	{
@@ -90,6 +90,24 @@ mutation(m2)
 	return T;
 }
 
+// Supressing ALL mutation in p2, p3 (subpops in which inbreeding depression is measured)
+mutation(m1,p2)
+{
+	return F;
+}
+mutation(m2,p2)
+{
+	return F;
+}
+mutation(m1,p3)
+{
+	return F;
+}
+mutation(m2,p3)
+{
+	return F;
+}
+
 // Code to define fitness changes due to QTLs
 late () {
 	
@@ -102,7 +120,7 @@ late () {
 	}
 	
 	// Obtaining phenotype values per individual (only in base population p1) 
-	for (ind in p1.individuals)
+	for (ind in sim.subpopulations.individuals)
 	{
 		
 		// QTL loci
@@ -131,6 +149,16 @@ late () {
 
 // Outputting key statistics, only every 100 generations
 early () {
+
+	if (sim.generation % 100 == 99){
+		// Splitting off subpopulations, for measuring inbreeding depression
+		sim.addSubpopSplit("p2",500,p1);
+		sim.addSubpopSplit("p3",500,p1);
+		p2.setSelfingRate(0.0);
+		p3.setSelfingRate(1.0);
+//		slimgui.pauseExecution();
+	}
+
 	if (sim.generation % 100 == 0){
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
@@ -160,6 +188,13 @@ early () {
 		qtlf = sim.mutationFrequencies(p1,qtls);
 		fmuts = sum(qtlf == 1.0);
 		line = paste(c(sim.generation, mean(p1.cachedFitness(NULL)), var(p1.cachedFitness(NULL)), fmuts));
+		
+		// Measuring inbreeding depression, deleting subpopulations
+		id = 1.0 - (mean(p3.cachedFitness(NULL))/mean(p2.cachedFitness(NULL)));
+		catn(id);
+		line = c(line,id);
+		p2.setSubpopulationSize(0);
+		p3.setSubpopulationSize(0);
 		
 		if (sim.generation == ShiftTime){
 			// Fitness before optimum shift
@@ -208,7 +243,9 @@ early () {
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
 			line = c(line,fepos[(i-1)]);
-		}
+		}	
+		
+		// Outputting statistics
 		writeFile(fname, paste(line), append=T);
 		
 		// If fitness following optimum shift gets to within 1% of pre-shift fitness, end simulation
@@ -261,13 +298,14 @@ early () {
 			}
 		}
 	}
+		
 }
 
 1 {
-	// Set up subpop size and printouts
+	// Set up population size and printouts
 	sim.addSubpop("p1", N);
 	p1.setSelfingRate(sfrate);
-	line = c("Generation", "MeanFitness", "VarFitness", "FixedMuts");
+	line = c("Generation", "MeanFitness", "VarFitness", "FixedMuts","InbreedingDepression");
 	for(i in 1:nt)
 	{
 		line = c(line,paste0(c("MeanTrait",i)));
@@ -280,12 +318,6 @@ early () {
 	writeFile(fname, paste(line), append=F);
 	sim.rescheduleScriptBlock(s1,MaxTime,MaxTime);
 	sim.setValue('hasfixed',0);
-	
-	//	defineConstant("pdfPath", writeTempFile("plot_", ".pdf", ""));
-	//	
-	//	// If we're running in SLiMgui, open a plot window
-	//	if (exists("slimgui"))
-	//		slimgui.openDocument(pdfPath);
 }
 
 // To be run after 'MaxTime' generations: terminate simulation if new optimum not reached
