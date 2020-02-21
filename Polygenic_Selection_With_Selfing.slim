@@ -18,7 +18,7 @@ initialize() {
 	// Uncomment if running on home machine; comment out otherwise
 //	defineConstant("s",-0.02);				// Background mutation selection coefficient
 //	defineConstant("h",0.02);				// Background mutation dominance coefficient
-//	defineConstant("sfrate",0);			// Self-fertilisation rate
+//	defineConstant("sfrate",0.99);		// Self-fertilisation rate
 //	defineConstant("nt",1); 				// Number of traits to optimise
 //	defineConstant("newo",1.0);			// New optimum after trait shift
 //	defineConstant("mvar",0.25);			// New optimum after trait shift
@@ -34,6 +34,7 @@ initialize() {
 	
 	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
 	initializeMutationType("m2", 0.5, "f", 0.0);  	 	// QTLs		
+	m1.mutationStackPolicy = "f";	
 	m2.convertToSubstitution = F;
 	m2.mutationStackPolicy = "f";
 	m2.color="green";
@@ -144,6 +145,22 @@ late () {
 		}
 	
 	}
+	
+	// Printing out VCF, for subsequent calculation of haplotype statistics
+	if (sim.generation == (ShiftTime-1)){
+//		p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_BeforeShift.vcf");
+		p1.outputVCFSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.vcf")));
+	}
+	
+	if (sim.generation == (ShiftTime + N - 1)){
+//		p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_AfterShift.vcf");
+		p1.outputVCFSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_aftershift.vcf")));
+	}
+	
+	if (sim.generation == (sim.getValue('optime') + ExtraTime*N + 99)){
+//		p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_SimEnd.vcf");
+		p1.outputVCFSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.vcf")));
+	}
 
 }
 
@@ -156,7 +173,6 @@ early () {
 		sim.addSubpopSplit("p3",500,p1);
 		p2.setSelfingRate(0.0);
 		p3.setSelfingRate(1.0);
-//		slimgui.pauseExecution();
 	}
 
 	if (sim.generation % 100 == 0){
@@ -242,7 +258,7 @@ early () {
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
 			line = c(line,fepos[(i-1)]);
-		}	
+		}
 		
 		// Outputting statistics
 		writeFile(fname, paste(line), append=T);
@@ -317,6 +333,7 @@ early () {
 	writeFile(fname, paste(line), append=F);
 	sim.rescheduleScriptBlock(s1,MaxTime,MaxTime);
 	sim.setValue('hasfixed',0);
+	sim.setValue('optime',MaxTime);
 }
 
 // To be run after 'MaxTime' generations: terminate simulation if new optimum not reached
