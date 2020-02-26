@@ -11,7 +11,7 @@ library(wesanderson)
 
 tchange <- 25000	# Time at which optimum changes
 gr <- (1+sqrt(5))/2 # Scaling ratio for plot outputs
-z0 <- 1
+z0 <- 1.0
 mvar <- 0.25
 self <- c(0,0.5,0.9,0.999)
 no <- c(1,5)
