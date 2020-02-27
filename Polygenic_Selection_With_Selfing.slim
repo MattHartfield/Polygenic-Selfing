@@ -146,20 +146,20 @@ late () {
 	
 	}
 	
-	// Printing out VCF, for subsequent calculation of haplotype statistics
+	// Printing out ms stats of 100 haplotypes, for subsequent calculation of haplotype statistics
 	if (sim.generation == (ShiftTime-1)){
-//		p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_BeforeShift.vcf");
-		p1.outputVCFSample(200,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.vcf")));
+//		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_BeforeShift.ms");
+		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.ms")));
 	}
 	
 	if (sim.generation == (ShiftTime + N - 1)){
-//		p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_AfterShift.vcf");
-		p1.outputVCFSample(200,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_aftershift.vcf")));
+//		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/VCFout_test_AfterShift.ms");
+		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_aftershift.ms")));
 	}
 	
 	if (sim.generation == (sim.getValue('optime') + ExtraTime*N + 99)){
-//		p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_SimEnd.vcf");
-		p1.outputVCFSample(200,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.vcf")));
+//		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_SimEnd.ms");
+		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.ms")));
 	}
 
 }
@@ -340,8 +340,8 @@ early () {
 s1 10 late() {
 	catn("Population failed to reach new optimum.");
 	// Print off haplotype sample at sim end
-//	p1.outputVCFSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_SimEnd.vcf");
-	p1.outputVCFSample(200,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/vcf/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.vcf")));
+//	p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_SimEnd.ms");
+	p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.ms")));
 	sim.simulationFinished();
 }
 

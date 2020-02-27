@@ -11,7 +11,7 @@
 #$ -N Polysel_Self_Sims
 #$ -cwd
 #$ -t 1-24 		# Run command for each line of parameter file
-#$ -l h=c2 		# Run array job on this sub-server
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -28,7 +28,7 @@ then
 	rm -rf /scratch/mhartfield/polyself_out/
 	mkdir /scratch/mhartfield/polyself_out/
 	mkdir /scratch/mhartfield/polyself_out/data/
-	mkdir /scratch/mhartfield/polyself_out/vcf/
+	mkdir /scratch/mhartfield/polyself_out/ms/
 else
 	sleep 10
 fi

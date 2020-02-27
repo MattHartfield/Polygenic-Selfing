@@ -12,6 +12,10 @@ rsync -avz mhartfield@qmaster:/data/hartfield/polyself/results/* /Users/hartfiel
 # Processing haplotype plots
 rm -r HapInfo
 mkdir HapInfo
+mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerPlots/haps/neutral
+mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerPlots/haps/strongdom
+mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerPlots/haps/weakdom
+
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
 NL=$(($NP/8))
 RE=$(($NP%8))
