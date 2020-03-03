@@ -16,9 +16,9 @@ initialize() {
 	defineConstant("QTLf",0.1);			// Fraction of mutations that code for QTLs
 	
 	// Uncomment if running on home machine; comment out otherwise
-//	defineConstant("s",-0.02);				// Background mutation selection coefficient
+//	defineConstant("s",0.0);				// Background mutation selection coefficient
 //	defineConstant("h",0.02);				// Background mutation dominance coefficient
-//	defineConstant("sfrate",0.99);		// Self-fertilisation rate
+//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
 //	defineConstant("nt",1); 				// Number of traits to optimise
 //	defineConstant("newo",1.0);			// New optimum after trait shift
 //	defineConstant("mvar",0.25);			// New optimum after trait shift
@@ -72,7 +72,30 @@ initialize() {
 	print(QTL_matrix);
 }
 
-// Defining fitness of QTL mutations using MVN setup (in base population)
+// Calculating fitness contributed by QTLs
+fitness(NULL)
+{
+	phens = rep(0.0,nt);
+	mQTL = individual.genomes.mutationsOfType(m2);
+	if(size(mQTL) != 0){
+		for(i in 1:nt)
+		{
+			phens[(i-1)] = sum(mQTL.getValue(paste0(c("e",(i-1)))));
+		}
+	}
+		
+	// Fitness scaling of QTLs based on Gaussian function with selection variance = 1
+	if(sim.generation < ShiftTime)
+	{
+		return gaussfit(phens,QTL_io,rep(1.0,nt));
+	}
+	else if(sim.generation >= ShiftTime)
+	{
+		return gaussfit(phens,QTL_so,rep(1.0,nt));
+	}
+}
+
+// Defining selection coefficient of QTL mutations using MVN setup (in base population)
 mutation(m2,p1)
 {
 	if(nt > 1)
@@ -120,39 +143,13 @@ late () {
 		catn("Optimum shift at generation " + sim.generation);
 	}
 	
-	// Obtaining phenotype values per individual (only in base population p1) 
-	for (ind in sim.subpopulations.individuals)
-	{
-		
-		// QTL loci
-		phens = rep(0.0,nt);
-		mQTL = ind.genomes.mutationsOfType(m2);
-		if(size(mQTL) != 0){
-			for(i in 1:nt)
-			{
-				phens[(i-1)] = sum(mQTL.getValue(paste0(c("e",(i-1)))));
-			}
-		}
-		
-		// Fitness scaling of QTLs based on Gaussian function with selection variance = 1
-		if(sim.generation < ShiftTime)
-		{
-			ind.fitnessScaling = gaussfit(phens,QTL_io,rep(1.0,nt));
-		}
-		else if(sim.generation >= ShiftTime)
-		{
-			ind.fitnessScaling = gaussfit(phens,QTL_so,rep(1.0,nt));
-		}
-	
-	}
-	
 	// Printing out ms stats of 100 haplotypes, for subsequent calculation of haplotype statistics
 	if (sim.generation == (ShiftTime-1)){
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_BeforeShift.ms");
 		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.ms")));
 	}
 	
-	if (sim.generation == (ShiftTime + N - 1)){
+	if (sim.generation == (ShiftTime + N)){
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/VCFout_test_AfterShift.ms");
 		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_aftershift.ms")));
 	}
@@ -164,10 +161,10 @@ late () {
 
 }
 
-// Outputting key statistics, only every 100 generations
+// Outputting key statistics every 100 generations
 early () {
 
-	if (sim.generation % 100 == 99){
+	if (sim.generation % 100 == 0){
 		// Splitting off subpopulations, for measuring inbreeding depression
 		sim.addSubpopSplit("p2",500,p1);
 		sim.addSubpopSplit("p3",500,p1);
@@ -175,7 +172,7 @@ early () {
 		p3.setSelfingRate(1.0);
 	}
 
-	if (sim.generation % 100 == 0){
+	if (sim.generation % 100 == 1 & sim.generation != 1){
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
@@ -211,9 +208,10 @@ early () {
 		p2.setSubpopulationSize(0);
 		p3.setSubpopulationSize(0);
 		
-		if (sim.generation == ShiftTime){
+		if (sim.generation == ShiftTime-99){
 			// Fitness before optimum shift
 			defineConstant("mpfit",mean(p1.cachedFitness(NULL)));
+			catn("mpfit is " + mpfit);
 		}
 		
 		for(i in 1:nt)

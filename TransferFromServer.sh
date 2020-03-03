@@ -33,10 +33,10 @@ echo "Running batch ${i}"
 wait
 done
 
-for((j = 0; j < RE; ++j))
-do
 echo "Running batch ${NL}"
-./HapsProcess.sh $((8*${NL} + ${j})) &
+for((j = 1; j <= RE; ++j))
+do
+./HapsProcess.sh $((8*${NL} + ${j})) &> HapInfo/HapInfo$((8*${NL} + ${j})).out &
 done
 wait
 

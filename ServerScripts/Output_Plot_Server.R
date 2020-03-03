@@ -14,7 +14,8 @@ gr <- (1+sqrt(5))/2 # Scaling ratio for plot outputs
 z0 <- 1.0
 mvar <- 0.25
 self <- c(0,0.5,0.9,0.999)
-no <- c(1,5)
+#no <- c(1,5,25)
+no <- c(1)
 sel <- matrix(data=NA,nrow=3,ncol=2)
 sel[1,] <- c(0,0.02)
 sel[2,] <- c(-0.02,0.02)
