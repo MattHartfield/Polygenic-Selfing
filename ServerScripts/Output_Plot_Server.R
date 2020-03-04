@@ -14,12 +14,12 @@ gr <- (1+sqrt(5))/2 # Scaling ratio for plot outputs
 z0 <- 1.0
 mvar <- 0.25
 self <- c(0,0.5,0.9,0.999)
-#no <- c(1,5,25)
-no <- c(1)
+no <- c(1,5,25)
 sel <- matrix(data=NA,nrow=3,ncol=2)
 sel[1,] <- c(0,0.02)
 sel[2,] <- c(-0.02,0.02)
 sel[3,] <- c(-0.02,0.2)
+HoCV <- 4*0.028*0.1		# Expected House Of Cards Variance
 
 for(i in 1:dim(sel)[1]){
 	
@@ -78,18 +78,18 @@ for(i in 1:dim(sel)[1]){
 		{	
 			if(which(self%in%S) == 1){
 				plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time",ylab="Mean Fitness",xlim=c(0,maxgen),ylim=c(minmf,maxmf),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				abline(v=tchange,lty=2)	
+				abline(v=tchange,lty=2)
+				legend("bottomleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
 			}else{
 				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$MeanFitness,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			}
 		}
-		# Third: plot variance in fitness	
+		# Third: plot inbreeding depression
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
 				plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time",ylab="Inbreeding Depression",xlim=c(0,maxgen),ylim=c(minid,maxid),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				abline(v=tchange,lty=2)	
-				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
+				abline(v=tchange,lty=2)
 			}else{
 				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$InbreedingDepression,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			}
@@ -139,7 +139,7 @@ for(i in 1:dim(sel)[1]){
 			if(which(self%in%S) == 1){
 				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
 				abline(v=tchange,lty=2)
-				abline(h=0.0056,lty=2)		# Expected HoC variance, 4*0.028*0.05
+				abline(h=HoCV,lty=2)		# Expected HoC variance
 				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
 			}else{
 				lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
@@ -219,7 +219,7 @@ for(i in 1:dim(sel)[1]){
 			}
 		}
 		
-		mtext(paste0("Number of fixed mutants",midh1,endh1), outer = TRUE, cex = 1.5, line=2)
+		mtext(paste0("Number of fixed mutants",midh1,endh1), outer = TRUE, cex = 1.5)
 		dev.off()
 	}
 }

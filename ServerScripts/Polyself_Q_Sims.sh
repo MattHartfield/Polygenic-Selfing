@@ -10,8 +10,8 @@
 # Grid Engine options (lines prefixed with #$)
 #$ -N Polysel_Self_Sims
 #$ -cwd
-#$ -t 1-12 		# Run command for each line of parameter file
-#$ -l h=c3 		# Run array job on this sub-server
+#$ -t 1-36 		# Run command for each line of parameter file
+#$ -l h=c2 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
