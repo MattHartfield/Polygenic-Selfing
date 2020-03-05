@@ -39,7 +39,7 @@ then
 else
 	sleep 10
 fi
-/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_beforeshift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSBS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred"
-/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_aftershift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSAS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred"
-/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_simend.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSE_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred"
+/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_beforeshift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSBS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred" -T
+/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_aftershift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSAS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred" -T
+/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_simend.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSE_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred" -T
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
