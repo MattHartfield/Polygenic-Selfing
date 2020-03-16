@@ -14,6 +14,7 @@ initialize() {
 	
 	defineConstant("N",5000);				// Population size
 	defineConstant("QTLf",0.1);			// Fraction of mutations that code for QTLs
+	defineConstant("genl",30000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
 //	defineConstant("s",0.0);				// Background mutation selection coefficient
@@ -41,11 +42,11 @@ initialize() {
 	
 	initializeGenomicElementType("g1", c(m1,m2), c(1.0-QTLf,QTLf));
 	//	initializeGenomicElementType("g1", m2, 1.0);
-	initializeGenomicElement(g1, 0, 99999);
+	initializeGenomicElement(g1, 0, genl-1);
 	
 	// Uncomment if using Arabidopsis-type parameters
-	mu = 0.028/(100000);
-	rec = (2.5*0.01)/(1000000);
+	mu = 1e-9;
+	rec = ((3.6*0.01)/(1000000-1));
 	
 	// Uncomment if using testing values
 //	mu = 1e-6;
@@ -147,18 +148,26 @@ late () {
 	if (sim.generation == (ShiftTime-1)){
 	
 		// Obtaining distribution of trait values from all indvs, see if normally distributed
-		phens = rep(0.0,N);
-		ct = 0;
-		for(ind in p1.individuals)
-		{
-			mQTL = ind.genomes.mutationsOfType(m2);
-			if(size(mQTL) != 0){
-				phens[ct] = sum(mQTL.getValue("e0"));
-			}
-			ct = ct + 1;
-		}
-//		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/PhenOut.dat",paste(phens));
-		writeFile(paste0(c("/scratch/mhartfield/polyself_out/phendat/phendat_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.dat")),paste(phens));
+		m2mut = sim.mutationsOfType(m2);
+		m2f = sim.mutationFrequencies(p1,m2mut);
+		m2mut = m2mut[which(m2f >= 0.05)];
+		m2f = sim.mutationFrequencies(p1,m2mut);
+		m2mut = m2mut[which(m2f <= 0.95)];
+		slimgui.pauseExecution();
+		
+//		phens = rep(0.0,N);
+//		ct = 0;
+
+//		for(ind in p1.individuals)
+//		{
+//			mQTL = ind.genomes.mutationsOfType(m2);
+//			if(size(mQTL) != 0){
+//				phens[ct] = sum(mQTL.getValue("e0"));
+//			}
+//			ct = ct + 1;
+//		}
+//		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/PhenOut.dat",paste(m2mut.getValue("e0")));
+		writeFile(paste0(c("/scratch/mhartfield/polyself_out/phendat/phendat_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.dat")),paste(m2mut.getValue("e0")));
 	
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_BeforeShift.ms");
 		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.ms")));
