@@ -11,15 +11,15 @@ library(wesanderson)
 
 tchange <- 25000	# Time at which optimum changes
 gr <- (1+sqrt(5))/2 # Scaling ratio for plot outputs
-z0 <- 1.0
-mvar <- 0.25
+z1 <- 1.0
+msd <- 0.25
 self <- c(0,0.5,0.9,0.999)
 no <- c(1,5,25)
 sel <- matrix(data=NA,nrow=3,ncol=2)
 sel[1,] <- c(0,0.02)
 sel[2,] <- c(-0.02,0.02)
 sel[3,] <- c(-0.02,0.2)
-HoCV <- 4*0.028*0.1		# Expected House Of Cards Variance
+HoCV <- 4*3e7*1e-9*0.1		# Expected House Of Cards Variance
 
 for(i in 1:dim(sel)[1]){
 	
@@ -62,7 +62,7 @@ for(i in 1:dim(sel)[1]){
 		# First: read in data, determine x, y axes
 		for(S in self)
 		{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z0,"_mvar",mvar,".dat"),head=T)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,".dat"),head=T)
 			fitmat[[which(self%in%S)]] <- dat[,c("Generation","MeanFitness","InbreedingDepression")]
 			maxgen <- max(maxgen,max(dat$Generation))
 			maxmf <- max(maxmf,max(dat$MeanFitness))
@@ -79,8 +79,8 @@ for(i in 1:dim(sel)[1]){
 			if(which(self%in%S) == 1){
 				plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time",ylab="Mean Fitness",xlim=c(0,maxgen),ylim=c(minmf,maxmf),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
 				abline(v=tchange,lty=2)
-				legend("bottomleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
-			}else{
+z1				legend("bottomleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
+		z1	}else{
 				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$MeanFitness,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			}
 		}
@@ -107,7 +107,7 @@ for(i in 1:dim(sel)[1]){
 		par(mfcol=c(2,1),oma = c(0, 0, 2, 0))
 		for(S in self)
 		{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z0,"_mvar",mvar,".dat"),head=T)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,".dat"),head=T)
 			if(N == 1){
 				tf <- dat[,c("Generation","MeanTrait1","GenVar1")]
 			}else{
@@ -120,8 +120,8 @@ for(i in 1:dim(sel)[1]){
 			minmt <- min(minmt,min(tf$MeanTrait))
 			varmt <- max(varmt,max(tf$MeanGenVar))
 		}
-		if(maxmt < z0){
-			maxmt <- z0
+		if(maxmt < z1){
+			maxmt <- z1
 		}
 		for(S in self)
 		{
@@ -129,7 +129,7 @@ for(i in 1:dim(sel)[1]){
 				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
 				abline(v=tchange,lty=2)
 				abline(h=0,lty=3,lwd=1.5)
-				abline(h=z0,lty=2,lwd=1.5)
+				abline(h=z1,lty=2,lwd=1.5)
 			}else{
 				lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			}
@@ -160,7 +160,7 @@ for(i in 1:dim(sel)[1]){
 		par(mfrow=c(2,2),oma = c(0, 0, 2, 0))
 		for(S in self)
 		{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z0,"_mvar",mvar,".dat"),head=T)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,".dat"),head=T)
 			if(N == 1){
 				tf2 <- dat[,c("Generation","FixedMuts","MeanFixedQTL1","PropPosQTL1","MeanPosQTL1")]
 			}else{

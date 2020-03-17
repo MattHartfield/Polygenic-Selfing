@@ -24,7 +24,7 @@ then
 	NEWOP=$(printf "%.0f" $NEWOP)
 fi
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $5}')
-MVAR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $6}')
+MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $6}')
 
 # Producing haplotype plots for each timepoint
 if [ "$SGE_TASK_ID" -eq "$SGE_TASK_FIRST" ]
@@ -39,7 +39,7 @@ then
 else
 	sleep 10
 fi
-/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_beforeshift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSBS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred" -T
-/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_aftershift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSAS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred" -T
-/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR}_simend.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSE_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_mvar${MVAR} -c 0.02 -C "darkred" -T
+/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_MSD${MSD}_beforeshift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSBS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_MSD${MSD} -c 0.02 -C "darkred" -T
+/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_MSD${MSD}_aftershift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSAS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_MSD${MSD} -c 0.02 -C "darkred" -T
+/data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_MSD${MSD}_simend.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSE_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_MSD${MSD} -c 0.02 -C "darkred" -T
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

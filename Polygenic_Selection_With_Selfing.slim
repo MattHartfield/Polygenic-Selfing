@@ -11,6 +11,11 @@ function (f)gaussfit(float z, float z0, float vs){
 }
 
 initialize() {
+
+	// Set seed
+	theseed = rdunif(1,0,asInteger(2^62)-1);
+	catn("New random seed is " + theseed);
+	setSeed(theseed);
 	
 	defineConstant("N",5000);				// Population size
 	defineConstant("QTLf",0.1);			// Fraction of mutations that code for QTLs
@@ -22,16 +27,17 @@ initialize() {
 //	defineConstant("sfrate",0.0);			// Self-fertilisation rate
 //	defineConstant("nt",1); 				// Number of traits to optimise
 //	defineConstant("newo",1.0);			// New optimum after trait shift
-//	defineConstant("mvar",0.25);			// Variance in trait values
-//	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,".dat")));
+//	defineConstant("msd",0.25);			// Standard Deviation in trait values
+//	defineConstant("rep",1);				// Which replicate is running
+//	defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,".dat")));
 	
 	// Uncomment if running on remote machine; comment out otherwise
-	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,".dat")));
+	defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,".dat")));
 	
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",3*ShiftTime);
-	defineConstant("ExtraTime",4);		// 'ExtraTime'*N reps to be run after optimum reached
-	defineConstant("mutvar",mvar);		// Mutational variance
+	defineConstant("ExtraTime",4);				// 'ExtraTime'*N reps to be run after optimum reached
+	defineConstant("mutvar",msd*msd);			// Mutational variance in covariance matrix (= sd^2)
 	
 	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
 	initializeMutationType("m2", 0.5, "f", 0.0);  	 	// QTLs		
@@ -109,7 +115,7 @@ mutation(m2,p1)
 	}
 	else if (nt == 1)
 	{
-		effects = rnorm(1,QTL_mean,QTL_V);
+		effects = rnorm(1,QTL_mean,sqrt(QTL_V));	// note sqrt, as rnorm uses sd of effects
 		mut.setValue( "e0" , effects);
 	}
 	return T;
@@ -147,39 +153,22 @@ late () {
 	// Printing out ms stats of 100 haplotypes, for subsequent calculation of haplotype statistics
 	if (sim.generation == (ShiftTime-1)){
 	
-		// Obtaining distribution of trait values from all indvs, see if normally distributed
-//		m2mut = sim.mutationsOfType(m2);
-//		m2f = sim.mutationFrequencies(p1,m2mut);
-//		m2mut = m2mut[which(m2f >= 0.001)];
-//		m2f = sim.mutationFrequencies(p1,m2mut);
-//		m2mut = m2mut[which(m2f <= 0.995)];
-		
-//		phens = rep(0.0,N);
-//		ct = 0;
-
-//		for(ind in p1.individuals)
-//		{
-//			mQTL = ind.genomes.mutationsOfType(m2);
-//			if(size(mQTL) != 0){
-//				phens[ct] = sum(mQTL.getValue("e0"));
-//			}
-//			ct = ct + 1;
-//		}
-//		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/PhenOut.dat",paste(sim.mutationsOfType(m2).getValue("e0")));
-		writeFile(paste0(c("/scratch/mhartfield/polyself_out/phendat/phendat_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.dat")),paste(sim.mutationsOfType(m2).getValue("e0")));
+		// Uncomment to obtain distribution of trait values from all individials for trait 0
+//		//		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/PhenOut.dat",paste(sim.mutationsOfType(m2).getValue("e0")));
+		writeFile(paste0(c("/scratch/mhartfield/polyself_out/phendat/phendat_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_beforeshift.dat")),paste(sim.mutationsOfType(m2).getValue("e0")));
 	
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_BeforeShift.ms");
-		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_beforeshift.ms")));
+		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_beforeshift.ms")));
 	}
 	
 	if (sim.generation == (ShiftTime + N)){
-//		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/VCFout_test_AfterShift.ms");
-		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_aftershift.ms")));
+//		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_AfterShift.ms");
+		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_aftershift.ms")));
 	}
 	
 	if (sim.generation == (sim.getValue('optime') + ExtraTime*N + 99)){
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_SimEnd.ms");
-		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.ms")));
+		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_simend.ms")));
 	}
 
 }
@@ -362,7 +351,7 @@ s1 10 late() {
 	catn("Population failed to reach new optimum.");
 	// Print off haplotype sample at sim end
 //	p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_SimEnd.ms");
-	p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_mvar",mvar,"_simend.ms")));
+	p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_simend.ms")));
 	sim.simulationFinished();
 }
 
