@@ -157,129 +157,207 @@ for(i in 1:dim(sel)[1]){
 		mtext(paste0("Fitness, inbreeding depression over time",midh1,endh1), outer = TRUE, cex = 1.5)
 		dev.off()
 	
-		# # Second plot: trait values over time
-		# traitmat <- vector(mode="list",length=length(self))
-		# maxmt <- 0
-		# minmt <- 0
-		# varmt <- 0
-		# pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,'.pdf'),width=8*gr,height=8)
-		# par(mfcol=c(2,1),oma = c(0, 0, 2, 0))
-		# for(S in self)
-		# {
-			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,".dat"),head=T)
+		# Second plot: trait values over time
+		traitmat <- vector(mode="list",length=length(self))
+		maxmt <- 0
+		minmt <- 0
+		varmt <- 0
+		pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,'.pdf'),width=8*gr,height=8)
+		par(mfcol=c(2,1),oma = c(0, 0, 2, 0))
+		for(S in self)
+		{
+			genl <- vector(mode="list",length=reps)
+			mtl <- vector(mode="list",length=reps)
+			mgvl <- vector(mode="list",length=reps)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+			mtl[[1]] <- t(as.matrix(dat[,c("MeanTrait1")]))
+			mgvl[[1]] <- t(as.matrix(dat[,c("GenVar1")]))
+			for(j in 2:reps)
+			{
+				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+				mtl[[j]] <- t(as.matrix(dat[,c("MeanTrait1")]))
+				mgvl[[j]] <- t(as.matrix(dat[,c("GenVar1")]))
+			}
+			mt <- apply(rbind.fill.matrix(mtl),2, mnona)
+			mgv <- apply(rbind.fill.matrix(mgvl),2, mnona)
+			mtci <- bslist(mtl,1000)
+			mgvci <- bslist(mgvl,1000)
+			ng2 <- dim(rbind(mt,mtci,mgv,mgvci))[2]
+			for(j in 1:reps)
+			{
+				if(length(genl[[j]]) == ng2)
+				{
+					break
+				}
+			}
+			thisdat <- as.data.frame(t(rbind(genl[[j]],mt,mtci,mgv,mgvci)))
+			colnames(thisdat) <- c("Generation","MeanTrait","MTLowCI","MTHighCI","MeanGenVar","MGVLowCI","MGVHighCI")
+			traitmat[[which(self%in%S)]] <- thisdat
+			maxmt <- max(maxmt,max(thisdat$MTHighCI))
+			minmt <- min(minmt,min(thisdat$MTLowCI))
+			varmt <- max(varmt,max(thisdat$MGVHighCI))
+
+			# Update N > 1 case when run sims with >1 trait
 			# if(N == 1){
 				# tf <- dat[,c("Generation","MeanTrait1","GenVar1")]
-			# }else{
+			# }
+			# else{
 				# tf <- cbind(dat[,c("Generation")],rowMeans(dat[,paste0("MeanTrait",1:N)]),rowMeans(dat[,paste0("GenVar",1:N)]))
 			# }
-			# tf <- as.data.frame(tf)
-			# colnames(tf) <- c("Generation","MeanTrait","MeanGenVar")
-			# traitmat[[which(self%in%S)]] <- tf
-			# maxmt <- max(maxmt,max(tf$MeanTrait))
-			# minmt <- min(minmt,min(tf$MeanTrait))
-			# varmt <- max(varmt,max(tf$MeanGenVar))
-		# }
-		# if(maxmt < z1){
-			# maxmt <- z1
-		# }
-		# for(S in self)
-		# {
-			# if(which(self%in%S) == 1){
-				# plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				# abline(v=tchange,lty=2)
-				# abline(h=0,lty=3,lwd=1.5)
-				# abline(h=z1,lty=2,lwd=1.5)
-			# }else{
+			
+		}
+		if(maxmt < z1){
+			maxmt <- z1
+		}
+		for(S in self)
+		{
+			if(which(self%in%S) == 1){
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MTLowCI,rev(traitmat[[1]]$MTHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				abline(v=tchange,lty=2)
+				abline(h=0,lty=3,lwd=1.5)
+				abline(h=z1,lty=2,lwd=1.5)
+			}
+			# else{
 				# lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			# }
-		# }
-		# for(S in self)
-		# {
-			# if(which(self%in%S) == 1){
-				# plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				# abline(v=tchange,lty=2)
-				# abline(h=HoCV,lty=2)		# Expected HoC variance
+		}
+		for(S in self)
+		{
+			if(which(self%in%S) == 1){
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				abline(v=tchange,lty=2)
+				abline(h=HoCV,lty=2)		# Expected HoC variance
 				# legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
-			# }else{
+			}
+			# else{
 				# lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
 			# }
-		# }
+		}
 
-		# mtext(paste0("Trait values over time",midh1,endh1), outer = TRUE, cex = 1.5)
-		# dev.off()
+		mtext(paste0("Trait values over time",midh1,endh1), outer = TRUE, cex = 1.5)
+		dev.off()
 	
-		# # Third plot: number of fixed mutants
-		# fixedm <- vector(mode="list",length=length(self))
-		# maxfix <- 0
-		# maxmQ <- 0
-		# minmQ <- 0
-		# maxpQ <- 0
-		# maxpmQ <- 0
-		# pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,'.pdf'),width=8*gr,height=8)
-		# par(mfrow=c(2,2),oma = c(0, 0, 2, 0))
-		# for(S in self)
-		# {
-			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,".dat"),head=T)
+		# Third plot: number of fixed mutants
+		fixedm <- vector(mode="list",length=length(self))
+		maxfix <- 0
+		maxmQ <- 0
+		minmQ <- 0
+		maxpQ <- 0
+		maxpmQ <- 0
+		pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,'.pdf'),width=8*gr,height=8)
+		par(mfrow=c(2,2),oma = c(0, 0, 2, 0))
+		for(S in self)
+		{
+			genl <- vector(mode="list",length=reps)
+			fixml <- vector(mode="list",length=reps)
+			mfql <- vector(mode="list",length=reps)
+			ppql <- vector(mode="list",length=reps)
+			mpql <- vector(mode="list",length=reps)						
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+			fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
+			mfql[[1]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
+			ppql[[1]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
+			mpql[[1]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
+			for(j in 2:reps)
+			{
+				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+				fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
+				mfql[[j]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
+				ppql[[j]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
+				mpql[[j]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
+			}
+			fixm <- apply(rbind.fill.matrix(fixml),2, mnona)
+			mfq <- apply(rbind.fill.matrix(mfql),2, mnona)
+			ppq <- apply(rbind.fill.matrix(ppql),2, mnona)
+			mpq <- apply(rbind.fill.matrix(mpql),2, mnona)
+			fixmci <- bslist(fixml,1000)
+			mfqci <- bslist(mfql,1000)
+			ppqci <- bslist(ppql,1000)
+			mpqci <- bslist(mpql,1000)
+			ng3 <- dim(rbind(fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci))[2]
+			for(j in 1:reps)
+			{
+				if(length(genl[[j]]) == ng3)
+				{
+					break
+				}
+			}
+			thisdat <- as.data.frame(t(rbind(genl[[j]],fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci)))
+			colnames(thisdat) <- c("Generation","FixedMuts","FMLowCI","FMHighCI","MeanFixedQTL","MFQLowCI","MFQHighCI","MeanPropPos","MPPLowCI","MPPHighCI","MeanPosQTL","MPQLowCI","MPQHighCI")
+			fixedm[[which(self%in%S)]] <- thisdat
+			maxfix <- max(maxfix,max(thisdat$FMHighCI))
+			if(sum(!is.na(thisdat$MeanFixedQTL)) != 0){
+				maxmQ <- max(maxmQ,max(thisdat$MFQHighCI,na.rm=T))
+				minmQ <- min(minmQ,min(thisdat$MFQLowCI,na.rm=T))				
+			}
+			if(sum(!is.na(thisdat$MeanPropPos)) != 0){
+				maxpQ <- max(maxpQ,max(thisdat$MPPHighCI,na.rm=T))
+			}
+			if(sum(!is.na(thisdat$MeanPosQTL)) != 0){			
+				maxpmQ <- max(maxpmQ,max(thisdat$MPQHighCI,na.rm=T))
+			}
+			
+			# Update N>1 case later
 			# if(N == 1){
 				# tf2 <- dat[,c("Generation","FixedMuts","MeanFixedQTL1","PropPosQTL1","MeanPosQTL1")]
 			# }else{
 				# tf2 <- cbind(dat[,c("Generation","FixedMuts")],rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T),rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T),rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T))
-			# }
-			# tf2 <- as.data.frame(tf2)
-			# colnames(tf2) <- c("Generation","FixedMuts","MeanFixedQTL","MeanPropPos","MeanPosQTL")
-			# fixedm[[which(self%in%S)]] <- tf2
-			# maxfix <- max(maxfix,max(tf2$FixedMuts))
-			# if(sum(!is.na(tf2$MeanFixedQTL)) != 0){
-				# maxmQ <- max(maxmQ,max(tf2$MeanFixedQTL,na.rm=T))
-				# minmQ <- min(minmQ,min(tf2$MeanFixedQTL,na.rm=T))				
-			# }
-			# if(sum(!is.na(tf2$MeanPropPos)) != 0){
-				# maxpQ <- max(maxpQ,max(tf2$MeanPropPos,na.rm=T))
-			# }
-			# if(sum(!is.na(tf2$MeanPosQTL)) != 0){			
-				# maxpmQ <- max(maxpmQ,max(tf2$MeanPosQTL,na.rm=T))
-			# }
-		# }
-		# # Panel 1: Number of fixed QTLs
-		# for(S in self){
-			# if(which(self%in%S) == 1){
-				# plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				# abline(v=tchange,lty=2)
+			# }			
+		}
+		# Panel 1: Number of fixed QTLs
+		for(S in self){
+			if(which(self%in%S) == 1){
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				abline(v=tchange,lty=2)
 				# legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
-			# }else{
+			}
+			# else{
 				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$FixedMuts,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
 			# }
-		# }
-		# # Panel 2: Mean effect of fixed QTLs
-		# for(S in self){
-			# if(which(self%in%S) == 1){
-				# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time",ylab="Mean effect of fixed QTL",xlim=c(0,maxgen),ylim=c(minmQ, maxmQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				# abline(v=tchange,lty=2)
-			# }else{
+		}
+		# Panel 2: Mean effect of fixed QTLs
+		for(S in self){
+			if(which(self%in%S) == 1){
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time",ylab="Mean effect of fixed QTL",xlim=c(0,maxgen),ylim=c(minmQ, maxmQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				abline(v=tchange,lty=2)
+			}
+			# else{
 				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanFixedQTL,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
 			# }
-		# }
-		# # Panel 3: Proportion of fixed QTLs with positive effects
-		# for(S in self){
-			# if(which(self%in%S) == 1){
-				# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time",ylab="Mean proportion of positive-effect QTLs",xlim=c(0,maxgen),ylim=c(0, maxpQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				# abline(v=tchange,lty=2)
-			# }else{
+		}
+		# Panel 3: Proportion of fixed QTLs with positive effects
+		for(S in self){
+			if(which(self%in%S) == 1){
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time",ylab="Mean proportion of positive-effect QTLs",xlim=c(0,maxgen),ylim=c(0, maxpQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				abline(v=tchange,lty=2)
+			}
+			# else{
 				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPropPos,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
 			# }
-		# }
-		# # Panel 4: Proportion of fixed QTLs with positive effects
-		# for(S in self){
-			# if(which(self%in%S) == 1){
-				# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time",ylab="Mean effect of positive fixed QTLs",xlim=c(0,maxgen),ylim=c(0, maxpmQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				# abline(v=tchange,lty=2)
-			# }else{
+		}
+		# Panel 4: Proportion of fixed QTLs with positive effects
+		for(S in self){
+			if(which(self%in%S) == 1){
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time",ylab="Mean effect of positive fixed QTLs",xlim=c(0,maxgen),ylim=c(0, maxpmQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				abline(v=tchange,lty=2)
+			}
+			# else{
 				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPosQTL,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
 			# }
-		# }
+		}
 		
-		# mtext(paste0("Number of fixed mutants",midh1,endh1), outer = TRUE, cex = 1.5)
-		# dev.off()
+		mtext(paste0("Number of fixed mutants",midh1,endh1), outer = TRUE, cex = 1.5)
+		dev.off()
 	}
 }
 

@@ -151,7 +151,8 @@ late () {
 	}
 	
 	// Printing out ms stats of 100 haplotypes, for subsequent calculation of haplotype statistics
-	if (sim.generation == (ShiftTime-1)){
+	// (Only for first rep for now)
+	if ( (sim.generation == (ShiftTime-1)) & (rep==1) ){
 	
 		// Uncomment to obtain distribution of trait values from all individials for trait 0
 //		//		writeFile("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/PhenOut.dat",paste(sim.mutationsOfType(m2).getValue("e0")));
