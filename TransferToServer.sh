@@ -8,12 +8,12 @@
 rm ServerScripts/PolyselParametersBig.txt
 touch ServerScripts/PolyselParametersBig.txt
 NL=$(wc -l < ServerScripts/PolyselParameters.txt)
-NREPS=20
+NREPS=10
 for (( j=1; j <= NL; ++j ))
 	do
 	for (( i=1; i <= NREPS; ++i ))
 	do
-		awk -v ln=${j} -v rep=${i} 'NR==1{print $0 " " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
+		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
 	done
 done
 

@@ -17,8 +17,7 @@ tchange <- 25000	# Time at which optimum changes
 gr <- (1+sqrt(5))/2 # Scaling ratio for plot outputs
 z1 <- 1.0
 msd <- 0.25
-#self <- c(0,0.5,0.9,0.999)
-self <- 0
+self <- c(0,0.5,0.9,0.999)
 #no <- c(1,5,25)
 no <- 1
 # sel <- matrix(data=NA,nrow=3,ncol=2)
@@ -27,7 +26,8 @@ no <- 1
 # sel[3,] <- c(-0.02,0.2)
 sel <- as.matrix(t(c(0,0.02)))
 HoCV <- 4*3e7*1e-9*0.1		# Expected House Of Cards Variance
-reps <- 20
+reps <- 10
+pcol <- wes_palette("Zissou1")[2:5]
 
 # Functions for calculating mean, 95% CI
 mnona <- function(x){
@@ -132,26 +132,28 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{	
 			if(which(self%in%S) == 1){
-				plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time",ylab="Mean Fitness",xlim=c(0,maxgen),ylim=c(minmf,maxmf),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time",ylab="Mean Fitness",xlim=c(0,maxgen),ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5)
 				abline(v=tchange,lty=2)
-				polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MFLowCI,rev(fitmat[[1]]$MFHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
-				# legend("bottomleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
+				polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MFLowCI,rev(fitmat[[1]]$MFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
+				legend("bottomleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
 			}
-			# else{
-				# lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$MeanFitness,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
-			# }
+			else{
+				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$MeanFitness,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(fitmat[[which(self%in%S)]]$Generation,rev(fitmat[[which(self%in%S)]]$Generation)),c(fitmat[[which(self%in%S)]]$MFLowCI,rev(fitmat[[which(self%in%S)]]$MFHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 		# Third: plot inbreeding depression
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time",ylab="Inbreeding Depression",xlim=c(0,maxgen),ylim=c(minid,maxid),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
+				plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time",ylab="Inbreeding Depression",xlim=c(0,maxgen),ylim=c(minid,maxid),col=pcol[1],lwd=1.5)
 				abline(v=tchange,lty=2)
-				polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$IDLowCI,rev(fitmat[[1]]$IDHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$IDLowCI,rev(fitmat[[1]]$IDHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			}
-			# else{
-				# lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$InbreedingDepression,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
-			# }
+			else{
+				lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$InbreedingDepression,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(fitmat[[which(self%in%S)]]$Generation,rev(fitmat[[which(self%in%S)]]$Generation)),c(fitmat[[which(self%in%S)]]$IDLowCI,rev(fitmat[[which(self%in%S)]]$IDHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 		
 		mtext(paste0("Fitness, inbreeding depression over time",midh1,endh1), outer = TRUE, cex = 1.5)
@@ -214,28 +216,30 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MTLowCI,rev(traitmat[[1]]$MTHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5)
+				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MTLowCI,rev(traitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=tchange,lty=2)
 				abline(h=0,lty=3,lwd=1.5)
 				abline(h=z1,lty=2,lwd=1.5)
 			}
-			# else{
-				# lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
-			# }
+			else{
+				lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MTLowCI,rev(traitmat[[which(self%in%S)]]$MTHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)	
+			}
 		}
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5)
+				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=tchange,lty=2)
 				abline(h=HoCV,lty=2)		# Expected HoC variance
-				# legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
+				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
 			}
-			# else{
-				# lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)	
-			# }
+			else{
+				lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MGVLowCI,rev(traitmat[[which(self%in%S)]]$MGVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 
 		mtext(paste0("Trait values over time",midh1,endh1), outer = TRUE, cex = 1.5)
@@ -313,47 +317,51 @@ for(i in 1:dim(sel)[1]){
 		# Panel 1: Number of fixed QTLs
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=pcol[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=tchange,lty=2)
-				# legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=wes_palette(n=4, name="GrandBudapest1"),lty=1,cex=1,lwd=1.5)
+				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
 			}
-			# else{
-				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$FixedMuts,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
-			# }
+			else{
+				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$FixedMuts,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$FMLowCI,rev(fixedm[[which(self%in%S)]]$FMHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 		# Panel 2: Mean effect of fixed QTLs
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time",ylab="Mean effect of fixed QTL",xlim=c(0,maxgen),ylim=c(minmQ, maxmQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time",ylab="Mean effect of fixed QTL",xlim=c(0,maxgen),ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=tchange,lty=2)
 			}
-			# else{
-				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanFixedQTL,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
-			# }
+			else{
+				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanFixedQTL,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$MFQLowCI,rev(fixedm[[which(self%in%S)]]$MFQHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 		# Panel 3: Proportion of fixed QTLs with positive effects
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time",ylab="Mean proportion of positive-effect QTLs",xlim=c(0,maxgen),ylim=c(0, maxpQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time",ylab="Mean proportion of positive-effect QTLs",xlim=c(0,maxgen),ylim=c(0, maxpQ),col=pcol[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=tchange,lty=2)
 			}
-			# else{
-				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPropPos,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
-			# }
+			else{
+				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPropPos,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$MPPLowCI,rev(fixedm[[which(self%in%S)]]$MPPHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 		# Panel 4: Proportion of fixed QTLs with positive effects
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time",ylab="Mean effect of positive fixed QTLs",xlim=c(0,maxgen),ylim=c(0, maxpmQ),col=wes_palette(n=4, name="GrandBudapest1")[1],lwd=1.5)
-				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(wes_palette(n=4, name="GrandBudapest1")[1], alpha.f=0.35),border=F)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time",ylab="Mean effect of positive fixed QTLs",xlim=c(0,maxgen),ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5)
+				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=tchange,lty=2)
 			}
-			# else{
-				# lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPosQTL,col=wes_palette(n=4, name="GrandBudapest1")[which(self%in%S)],lwd=1.5)
-			# }
+			else{
+				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPosQTL,col=pcol[which(self%in%S)],lwd=1.5)
+				polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$MPQLowCI,rev(fixedm[[which(self%in%S)]]$MPQHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			}
 		}
 		
 		mtext(paste0("Number of fixed mutants",midh1,endh1), outer = TRUE, cex = 1.5)
