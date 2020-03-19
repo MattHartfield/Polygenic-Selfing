@@ -36,7 +36,7 @@ initialize() {
 	
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",3*ShiftTime);
-	defineConstant("ExtraTime",4);				// 'ExtraTime'*N reps to be run after optimum reached
+	defineConstant("ExtraTime",1);				// 'ExtraTime'*N reps to be run after optimum reached
 	defineConstant("mutvar",msd*msd);			// Mutational variance in covariance matrix (= sd^2)
 	
 	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
@@ -162,12 +162,13 @@ late () {
 		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_beforeshift.ms")));
 	}
 	
-	if (sim.generation == (ShiftTime + N)){
+//	if (sim.generation == (ShiftTime + N)){
+	if ( (sim.generation == (ShiftTime + 500)) & (rep==1) ){
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_AfterShift.ms");
 		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_aftershift.ms")));
 	}
 	
-	if (sim.generation == (sim.getValue('optime') + ExtraTime*N + 99)){
+	if ( (sim.generation == (sim.getValue('optime') + ExtraTime*N + 99)) & (rep==1) ){
 //		p1.outputMSSample(100,replace=F,filePath="/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/MSout/MSout_test_SimEnd.ms");
 		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_simend.ms")));
 	}
@@ -177,7 +178,7 @@ late () {
 // Outputting key statistics every 100 generations
 early () {
 
-	if (sim.generation % 100 == 0){
+	if (sim.generation % 100 == 0 & sim.generation >= 4*N){
 		// Splitting off subpopulations, for measuring inbreeding depression
 		sim.addSubpopSplit("p2",500,p1);
 		sim.addSubpopSplit("p3",500,p1);
@@ -185,7 +186,7 @@ early () {
 		p3.setSelfingRate(1.0);
 	}
 
-	if (sim.generation % 100 == 1 & sim.generation != 1){
+	if (sim.generation % 100 == 1 & sim.generation >= 4*N){
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
