@@ -13,6 +13,7 @@
 library(wesanderson)
 library(plyr)
 
+tmin <- 20000		# Time from which outputs are recorded
 tchange <- 25000	# Time at which optimum changes
 gr <- (1+sqrt(5))/2 # Scaling ratio for plot outputs
 z1 <- 1.0
@@ -93,13 +94,13 @@ for(i in 1:dim(sel)[1]){
 			mfl <- vector(mode="list",length=reps)
 			idl <- vector(mode="list",length=reps)
 			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
-			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			mfl[[1]] <- t(as.matrix(dat[,c("MeanFitness")]))
 			idl[[1]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 			for(j in 2:reps)
 			{
 				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
-				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 				mfl[[j]] <- t(as.matrix(dat[,c("MeanFitness")]))
 				idl[[j]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 			}
@@ -132,8 +133,8 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{	
 			if(which(self%in%S) == 1){
-				plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time",ylab="Mean Fitness",xlim=c(0,maxgen),ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5)
-				abline(v=tchange,lty=2)
+				plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time since optimum shift",ylab="Mean Fitness",xlim=c(tmin-tchange,maxgen),ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5)
+				abline(v=0,lty=2)
 				polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MFLowCI,rev(fitmat[[1]]$MFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				legend("bottomleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
 			}
@@ -146,8 +147,8 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time",ylab="Inbreeding Depression",xlim=c(0,maxgen),ylim=c(minid,maxid),col=pcol[1],lwd=1.5)
-				abline(v=tchange,lty=2)
+				plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time since optimum shift",ylab="Inbreeding Depression",xlim=c(tmin-tchange,maxgen),ylim=c(minid,maxid),col=pcol[1],lwd=1.5)
+				abline(v=0,lty=2)
 				polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$IDLowCI,rev(fitmat[[1]]$IDHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			}
 			else{
@@ -172,13 +173,13 @@ for(i in 1:dim(sel)[1]){
 			mtl <- vector(mode="list",length=reps)
 			mgvl <- vector(mode="list",length=reps)
 			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
-			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			mtl[[1]] <- t(as.matrix(dat[,c("MeanTrait1")]))
 			mgvl[[1]] <- t(as.matrix(dat[,c("GenVar1")]))
 			for(j in 2:reps)
 			{
 				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
-				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 				mtl[[j]] <- t(as.matrix(dat[,c("MeanTrait1")]))
 				mgvl[[j]] <- t(as.matrix(dat[,c("GenVar1")]))
 			}
@@ -216,9 +217,9 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time",ylab="Mean Trait Value",xlim=c(0,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5)
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=c(tmin-tchange,maxgen),ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5)
 				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MTLowCI,rev(traitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-				abline(v=tchange,lty=2)
+				abline(v=0,lty=2)
 				abline(h=0,lty=3,lwd=1.5)
 				abline(h=z1,lty=2,lwd=1.5)
 			}
@@ -230,9 +231,9 @@ for(i in 1:dim(sel)[1]){
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time",ylab="Mean Genetic Variance Per Trait",xlim=c(0,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5)
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance Per Trait",xlim=c(tmin-tchange,maxgen),ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5)
 				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-				abline(v=tchange,lty=2)
+				abline(v=0,lty=2)
 				abline(h=HoCV,lty=2)		# Expected HoC variance
 				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
 			}
@@ -262,7 +263,7 @@ for(i in 1:dim(sel)[1]){
 			ppql <- vector(mode="list",length=reps)
 			mpql <- vector(mode="list",length=reps)						
 			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
-			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
 			mfql[[1]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
 			ppql[[1]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
@@ -270,7 +271,7 @@ for(i in 1:dim(sel)[1]){
 			for(j in 2:reps)
 			{
 				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
-				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 				fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
 				mfql[[j]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
 				ppql[[j]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
@@ -317,9 +318,9 @@ for(i in 1:dim(sel)[1]){
 		# Panel 1: Number of fixed QTLs
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time",ylab="Fixed Mutations",xlim=c(0,maxgen),ylim=c(0, maxfix),col=pcol[1],lwd=1.5)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=c(tmin-tchange,maxgen),ylim=c(0, maxfix),col=pcol[1],lwd=1.5)
 				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-				abline(v=tchange,lty=2)
+				abline(v=0,lty=2)
 				legend("topleft",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
 			}
 			else{
@@ -330,9 +331,9 @@ for(i in 1:dim(sel)[1]){
 		# Panel 2: Mean effect of fixed QTLs
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time",ylab="Mean effect of fixed QTL",xlim=c(0,maxgen),ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=c(tmin-tchange,maxgen),ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5)
 				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-				abline(v=tchange,lty=2)
+				abline(v=0,lty=2)
 			}
 			else{
 				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanFixedQTL,col=pcol[which(self%in%S)],lwd=1.5)
@@ -342,9 +343,9 @@ for(i in 1:dim(sel)[1]){
 		# Panel 3: Proportion of fixed QTLs with positive effects
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time",ylab="Mean proportion of positive-effect QTLs",xlim=c(0,maxgen),ylim=c(0, maxpQ),col=pcol[1],lwd=1.5)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of positive-effect QTLs",xlim=c(tmin-tchange,maxgen),ylim=c(0, maxpQ),col=pcol[1],lwd=1.5)
 				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-				abline(v=tchange,lty=2)
+				abline(v=0,lty=2)
 			}
 			else{
 				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPropPos,col=pcol[which(self%in%S)],lwd=1.5)
@@ -354,9 +355,9 @@ for(i in 1:dim(sel)[1]){
 		# Panel 4: Proportion of fixed QTLs with positive effects
 		for(S in self){
 			if(which(self%in%S) == 1){
-				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time",ylab="Mean effect of positive fixed QTLs",xlim=c(0,maxgen),ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5)
+				plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=c(tmin-tchange,maxgen),ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5)
 				polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-				abline(v=tchange,lty=2)
+				abline(v=0,lty=2)
 			}
 			else{
 				lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPosQTL,col=pcol[which(self%in%S)],lwd=1.5)
