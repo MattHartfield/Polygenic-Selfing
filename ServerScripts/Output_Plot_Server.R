@@ -20,12 +20,13 @@ z1 <- 1.0
 msd <- 0.25
 self <- c(0,0.5,0.9,0.999)
 #no <- c(1,5,25)
-no <- 1
-sel <- matrix(data=NA,nrow=3,ncol=2)
-sel[1,] <- c(0,0.02)
-sel[2,] <- c(-0.02,0.02)
-sel[3,] <- c(-0.02,0.2)
-#sel <- as.matrix(t(c(0,0.02)))
+no <- c(1,5)
+#no <- 1
+# sel <- matrix(data=NA,nrow=3,ncol=2)
+# sel[1,] <- c(0,0.02)
+# sel[2,] <- c(-0.02,0.02)
+# sel[3,] <- c(-0.02,0.2)
+sel <- as.matrix(t(c(0,0.02)))
 HoCV <- 4*3e7*1e-9*0.1		# Expected House Of Cards Variance
 reps <- 10
 pcol <- wes_palette("Zissou1")[2:5]
@@ -174,14 +175,30 @@ for(i in 1:dim(sel)[1]){
 			mgvl <- vector(mode="list",length=reps)
 			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
 			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
-			mtl[[1]] <- t(as.matrix(dat[,c("MeanTrait1")]))
-			mgvl[[1]] <- t(as.matrix(dat[,c("GenVar1")]))
+			if(N==1)
+			{
+				mtl[[1]] <- t(as.matrix(dat[,c("MeanTrait1")]))
+				mgvl[[1]] <- t(as.matrix(dat[,c("GenVar1")]))
+			}
+			else
+			{
+				mtl[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanTrait",1:N)])))
+				mgvl[[1]] <- t(as.matrix(rowMeans(dat[,paste0("GenVar",1:N)])))
+			}		
 			for(j in 2:reps)
 			{
 				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
 				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
-				mtl[[j]] <- t(as.matrix(dat[,c("MeanTrait1")]))
-				mgvl[[j]] <- t(as.matrix(dat[,c("GenVar1")]))
+				if(N==1)
+				{
+					mtl[[j]] <- t(as.matrix(dat[,c("MeanTrait1")]))
+					mgvl[[j]] <- t(as.matrix(dat[,c("GenVar1")]))
+				}
+				else
+				{
+					mtl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanTrait",1:N)])))
+					mgvl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("GenVar",1:N)])))
+				}
 			}
 			mt <- apply(rbind.fill.matrix(mtl),2, mnona)
 			mgv <- apply(rbind.fill.matrix(mgvl),2, mnona)
@@ -201,14 +218,6 @@ for(i in 1:dim(sel)[1]){
 			maxmt <- max(maxmt,max(thisdat$MTHighCI))
 			minmt <- min(minmt,min(thisdat$MTLowCI))
 			varmt <- max(varmt,max(thisdat$MGVHighCI))
-
-			# Update N > 1 case when run sims with >1 trait
-			# if(N == 1){
-				# tf <- dat[,c("Generation","MeanTrait1","GenVar1")]
-			# }
-			# else{
-				# tf <- cbind(dat[,c("Generation")],rowMeans(dat[,paste0("MeanTrait",1:N)]),rowMeans(dat[,paste0("GenVar",1:N)]))
-			# }
 			
 		}
 		if(maxmt < z1){
@@ -265,17 +274,35 @@ for(i in 1:dim(sel)[1]){
 			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",1,".dat"),head=T)
 			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
-			mfql[[1]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
-			ppql[[1]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
-			mpql[[1]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
+			if(N==1)
+			{
+				mfql[[1]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
+				ppql[[1]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
+				mpql[[1]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))				
+			}
+			else
+			{
+				mfql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T)))
+				ppql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T)))
+				mpql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T)))
+			}
 			for(j in 2:reps)
 			{
 				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_rep",j,".dat"),head=T)
 				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 				fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
-				mfql[[j]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
-				ppql[[j]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
-				mpql[[j]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
+				if(N == 1)
+				{
+					mfql[[j]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
+					ppql[[j]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
+					mpql[[j]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
+				}
+				else
+				{
+					mfql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T)))
+					ppql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T)))
+					mpql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T)))
+				}
 			}
 			fixm <- apply(rbind.fill.matrix(fixml),2, mnona)
 			mfq <- apply(rbind.fill.matrix(mfql),2, mnona)
@@ -307,13 +334,7 @@ for(i in 1:dim(sel)[1]){
 			if(sum(!is.na(thisdat$MeanPosQTL)) != 0){			
 				maxpmQ <- max(maxpmQ,max(thisdat$MPQHighCI,na.rm=T))
 			}
-			
-			# Update N>1 case later
-			# if(N == 1){
-				# tf2 <- dat[,c("Generation","FixedMuts","MeanFixedQTL1","PropPosQTL1","MeanPosQTL1")]
-			# }else{
-				# tf2 <- cbind(dat[,c("Generation","FixedMuts")],rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T),rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T),rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T))
-			# }			
+					
 		}
 		# Panel 1: Number of fixed QTLs
 		for(S in self){
