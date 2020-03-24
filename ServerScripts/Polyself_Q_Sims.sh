@@ -24,14 +24,14 @@ MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersB
 REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
 
 # Running simulations, parameters in 'PolyselParametersBig.txt'
-if [ "$SGE_TASK_ID" -eq "$SGE_TASK_FIRST" ]
-then
-	rm -rf /scratch/mhartfield/polyself_out/
-	mkdir /scratch/mhartfield/polyself_out/
-	mkdir /scratch/mhartfield/polyself_out/data/
-	mkdir /scratch/mhartfield/polyself_out/ms/
-	mkdir /scratch/mhartfield/polyself_out/phendat/
-else
-	sleep 10
-fi
+# if [ "$SGE_TASK_ID" -eq "$SGE_TASK_FIRST" ]
+# then
+# 	rm -rf /scratch/mhartfield/polyself_out/
+# 	mkdir /scratch/mhartfield/polyself_out/
+# 	mkdir /scratch/mhartfield/polyself_out/data/
+# 	mkdir /scratch/mhartfield/polyself_out/ms/
+# 	mkdir /scratch/mhartfield/polyself_out/phendat/
+# else
+# 	sleep 10
+# fi
 /ceph/software/slim/slim_v3.3/SLiM/slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d newo=$NEWOP -d nt=$NTR -d msd=$MSD -d rep=$REP /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
