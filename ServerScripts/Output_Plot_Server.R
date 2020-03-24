@@ -24,11 +24,11 @@ self <- c(0,0.5,0.9,0.999)
 #no <- c(1,5,25)
 no <- c(1,5)
 #no <- 1
-# sel <- matrix(data=NA,nrow=3,ncol=2)
-# sel[1,] <- c(0,0.02)
-# sel[2,] <- c(-0.02,0.02)
-# sel[3,] <- c(-0.02,0.2)
-sel <- as.matrix(t(c(0,0.02)))
+sel <- matrix(data=NA,nrow=3,ncol=2)
+sel[1,] <- c(0,0.02)
+sel[2,] <- c(-0.02,0.02)
+sel[3,] <- c(-0.02,0.2)
+#sel <- as.matrix(t(c(0,0.02)))
 HoCV <- 4*3e7*1e-9*0.1		# Expected House Of Cards Variance
 reps <- 10
 pcol <- wes_palette("Zissou1")[2:5]
