@@ -5,8 +5,9 @@
 # 17th Mar 2020
 # Creating replicate sims from base 'PolyselParameters' file
 
-rm ServerScripts/PolyselParametersBig.txt
+rm ServerScripts/PolyselParametersBig.txt ServerScripts/PolyselParametersPlots.txt
 touch ServerScripts/PolyselParametersBig.txt
+touch ServerScripts/PolyselParametersPlots.txt
 NL=$(wc -l < ServerScripts/PolyselParameters.txt)
 NREPS=10
 for (( j=1; j <= NL; ++j ))
@@ -15,6 +16,10 @@ for (( j=1; j <= NL; ++j ))
 	do
 		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
 	done
+	if [ $(($j % 4)) -eq 1 ]
+	then
+		sed -n ${j}p ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersPlots.txt
+	fi
 done
 
 rsync -avz /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/Polygenic_Selection_With_Selfing.slim /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerScripts/* mhartfield@qmaster:/data/hartfield/polyself/scripts/

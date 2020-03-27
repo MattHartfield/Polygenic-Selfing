@@ -12,14 +12,34 @@
 #$ -N Polysel_Self_Plots
 #$ -V
 #$ -cwd
+#$ -t 1-9		# Run command for each line of parameter file
 #$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
+SEL=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $1}')
+DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $2}')
+NEWOP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $4}')
+NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $5}')
+MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $6}')
+
 # Running plot code
-rm -rf /data/hartfield/polyself/results/*
-rm -rf /scratch/mhartfield/polyself_out/plots/
-mkdir /scratch/mhartfield/polyself_out/plots/ /scratch/mhartfield/polyself_out/plots/neutral/ /scratch/mhartfield/polyself_out/plots/weakdom/ /scratch/mhartfield/polyself_out/plots/strongdom/
-sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*
-Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R
+if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
+then
+	echo "Deleting old plot files" >&1
+	fds='neutral weakdom strongdom'
+	rm -rf /data/hartfield/polyself/results/*
+	rm -rf /scratch/mhartfield/polyself_out/plots/
+	mkdir /scratch/mhartfield/polyself_out/plots/ 
+	for fd in $fds
+	do
+		mkdir /scratch/mhartfield/polyself_out/plots/$fd/
+	done
+	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*
+else
+	echo "Pausing for 10 seconds" >&1
+	sleep 10
+fi
+
+Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R ${SEL} ${DOM} ${NEWOP} ${NTR} ${MSD}
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

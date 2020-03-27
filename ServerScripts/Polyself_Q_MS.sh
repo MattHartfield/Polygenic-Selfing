@@ -10,7 +10,7 @@
 #$ -N Polysel_Self_MS
 #$ -V
 #$ -cwd
-#$ -t 1-48 		# Run command for each line of parameter file
+#$ -t 1-36 		# Run command for each line of parameter file
 #$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
@@ -19,16 +19,19 @@ SEL=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.
 DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $2}')
 SELF=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $3}')
 NEWOP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $4}')
-# if [ $NEWOP = "1.0" ]
-# then
-NEWOP=$(printf "%.0f" $NEWOP)
-# fi
+if [ $NEWOP = "1.0" ]
+then
+	NEWOP=$(printf "%.0f" $NEWOP)
+fi
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $5}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $6}')
 
 # Producing haplotype plots for each timepoint
-if [ "$SGE_TASK_ID" -eq "$SGE_TASK_FIRST" ]
+if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
+	echo "Deleting old haplotype files" >&1
+	rm -rf /scratch/mhartfield/polyself_out/ms_bck/
+	cp -r /scratch/mhartfield/polyself_out/ms/ /scratch/mhartfield/polyself_out/ms_bck/
 	rm -rf /scratch/mhartfield/polyself_out/plots/haps/
 	mkdir /scratch/mhartfield/polyself_out/plots/haps/
 	# Adding dummy header file to SLiM ms outputs, so they can be parsed by haplostrips
@@ -37,6 +40,7 @@ then
 		sed -i '1 i\ms 100 1 -t 10\n10000 2000 30000\n' $file
 	done
 else
+	echo "Pausing for 10 seconds" >&1
 	sleep 10
 fi
 /data/hartfield/polyself/scripts/haplostrips/haplostrips -s /scratch/mhartfield/polyself_out/ms/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_rep1_beforeshift.ms -o /scratch/mhartfield/polyself_out/plots/haps/HSBS_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD} -c 0.02 -C "darkred" -T
