@@ -3,7 +3,7 @@
 # 4th December 2019
 # Modification of Gertjan Bisschop's script for running array job on server
 # SLiM code of polygenic selection model
-# Need to first run 'source activate r_env'
+# Need to first run 'source activate polysel-env'
 
 # 27th Jan 2020
 # Only plots results, does not execute sims
@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-12		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -l h=c2 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
