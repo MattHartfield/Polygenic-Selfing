@@ -32,7 +32,7 @@ then
 	rm -rf /scratch/mhartfield/polyself_out/
 	mkdir /scratch/mhartfield/polyself_out/
 	mkdir /scratch/mhartfield/polyself_out/data/
-	mkdir /scratch/mhartfield/polyself_out/vcf/
+	mkdir /scratch/mhartfield/polyself_out/haps/
 	mkdir /scratch/mhartfield/polyself_out/phendat/
 else
 	echo "Pausing for 10 seconds" >&1

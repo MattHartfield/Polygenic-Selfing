@@ -30,8 +30,6 @@ MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
 	echo "Deleting old haplotype files" >&1
-	rm -rf /scratch/mhartfield/polyself_out/haps_bck/
-	cp -r /scratch/mhartfield/polyself_out/haps/ /scratch/mhartfield/polyself_out/haps_bck/
 	rm -rf /scratch/mhartfield/polyself_out/plots/haps/
 	mkdir /scratch/mhartfield/polyself_out/plots/haps/
 # 	Adding dummy header file to SLiM ms outputs, so they can be parsed by haplostrips
@@ -47,10 +45,10 @@ fi
 for fname in beforeshift 20gens 150gens
 do
 	/data/hartfield/polyself/scripts/haplostrips/haplostrips -v /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf -i 1:1-30000000 -P /data/hartfield/polyself/scripts/Popinfo.poptable -o /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD} -c 0.02 -C "darkred" -T
-	touch /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.count 
-	for i in {1..50}
+	touch /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
+	for i in $(seq 1 50)
 	do
-		awk '/^##/ {next} {$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf | tail -n +2 | awk 'NR==FNR{A[$1]; next} {if($1 in A) {$1 = ""; print $0}}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.pos - | awk -v b=$i '{print $b}' - | awk -F "|" '{SUM+=$1+$2}END{print SUM}' >> /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.count
+		awk '/^##/ {next} {$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf | tail -n +2 | awk 'NR==FNR{A[$1]; next} {if($1 in A) {$1 = ""; print $0}}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.pos - | awk -v b=$i '{print $b}' - | awk -F "|" '{SUM+=$1+$2}END{print SUM}' >> /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
 	done
 done
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
