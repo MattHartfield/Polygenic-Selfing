@@ -25,7 +25,7 @@ initialize() {
 //	defineConstant("s",0.0);				// Background mutation selection coefficient
 //	defineConstant("h",0.02);				// Background mutation dominance coefficient
 //	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-//	defineConstant("nt",1); 				// Number of traits to optimise
+//	defineConstant("nt",5); 				// Number of traits to optimise
 //	defineConstant("newo",1.0);			// New optimum after trait shift
 //	defineConstant("msd",0.25);			// Standard Deviation in trait values
 //	defineConstant("rep",1);				// Which replicate is running
@@ -121,7 +121,7 @@ mutation(m2,p1)
 	}
 	else if (nt == 1)
 	{
-		effects = rnorm(1,QTL_mean,sqrt(QTL_V));	// note sqrt, as rnorm uses sd of effects
+		effects = rnorm(1,QTL_mean,msd);		// note rnorm uses sd of effects
 		mut.setValue( "e0" , effects);
 	}
 	return T;
@@ -188,10 +188,23 @@ late () {
 				stext = "150gens";
 			}
 
-			// Write output files
+			// Write VCF file
 			p1.outputVCFSample(50,replace=F,filePath=paste0(c(ftext,stext,".vcf")));
-			writeFile(paste0(c(ftext,stext,".pos")),paste(sort(sim.mutationsOfType(m2).position+1),"\n"));
 
+			// Print table of all QTL positions and effect sizes
+			qtlm = sim.mutationsOfType(m2);
+			writeFile(paste0(c(ftext,stext,".info")),paste(c("POS","MeanQTL"),sep=" "),append=F);
+			for(qt in qtlm)
+			{
+				l2 = format("%d",(qt.position + 1));
+				qtm = 0;
+				for(i in 1:nt)
+				{
+					qtm = qtm + qt.getValue(paste0(c("e",(i-1))));
+				}
+				l2 = c(l2,(qtm/nt));
+				writeFile(paste0(c(ftext,stext,".info")),paste(l2),append=T);
+			}
 		}
 	}
 	
