@@ -11,7 +11,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-48 		# Run command for each line of parameter file
-#$ -l h=c1 		# Run array job on this sub-server
+#$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -44,20 +44,42 @@ fi
 
 for fname in beforeshift 20gens 150gens
 do
+	# Creating haplostrips output
 	/data/hartfield/polyself/scripts/haplostrips/haplostrips -v /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf -i 1:1-30000000 -P /data/hartfield/polyself/scripts/Popinfo.poptable -o /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD} -c 0.02 -C "darkred" -T
+	# Producing base file for QTL output info
 	touch /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
-	NL=$(awk '/^##/ {next} {$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf | tail -n +2 | awk 'NR==FNR{A[$1]; next} {if($1 in A) {$1 = ""; print $0}}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.pos - | wc -l)
+	# (1) VCF with QTLs only 
+	awk '/^##/ {next} {$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf | tail -n +2 | awk 'NR==FNR{A[$1];B[$2]; next} {if($1 in A) {print $0}}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.info - > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp
+	NL=$(wc -l < /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp)
 	if [ $NL -gt 0 ]
 	then
+		# (2) Info file with QTLs only, sorted by position
+		tail -n +2 /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.info | sort -n -k 1 - | awk 'NR==FNR{A[$1];B[$2]; next} {if($1 in A) {print $0}}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp - > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp2
+		# (3) Join new VCF, info files; delete old files
+		join -1 1 -2 1 /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp2 /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp3
+		rm -f /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp2
+		# (4) From new file, calculate total QTL per site per individual
+		awk '{print $2}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp3 > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp4
 		for i in $(seq 1 50)
 		do
-			awk '/^##/ {next} {$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf | tail -n +2 | awk 'NR==FNR{A[$1]; next} {if($1 in A) {$1 = ""; print $0}}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.pos - | awk -v b=$i '{print $b}' - | awk -F "|" '{SUM+=$1+$2}END{print SUM}' >> /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
+			awk -v b=$(($i + 2)) '{print $b}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp3 | awk -F "|" '{print $1 + $2}' | paste /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp4 - > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp5
+			rm -f /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp4
+			cp /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp5 /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp4
+			rm -f /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp5
 		done
+		rm -f /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp3
+		# (5) Print off (i) summed QTLs (ii) summed QTL effects per individual to file
+		for i in $(seq 1 50)
+		do
+			awk -v b=$(($i + 1)) '{SUM+=$b; QTLP+=$b*$1}END{print SUM,QTLP}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp4 >> /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
+		done
+		rm -f /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp4
 	else
 		for i in $(seq 1 50)
 		do
-			echo "0" >> /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
+			echo "0 NA" >> /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}.count
 		done
+		rm -f /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.temp
 	fi
 done
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
