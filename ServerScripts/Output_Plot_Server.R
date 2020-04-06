@@ -86,7 +86,7 @@ for(a in c(1:2))
 	maxid <- 0
 	minid <- 0
 	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
-	par(mfrow=c(2,1),oma = c(0, 0, 4, 0))
+	par(mfrow=c(2,1),oma = c(0, 1, 4, 0))
 	# First: read in data, determine x, y axes
 	for(S in self)
 	{
@@ -140,10 +140,10 @@ for(a in c(1:2))
 	for(S in self)
 	{	
 		if(which(self%in%S) == 1){
-			plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time since optimum shift",ylab="Mean Fitness",xlim=xax,ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5)
+			plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time since optimum shift",ylab="Mean Fitness",xlim=xax,ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			abline(v=0,lty=2)
 			polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MFLowCI,rev(fitmat[[1]]$MFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
+			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 		}
 		else
 		{
@@ -155,7 +155,7 @@ for(a in c(1:2))
 	for(S in self)
 	{
 		if(which(self%in%S) == 1){
-			plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time since optimum shift",ylab="Inbreeding Depression",xlim=xax,ylim=c(minid,maxid),col=pcol[1],lwd=1.5)
+			plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time since optimum shift",ylab="Inbreeding Depression",xlim=xax,ylim=c(minid,maxid),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			abline(v=0,lty=2)
 			polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$IDLowCI,rev(fitmat[[1]]$IDHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		}
@@ -175,7 +175,7 @@ for(a in c(1:2))
 	minmt <- 0
 	varmt <- 0
 	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
-	par(mfcol=c(2,1),oma = c(0, 0, 4, 0))
+	par(mfcol=c(2,1), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
 	{
 		genl <- vector(mode="list",length=reps)
@@ -242,12 +242,12 @@ for(a in c(1:2))
 	for(S in self)
 	{
 		if(which(self%in%S) == 1){
-			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=xax,ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5)
+			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=xax,ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MTLowCI,rev(traitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 #					abline(h=0,lty=3,lwd=1.5)
 			abline(h=1.0,lty=3,lwd=1.5)
-			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)
+			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 		}
 		else
 		{
@@ -258,7 +258,7 @@ for(a in c(1:2))
 	for(S in self)
 	{
 		if(which(self%in%S) == 1){
-			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance Per Trait",xlim=xax,ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5)
+			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 			abline(h=HoCV,lty=2)		# Expected HoC variance
@@ -281,7 +281,7 @@ for(a in c(1:2))
 	maxpQ <- 0
 	maxpmQ <- 0
 	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
-	par(mfrow=c(2,2),oma = c(0, 0, 4, 0))
+	par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
 	{
 		genl <- vector(mode="list",length=reps)
@@ -365,7 +365,7 @@ for(a in c(1:2))
 	# Panel 1: Number of fixed QTLs
 	for(S in self){
 		if(which(self%in%S) == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=1.5)
+			plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 		}
@@ -378,7 +378,7 @@ for(a in c(1:2))
 	# Panel 2: Mean effect of fixed QTLs
 	for(S in self){
 		if(which(self%in%S) == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5)
+			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 		}
@@ -391,10 +391,10 @@ for(a in c(1:2))
 	# Panel 3: Proportion of fixed QTLs with positive effects
 	for(S in self){
 		if(which(self%in%S) == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of positive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5)
+			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
-			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,cex=1,lwd=1.5)					
+			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 		}
 		else
 		{
@@ -405,7 +405,7 @@ for(a in c(1:2))
 	# Panel 4: Proportion of fixed QTLs with positive effects
 	for(S in self){
 		if(which(self%in%S) == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5)
+			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 		}

@@ -15,13 +15,13 @@ pt <- c("beforeshift","20gens","150gens")
 for(i in 1:length(pt))
 {
 	dat <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/ServerPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,".count"))
-	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/ServerPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_newo',z1,'_msd',msd,'.count.pdf'),width=8,height=18)
-	par(mfrow=c(2,1))
-	barplot(table(dat$V1),ylab="Count")
+	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/ServerPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_newo',z1,'_msd',msd,'.count.pdf'),width=12,height=30)
+	par(mfrow=c(2,1),mar = c(5.1, 5.1, 4.1, 2.1))
+	barplot(table(dat$V1),ylab="Count",cex.names=2.3,cex.axis=2.5,cex.lab=2.5)
 	if(is.na(dat$V2[1])!=T){
-		hist(dat$V2,col="gray70",xlab="Mean QTL effect per individual",main="")	
+		hist(dat$V2,col="gray70",xlab="Mean QTL effect per individual",main="",cex.lab=2.5,cex.axis=2.5)
 	}else{
-		hist(dat$V1,border="white",xlab="Mean QTL effect per individual",main="")	
+		hist(dat$V1,border="white",xlab="Mean QTL effect per individual",main="",cex.lab=2.5,cex.axis=2.5)
 	}
 	dev.off()
 }
