@@ -1,8 +1,6 @@
 // 22nd October 2019
 // Modification of recipes 13.2, 13.5
-// Polygenic selection under self–fertilisation, with m traits under selection
-// Is there a transition from gene-level to genome-level selection?
-// How do the sweep dynamics differ?
+// Polygenic selection under self–fertilisation, with multiple traits under selection
 
 // Function for calculating gaussian fitness function for multiple traits
 function (f)gaussfit(float z, float z0, float vs){
@@ -18,18 +16,17 @@ initialize() {
 	setSeed(theseed);
 	
 	defineConstant("N",5000);				// Population size
-	defineConstant("QTLf",0.1);			// Fraction of mutations that code for QTLs
-	defineConstant("genl",30000000);		// Length of simulated genome
+	defineConstant("genl",25000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
-//	defineConstant("s",0.0);				// Background mutation selection coefficient
-//	defineConstant("h",0.02);				// Background mutation dominance coefficient
-//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-//	defineConstant("nt",5); 				// Number of traits to optimise
-//	defineConstant("newo",1.0);			// New optimum after trait shift
-//	defineConstant("msd",0.25);			// Standard Deviation in trait values
-//	defineConstant("rep",1);				// Which replicate is running
-//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+	defineConstant("s",0.0);				// Background mutation selection coefficient
+	defineConstant("h",0.02);				// Background mutation dominance coefficient
+	defineConstant("sfrate",0.0);			// Self-fertilisation rate
+	defineConstant("nt",5); 				// Number of traits to optimise
+	defineConstant("newo",1.0);			// New optimum after trait shift
+	defineConstant("msd",0.25);			// Standard Deviation in trait values
+	defineConstant("rep",1);				// Which replicate is running
+	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -45,16 +42,26 @@ initialize() {
 	defineConstant("MaxTime",5*N+502);				// Let sims run for ~500 generations after shift
 	defineConstant("mutvar",msd*msd);				// Mutational variance in covariance matrix (= sd^2)
 	
-	initializeMutationType("m1", h, "f", s); 	 			// Fitness of background mutations (set to zero for neutral)
-	initializeMutationType("m2", 0.5, "f", 0.0);  	 	// QTLs		
+	initializeMutationType("m1", 0.5, "f", 0.0); 	 	// Neutral mutations
+	initializeMutationType("m2", h, "f", s); 	 			// Selected background mutations
+	initializeMutationType("m3", 0.5, "f", 0.0);  	 	// QTLs		
 	m1.mutationStackPolicy = "f";
-	m2.convertToSubstitution = F;
 	m2.mutationStackPolicy = "f";
-	m2.color="green";
+	m3.mutationStackPolicy = "f";
+	m3.convertToSubstitution = F;
+	m2.color="red";
+	m3.color="green";
 	
-	initializeGenomicElementType("g1", c(m1,m2), c(1.0-QTLf,QTLf));
-//	initializeGenomicElementType("g1", m2, 1.0);
-	initializeGenomicElement(g1, 0, genl-1);
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElementType("g2", c(m1,m2,m3), c(0.745,0.25,0.005));
+	// Building chromosome
+	sp = 0;
+	while(sp < genl)
+	{
+		initializeGenomicElement(g1, sp, sp + 3999);
+		initializeGenomicElement(g2, sp + 4000, sp + 4999);
+		sp = sp + 5000;
+	}
 	
 	// Uncomment if using Arabidopsis-type parameters
 	mu = 1e-9;
