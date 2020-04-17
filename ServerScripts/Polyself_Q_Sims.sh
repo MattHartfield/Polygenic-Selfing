@@ -39,3 +39,11 @@ else
 	sleep 10
 fi
 slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d newo=$NEWOP -d nt=$NTR -d msd=$MSD -d rep=$REP /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
+if [ $NEWOP = "1.0" ]
+then
+	NEWOP=$(printf "%.0f" $NEWOP)
+fi
+for fname in beforeshift 20gens 150gens
+do
+	grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}_QTL.vcf
+done

@@ -16,17 +16,18 @@ initialize() {
 	setSeed(theseed);
 	
 	defineConstant("N",5000);				// Population size
+	defineConstant("QTLf",0.2);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
-	defineConstant("s",0.0);				// Background mutation selection coefficient
-	defineConstant("h",0.02);				// Background mutation dominance coefficient
-	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-	defineConstant("nt",5); 				// Number of traits to optimise
-	defineConstant("newo",1.0);			// New optimum after trait shift
-	defineConstant("msd",0.25);			// Standard Deviation in trait values
-	defineConstant("rep",1);				// Which replicate is running
-	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//	defineConstant("s",0.0);				// Background mutation selection coefficient
+//	defineConstant("h",0.02);				// Background mutation dominance coefficient
+//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
+//	defineConstant("nt",1); 				// Number of traits to optimise
+//	defineConstant("newo",1.0);			// New optimum after trait shift
+//	defineConstant("msd",0.25);			// Standard Deviation in trait values
+//	defineConstant("rep",1);				// Which replicate is running
+//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -53,7 +54,7 @@ initialize() {
 	m3.color="green";
 	
 	initializeGenomicElementType("g1", m1, 1.0);
-	initializeGenomicElementType("g2", c(m1,m2,m3), c(0.745,0.25,0.005));
+	initializeGenomicElementType("g2", c(m1,m2,m3), c(0.25, 1.0-0.25-QTLf,QTLf));
 	// Building chromosome
 	sp = 0;
 	while(sp < genl)
@@ -96,7 +97,7 @@ initialize() {
 fitness(NULL)
 {
 	phens = rep(0.0,nt);
-	mQTL = individual.genomes.mutationsOfType(m2);
+	mQTL = individual.genomes.mutationsOfType(m3);
 	if(size(mQTL) != 0){
 		for(i in 1:nt)
 		{
@@ -116,7 +117,7 @@ fitness(NULL)
 }
 
 // Defining selection coefficient of QTL mutations using MVN setup (in base population)
-mutation(m2,p1)
+mutation(m3,p1)
 {
 	if(nt > 1)
 	{
@@ -143,11 +144,19 @@ mutation(m2,p2)
 {
 	return F;
 }
+mutation(m3,p2)
+{
+	return F;
+}
 mutation(m1,p3)
 {
 	return F;
 }
 mutation(m2,p3)
+{
+	return F;
+}
+mutation(m3,p3)
 {
 	return F;
 }
@@ -199,7 +208,7 @@ late () {
 			p1.outputVCFSample(50,replace=F,filePath=paste0(c(ftext,stext,".vcf")));
 
 			// Print table of all QTL positions and effect sizes
-			qtlm = sim.mutationsOfType(m2);
+			qtlm = sim.mutationsOfType(m3);
 			writeFile(paste0(c(ftext,stext,".info")),paste(c("POS","MeanQTL"),sep=" "),append=F);
 			for(qt in qtlm)
 			{
@@ -269,7 +278,7 @@ early () {
 		phens = rep(0.0,nt);
 		for (ind in p1.individuals)
 		{
-			mQTL = ind.genomes.mutationsOfType(m2);
+			mQTL = ind.genomes.mutationsOfType(m3);
 			if(size(mQTL) != 0){
 				for(i in 1:nt)
 				{
@@ -280,7 +289,7 @@ early () {
 			}			
 		}
 		
-		qtls = sim.mutationsOfType(m2);
+		qtls = sim.mutationsOfType(m3);
 		qtlf = sim.mutationFrequencies(p1,qtls);
 		fmuts = sum(qtlf == 1.0);
 		line = paste(c(sim.generation, mean(p1.cachedFitness(NULL)), var(p1.cachedFitness(NULL)), fmuts));
