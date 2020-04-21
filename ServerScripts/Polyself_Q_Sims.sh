@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-480		# Run command for each line of parameter file
-#$ -l h=c6 		# Run array job on this sub-server
+#$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -43,7 +43,11 @@ if [ $NEWOP = "1.0" ]
 then
 	NEWOP=$(printf "%.0f" $NEWOP)
 fi
-for fname in beforeshift 20gens 150gens
-do
-	grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}_QTL.vcf
-done
+
+if [ $REP -eq 1 ]
+then
+	for fname in beforeshift 20gens 150gens
+	do
+		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_${fname}_QTL.vcf
+	done
+fi

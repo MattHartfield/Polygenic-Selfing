@@ -6,8 +6,8 @@
 # Not just download data but process haplotype data, merge separate plots into one file
 
 # Download data from server
-rm -r /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerPlots/*
-rsync -avz mhartfield@qmaster:/data/hartfield/polyself/results/* /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerPlots/
+rm -r /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/*
+rsync -avz mhartfield@qmaster:/data/hartfield/polyself/results/* /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/
 
 # Processing haplotype plots
 rm -r HapInfo
@@ -15,7 +15,7 @@ mkdir HapInfo
 fds='neutral weakdom strongdom'
 for fd in $fds
 do
-	mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerPlots/haps/$fd/
+	mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/
 done
 
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
