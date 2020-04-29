@@ -5,7 +5,7 @@ library(wesanderson)
 library(plyr)
 
 tmin <- 20000			# Time from which outputs are recorded
-tchange <- 25000		# Time at which optimum changes
+tchange <- 50000		# Time at which optimum changes
 clup <- 500				# Time window around which to plot close-up values
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 
@@ -17,7 +17,7 @@ msd <- as.double(args[5])	# Standard deviation of mutational effect
 # Note selfing rate is not incuded above, as all selfing results will be included together. Defined below
 self <- c(0,0.5,0.9,0.999)
 
-HoCV <- 4*3e7*1e-9*0.1		# Expected House Of Cards Variance
+HoCV <- 0.004				# Expected House Of Cards Variance
 reps <- 10					# Number of replicates per parameter set
 pcol <- wes_palette("Zissou1")[2:5]
 
