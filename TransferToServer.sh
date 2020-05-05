@@ -9,12 +9,14 @@ rm ServerScripts/PolyselParametersBig.txt ServerScripts/PolyselParametersPlots.t
 touch ServerScripts/PolyselParametersBig.txt
 touch ServerScripts/PolyselParametersPlots.txt
 NL=$(wc -l < ServerScripts/PolyselParameters.txt)
-NREPS=10
+NREPS=20
 for (( j=1; j <= NL; ++j ))
 	do
 	for (( i=1; i <= NREPS; ++i ))
 	do
-		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
+		# Repeat twice; one without burn-in, one with
+		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 0 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
+		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 1 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
 	done
 	if [ $(($j % 4)) -eq 1 ]
 	then

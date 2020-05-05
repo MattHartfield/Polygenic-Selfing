@@ -6,7 +6,7 @@ library(plyr)
 
 pop <- 10000			# Population size
 tchange <- 10*pop		# Time at which optimum changes
-tmin <- 0.8*tchange		# Time from which outputs are recorded
+tmin <- 0.9*tchange		# Time from which outputs are recorded
 clup <- 500				# Time window around which to plot close-up values
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 
