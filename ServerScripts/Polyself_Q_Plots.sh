@@ -12,14 +12,13 @@
 #$ -N Polysel_Self_Plots
 #$ -V
 #$ -cwd
-#$ -t 1-12		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -t 1-3		# Run command for each line of parameter file
+#$ -l h=c6 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
 SEL=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $1}')
 DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $2}')
-NEWOP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $4}')
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $5}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $6}')
 
@@ -41,5 +40,5 @@ else
 	sleep 10
 fi
 
-Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R ${SEL} ${DOM} ${NEWOP} ${NTR} ${MSD}
+Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R ${SEL} ${DOM} ${NTR} ${MSD}
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

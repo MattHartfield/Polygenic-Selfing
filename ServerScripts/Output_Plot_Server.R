@@ -1,25 +1,25 @@
 # 13th December 2019
 # Script to read in polygenic selection simulation outputs and plot
+# 'cu' = 'close-up' version, only plots after optimum shift
 
 library(wesanderson)
 library(plyr)
 
-pop <- 10000			# Population size
+pop <- 5000				# Population size
 tchange <- 10*pop		# Time at which optimum changes
-tmin <- 0.9*tchange		# Time from which outputs are recorded
 clup <- 500				# Time window around which to plot close-up values
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 
 args <- commandArgs(trailingOnly = TRUE)
 s <- as.double(args[1])		# Selection coefficient, background mutations
 h <- as.double(args[2])		# Dominance coefficient
-N <- as.integer(args[4])	# Number of traits each QTL affects
-msd <- as.double(args[5])	# Standard deviation of mutational effect
+N <- as.integer(args[3])	# Number of traits each QTL affects
+msd <- as.double(args[4])	# Standard deviation of mutational effect
 # Note selfing rate is not incuded above, as all selfing results will be included together. Defined below
 self <- c(0,0.5,0.9,0.999)
 
-HoCV <- 0.002				# Expected House Of Cards Variance
-reps <- 10					# Number of replicates per parameter set
+HoCV <- 0.005				# Expected House Of Cards Variance
+reps <- 40					# Number of replicates per parameter set
 pcol <- wes_palette("Zissou1")[2:5]
 
 # Function for calculating mean
@@ -65,20 +65,19 @@ if(N==1){
 }else{
 	endh1 <- paste0(N," traits.")
 }
-		
-# For each case do two plots; (1) whole trajectory (2) close up around optimum shift, ±500 gens either side
-for(a in c(1:2))
+
+# For each case do two plots; (0) no burn-in; (1) with burn-in included
+for(a in c(0:1))
 {
 	
-	if(a==1){
-		endp <- " Whole timespan."
-		endfn <- '_alltime'
-		xax <- c(tmin-tchange,clup+1)
-	}else if(a==2){
-		endp <- " Close-up of adaptation phase."
-		endfn <- '_closeup'
-		xax <- c(0,clup+1)
+	if(a==0){
+		endp <- " No standing variation."
+		endfn <- '_nosv'
+	}else if(a==1){
+		endp <- " With standing variation."
+		endfn <- '_withsv'
 	}
+	xax <- c(0,clup+1)
 
 	# First plot: mean fitness, inbreeding depression
 	fitmat <- vector(mode="list",length=length(self))
@@ -94,22 +93,30 @@ for(a in c(1:2))
 		genl <- vector(mode="list",length=reps)
 		mfl <- vector(mode="list",length=reps)
 		idl <- vector(mode="list",length=reps)
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_rep",1,".dat"),head=T)
-		if(a==2)
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_issv",a,"_rep",1,".dat"),head=T)
+		if(a==1)
 		{
 			dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 		}
-		genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+		else if(a==0)
+		{
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+		}
 		mfl[[1]] <- t(as.matrix(dat[,c("MeanFitness")]))
 		idl[[1]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 		for(j in 2:reps)
 		{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_rep",j,".dat"),head=T)
-			if(a==2)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_issv",a,"_rep",j,".dat"),head=T)
+			if(a==1)
 			{
 				dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))				
 			}
-			genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+			if(a==0)
+			{
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+			}
 			mfl[[j]] <- t(as.matrix(dat[,c("MeanFitness")]))
 			idl[[j]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 		}
@@ -182,12 +189,16 @@ for(a in c(1:2))
 		genl <- vector(mode="list",length=reps)
 		mtl <- vector(mode="list",length=reps)
 		mgvl <- vector(mode="list",length=reps)
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_rep",1,".dat"),head=T)
-		if(a==2)
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_issv",a,"_rep",1,".dat"),head=T)
+		if(a==1)
 		{
 			dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 		}
-		genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+		else if(a==0)
+		{
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+		}
 		if(N==1)
 		{
 			mtl[[1]] <- t(as.matrix(dat[,c("MeanTrait1")]))
@@ -200,12 +211,15 @@ for(a in c(1:2))
 		}		
 		for(j in 2:reps)
 		{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_rep",j,".dat"),head=T)
-			if(a==2)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_issv",a,"_rep",j,".dat"),head=T)
+			if(a==0){
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+			}
+			else if(a==1)
 			{
 				dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			}
-			genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			if(N==1)
 			{
 				mtl[[j]] <- t(as.matrix(dat[,c("MeanTrait1")]))
@@ -290,12 +304,16 @@ for(a in c(1:2))
 		mfql <- vector(mode="list",length=reps)
 		ppql <- vector(mode="list",length=reps)
 		mpql <- vector(mode="list",length=reps)						
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_rep",1,".dat"),head=T)
-		if(a==2)
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_issv",a,"_rep",1,".dat"),head=T)
+		if(a==1)
 		{
 			dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 		}
-		genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+		else if(a==0)
+		{
+			genl[[1]] <- t(as.matrix(dat[,c("Generation")]))
+		}
 		fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
 		if(N==1)
 		{
@@ -311,12 +329,16 @@ for(a in c(1:2))
 		}
 		for(j in 2:reps)
 		{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_rep",j,".dat"),head=T)
-			if(a==2)
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_newo",1.0,"_msd",msd,"_issv",a,"_rep",j,".dat"),head=T)
+			if(a==1)
 			{
 				dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 			}
-			genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+			else if(a==0)
+			{
+				genl[[j]] <- t(as.matrix(dat[,c("Generation")]))
+			}
 			fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
 			if(N == 1)
 			{
