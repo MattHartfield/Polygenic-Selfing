@@ -6,7 +6,7 @@ library(wesanderson)
 library(plyr)
 
 pop <- 5000				# Population size
-tchange <- 10*pop		# Time at which optimum changes
+tchange <- 5*pop		# Time at which optimum changes
 clup <- 500				# Time window around which to plot close-up values
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 
@@ -19,7 +19,7 @@ msd <- as.double(args[4])	# Standard deviation of mutational effect
 self <- c(0,0.5,0.9,0.999)
 
 HoCV <- 0.005				# Expected House Of Cards Variance
-reps <- 40					# Number of replicates per parameter set
+reps <- 20					# Number of replicates per parameter set
 pcol <- wes_palette("Zissou1")[2:5]
 
 # Function for calculating mean
