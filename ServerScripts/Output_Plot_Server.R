@@ -73,9 +73,11 @@ for(a in c(0:1))
 	if(a==0){
 		endp <- " No standing variation."
 		endfn <- '_nosv'
+		outf2 <- "nosv"
 	}else if(a==1){
 		endp <- " With standing variation."
 		endfn <- '_withsv'
+		outf2 <- "withsv"		
 	}
 	xax <- c(0,clup+1)
 
@@ -85,7 +87,7 @@ for(a in c(0:1))
 	minmf <- 1
 	maxid <- 0
 	minid <- 0
-	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
+	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
 	par(mfrow=c(2,1),oma = c(0, 1, 4, 0))
 	# First: read in data, determine x, y axes
 	for(S in self)
@@ -182,7 +184,7 @@ for(a in c(0:1))
 	maxmt <- 0
 	minmt <- 0
 	varmt <- 0
-	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
+	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
 	par(mfcol=c(2,1), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
 	{
@@ -295,7 +297,7 @@ for(a in c(0:1))
 	minmQ <- 0
 	maxpQ <- 0
 	maxpmQ <- 0
-	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
+	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
 	par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
 	{

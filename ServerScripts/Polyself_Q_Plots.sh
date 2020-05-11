@@ -27,12 +27,17 @@ if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
 	echo "Deleting old plot files" >&1
 	fds='neutral weakdom strongdom'
+	fsv='nosv withsv'
 	rm -rf /data/hartfield/polyself/results/*
 	rm -rf /scratch/mhartfield/polyself_out/plots/
 	mkdir /scratch/mhartfield/polyself_out/plots/ 
 	for fd in $fds
 	do
 		mkdir /scratch/mhartfield/polyself_out/plots/$fd/
+		for fs in $fsv
+		do
+			mkdir /scratch/mhartfield/polyself_out/plots/$fd/$fs/
+		done
 	done
 	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*
 else

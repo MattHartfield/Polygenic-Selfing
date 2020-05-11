@@ -13,11 +13,16 @@ rsync -avz mhartfield@qmaster:/data/hartfield/polyself/results/* /Users/hartfiel
 rm -r HapInfo
 mkdir HapInfo
 fds='neutral weakdom strongdom'
+fsv='nosv withsv'
 for fd in $fds
 do
 	mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/
+	for fs in $fsv
+	do
+		mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/$fs/
+	done
 done
-
+	
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
 NL=$(($NP/8))
 RE=$(($NP%8))
