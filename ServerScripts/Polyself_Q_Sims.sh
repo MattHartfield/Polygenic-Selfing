@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-480		# Run command for each line of parameter file
-#$ -l h=c6 		# Run array job on this sub-server
+#$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -23,7 +23,7 @@ SELF=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters
 NEWOP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $4}')
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $5}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $6}')
-ISSV=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
+ISNM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
 REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $8}')
 
 # Running simulations, parameters in 'PolyselParametersBig.txt'
@@ -39,7 +39,7 @@ else
 	echo "Pausing for 10 seconds" >&1
 	sleep 10
 fi
-slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d newo=$NEWOP -d nt=$NTR -d msd=$MSD -d rep=$REP -d issv=$ISSV /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
+slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d newo=$NEWOP -d nt=$NTR -d msd=$MSD -d rep=$REP -d isnm=$ISNM /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
 if [ $NEWOP = "1.0" ]
 then
 	NEWOP=$(printf "%.0f" $NEWOP)
@@ -47,16 +47,17 @@ fi
 
 if [ $REP -eq 1 ]
 then
-	if [ $ISSV -eq 0 ]
-	then
-		fstr="20gens 150gens"
-	fi
-	if [ $ISSV -eq 1 ]
-	then
-		fstr="beforeshift 20gens 150gens"
-	fi
+# 	if [ $ISSV -eq 0 ]
+# 	then
+# 		fstr="20gens 150gens"
+# 	fi
+# 	if [ $ISSV -eq 1 ]
+# 	then
+#    	fstr="beforeshift 20gens 150gens"
+# 	fi
+	fstr="beforeshift 20gens 150gens"
 	for fname in ${fstr}
 	do
-		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_issv${ISSV}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_issv${ISSV}_${fname}_QTL.vcf
+		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_ISNM${ISNM}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_ISNM${ISNM}_${fname}_QTL.vcf
 	done
 fi

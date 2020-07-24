@@ -184,6 +184,7 @@ for(a in c(0:1))
 	maxmt <- 0
 	minmt <- 0
 	varmt <- 0
+	varmi <- 1
 	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
 	par(mfcol=c(2,1), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
@@ -251,7 +252,7 @@ for(a in c(0:1))
 		maxmt <- max(maxmt,max(thisdat$MTHighCI))
 		minmt <- min(minmt,min(thisdat$MTLowCI))
 		varmt <- max(varmt,max(thisdat$MGVHighCI))
-		
+		varmi <- min(varmi,min(thisdat$MGVLowCI))
 	}
 	if(maxmt < 1.0){
 		maxmt <- 1.0
@@ -275,7 +276,7 @@ for(a in c(0:1))
 	for(S in self)
 	{
 		if(which(self%in%S) == 1){
-			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c((-((varmt)*0.04)), varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5,log="y")
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 			abline(h=HoCV,lty=2)		# Expected HoC variance
