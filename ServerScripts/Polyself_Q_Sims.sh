@@ -58,6 +58,6 @@ then
 	fstr="beforeshift 20gens 150gens"
 	for fname in ${fstr}
 	do
-		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_ISNM${ISNM}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_ISNM${ISNM}_${fname}_QTL.vcf
+		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_isnm${ISNM}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_isnm${ISNM}_${fname}_QTL.vcf
 	done
 fi
