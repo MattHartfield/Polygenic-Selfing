@@ -70,13 +70,22 @@ if(N==1){
 for(a in c(0:1))
 {
 	
+	# if(a==0){
+		# endp <- " No standing variation."
+		# endfn <- '_nosv'
+		# outf2 <- "nosv"
+	# }else if(a==1){
+		# endp <- " With standing variation."
+		# endfn <- '_withsv'
+		# outf2 <- "withsv"		
+	# }
 	if(a==0){
-		endp <- " No standing variation."
-		endfn <- '_nosv'
+		endp <- " Continuous mutation."
+		endfn <- '_withmut'
 		outf2 <- "nosv"
 	}else if(a==1){
-		endp <- " With standing variation."
-		endfn <- '_withsv'
+		endp <- " No mutation after shift."
+		endfn <- '_nomut'
 		outf2 <- "withsv"		
 	}
 	xax <- c(0,clup+1)
