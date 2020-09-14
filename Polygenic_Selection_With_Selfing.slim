@@ -20,15 +20,15 @@ initialize() {
 	defineConstant("genl",25000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
-	defineConstant("s",0.00);				// Background mutation selection coefficient
-	defineConstant("h",0.02);				// Background mutation dominance coefficient
-	defineConstant("sfrate",0.0);		// Self-fertilisation rate
-	defineConstant("nt",1); 				// Number of traits to optimise
-	defineConstant("newo",1.0);			// New optimum after trait shift
-	defineConstant("msd",0.25);			// Standard Deviation in trait values
-	defineConstant("rep",1);				// Which replicate is running
-	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
-	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//	defineConstant("s",0.00);				// Background mutation selection coefficient
+//	defineConstant("h",0.02);				// Background mutation dominance coefficient
+//	defineConstant("sfrate",0.99);			// Self-fertilisation rate
+//	defineConstant("nt",1); 				// Number of traits to optimise
+//	defineConstant("newo",1.0);			// New optimum after trait shift
+//	defineConstant("msd",0.25);			// Standard Deviation in trait values
+//	defineConstant("rep",1);				// Which replicate is running
+//	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -195,7 +195,7 @@ late () {
 			// File suffix
 			if( (sim.generation == (ShiftTime - 1)) )
 			{
-				stext = "beforeshift";
+				stext = "0gens";
 			}
 			else if( (sim.generation == (ShiftTime + 20)) )
 			{
@@ -276,7 +276,8 @@ early () {
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
 		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
-		genvar = rep(0.0,nt);			// Genetic variance
+		genvar = rep(0.0,nt);			// Genic variance
+		genetvar = rep(0.0,nt);			// Genetic variance
 		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
 		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
 		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
@@ -314,6 +315,7 @@ early () {
 				// Calculating genetic variance
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
+				genetvar[(i-1)] = var(qtle);				
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
 					fixeff[(i-1)] = NAN;
@@ -337,6 +339,7 @@ early () {
 			else
 			{
 				genvar[(i-1)] = 0.0;
+				genetvar[(i-1)] = 0.0;
 				fixeff[(i-1)] = NAN;
 				proppos[(i-1)] = NAN;
 				fepos[(i-1)] = NAN;
@@ -346,6 +349,7 @@ early () {
 			line = c(line,cumphen[(i-1)]/N);
 			line = c(line,(cumphensq[(i-1)]/N) - (cumphen[(i-1)]/N)^2);
 			line = c(line,genvar[(i-1)]);
+			line = c(line,genetvar[(i-1)]);
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
 			line = c(line,fepos[(i-1)]);
@@ -366,6 +370,7 @@ early () {
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
 		line = c(line,paste0(c("GenVar",i)));
+		line = c(line,paste0(c("GeneticVar",i)));		
 		line = c(line,paste0(c("MeanFixedQTL",i)));
 		line = c(line,paste0(c("PropPosQTL",i)));
 		line = c(line,paste0(c("MeanPosQTL",i)));
