@@ -67,7 +67,8 @@ if(N==1){
 }
 
 # For each case do two plots; (0) mutation continues after optimum shift; (1) mutation stops after optimum shift
-for(a in c(0:1))
+#for(a in c(0:1))
+for(a in 0)
 {
 	
 	# if(a==0){
@@ -194,6 +195,8 @@ for(a in c(0:1))
 	minmt <- 0
 	varmt <- 0
 	varmi <- 1
+	Gvarmt <- 0
+	Gvarmi <- 1
 	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
 	par(mfcol=c(3,1), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
@@ -268,7 +271,7 @@ for(a in c(0:1))
 		maxmt <- max(maxmt,max(thisdat$MTHighCI))
 		minmt <- min(minmt,min(thisdat$MTLowCI))
 		varmt <- max(varmt,max(thisdat$MGVHighCI))
-		Gvarmt <- max(varmt,max(thisdat$MGenVHighCI))		
+		Gvarmt <- max(Gvarmt,max(thisdat$MGenVHighCI))		
 		if(min(thisdat$MGVLowCI) != 0){
 			varmi <- min(varmi,min(thisdat$MGVLowCI))
 		}
