@@ -4,12 +4,21 @@
 library(tidyverse)
 library(RColorBrewer)
 
-filenames <- c('0gens','20gens','150gens')
+args <- commandArgs(trailingOnly = TRUE)
+s <- as.double(args[1])			# Selection coefficient, background mutations
+h <- as.double(args[2])			# Dominance coefficient
+self <- as.double(args[3])		# Selfing rate
+N <- as.integer(args[4])		# Number of traits each QTL affects
+msd <- as.double(args[5])		# Standard deviation of mutational effect
+isnm <- as.integer(args[6])		# Is mutation stopped after optimum shift
+
+filenames <- c('0gens','20gens','150gens','500gens')
 
 for(k in filenames){
 
 	# Reading in and sorting data
-	dat <- read_delim(paste0("VCFout_test_",k,".vcf"),delim='\t',skip=13)[,-c(1,3:9)] %>% column_to_rownames("POS")
+#	dat <- read_delim(paste0("VCFout_test_",k,".vcf"),delim='\t',skip=13)[,-c(1,3:9)] %>% column_to_rownames("POS")
+	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_",k,".vcf")
 	fc <- c()
 	for(a in 0:49){
 		if(a!=49){
@@ -56,7 +65,8 @@ for(k in filenames){
 		dat2 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qidx)), Qidx )),]
 	}
 	
-	pdf(paste0("Hap_Plot_",k,".pdf"),width=12,height=12)
+#	pdf(paste0("Hap_Plot_",k,".pdf"),width=12,height=12)
+	pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm".pdf"),width=12,height=12)
 	heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=plotc,scale="none")
 	dev.off()
 	

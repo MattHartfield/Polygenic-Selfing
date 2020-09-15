@@ -15,14 +15,14 @@ initialize() {
 	catn("New random seed is " + theseed);
 	setSeed(theseed);
 	
-	defineConstant("N",1000);				// Population size
+	defineConstant("N",5000);				// Population size
 	defineConstant("QTLf",0.1);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
 //	defineConstant("s",0.00);				// Background mutation selection coefficient
 //	defineConstant("h",0.02);				// Background mutation dominance coefficient
-//	defineConstant("sfrate",0.99);			// Self-fertilisation rate
+//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
 //	defineConstant("nt",1); 				// Number of traits to optimise
 //	defineConstant("newo",1.0);			// New optimum after trait shift
 //	defineConstant("msd",0.25);			// Standard Deviation in trait values
@@ -33,16 +33,17 @@ initialize() {
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
 	{
-		defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_isnm",isnm,"_rep",rep,".dat")));
+		defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_rep",rep,".dat")));
 	}
 	else
 	{
-		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_isnm",isnm,"_rep",rep,".dat")));
+		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_rep",rep,".dat")));
 	}
 	
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",5*N+501);
 	defineConstant("oldo",0.0);
+	defineConstant("newo",1/sqrt(nt));
 	defineConstant("mutvar",msd*msd);				// Mutational variance in covariance matrix (= sd^2)
 	
 	initializeMutationType("m1", 0.5, "f", 0.0); 	 	// Neutral mutations
@@ -179,7 +180,7 @@ late () {
 	
 	if( rep == 1 )
 	{
-		if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + 20)) | (sim.generation == (ShiftTime + 150)) )
+		if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + 20)) | (sim.generation == (ShiftTime + 150)) | (sim.generation == (ShiftTime + 500)) )
 		{	
 		
 			// Printout folder, depending on local machine or not
@@ -189,7 +190,7 @@ late () {
 			}
 			else
 			{
-				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_isnm",isnm,"_"));
+				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_"));
 			}
 		
 			// File suffix
@@ -204,6 +205,10 @@ late () {
 			else if( (sim.generation == (ShiftTime + 150)) )
 			{
 				stext = "150gens";
+			}
+			else if( (sim.generation == (ShiftTime + 500)) )
+			{
+				stext = "500gens";
 			}
 
 			// Write VCF file
@@ -370,7 +375,7 @@ early () {
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
 		line = c(line,paste0(c("GenVar",i)));
-		line = c(line,paste0(c("GeneticVar",i)));		
+		line = c(line,paste0(c("GeneticVar",i)));
 		line = c(line,paste0(c("MeanFixedQTL",i)));
 		line = c(line,paste0(c("PropPosQTL",i)));
 		line = c(line,paste0(c("MeanPosQTL",i)));

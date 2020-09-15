@@ -12,8 +12,8 @@
 #$ -N Polysel_Self_Plots
 #$ -V
 #$ -cwd
-#$ -t 1-3		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -t 1-2		# Run command for each line of parameter file
+#$ -l h=c2 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -27,7 +27,7 @@ if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
 	echo "Deleting old plot files" >&1
 	fds='neutral weakdom strongdom'
-	fsv='nosv withsv'
+	fsv='contmut stopmut'
 	rm -rf /data/hartfield/polyself/results/*
 	rm -rf /scratch/mhartfield/polyself_out/plots/
 	mkdir /scratch/mhartfield/polyself_out/plots/ 
