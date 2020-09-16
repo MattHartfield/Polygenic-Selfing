@@ -43,7 +43,8 @@ else
 fi
 
 # Processing data
-for ISNM in 0 1
+#for ISNM in 0 1
+for ISNM in 0
 do
 # 	if [ $ISSV -eq 0 ]
 # 	then
@@ -53,7 +54,7 @@ do
 # 	then
 # 		fstr="beforeshift 20gens 150gens"
 # 	fi
-	fstr="0gens 20gens 150gens 500gens"
+	fstr="time0 time1 time2 time3"
 	for fname in ${fstr}
 	do
 		# Creating plots of QTL distribution throughout haplotypes

@@ -26,6 +26,13 @@ MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersB
 ISNM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $6}')
 REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
 
+if [ $NTR -le 5 ]
+then
+	RT=500
+else
+	RT=1000
+fi
+
 # Running simulations, parameters in 'PolyselParametersBig.txt'
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
@@ -39,25 +46,26 @@ else
 	echo "Pausing for 10 seconds" >&1
 	sleep 10
 fi
-slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d msd=$MSD -d rep=$REP -d isnm=$ISNM /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
+slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d msd=$MSD -d rep=$REP -d isnm=$ISNM -d runtime=$RT /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
 # if [ $NEWOP = "1.0" ]
 # then
 # 	NEWOP=$(printf "%.0f" $NEWOP)
 # fi
 
-if [ $REP -eq 1 ]
-then
-# 	if [ $ISSV -eq 0 ]
-# 	then
-# 		fstr="20gens 150gens"
-# 	fi
-# 	if [ $ISSV -eq 1 ]
-# 	then
-#    	fstr="beforeshift 20gens 150gens"
-# 	fi
-	fstr="0gens 20gens 150gens 500gens"
-	for fname in ${fstr}
-	do
-		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_${fname}_QTL.vcf
-	done
-fi
+# Code below tp create VCF with just QTLs, but no longer needed?
+# if [ $REP -eq 1 ]
+# then
+# # 	if [ $ISSV -eq 0 ]
+# # 	then
+# # 		fstr="20gens 150gens"
+# # 	fi
+# # 	if [ $ISSV -eq 1 ]
+# # 	then
+# #    	fstr="beforeshift 20gens 150gens"
+# # 	fi
+# 	fstr="time0 time1 time2 time3"
+# 	for fname in ${fstr}
+# 	do
+# 		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_${fname}_QTL.vcf
+# 	done
+# fi

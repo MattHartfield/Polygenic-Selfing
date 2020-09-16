@@ -7,7 +7,6 @@ library(plyr)
 
 pop <- 5000				# Population size
 tchange <- 5*pop		# Time at which optimum changes
-clup <- 500				# Time window around which to plot close-up values
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -15,6 +14,7 @@ s <- as.double(args[1])		# Selection coefficient, background mutations
 h <- as.double(args[2])		# Dominance coefficient
 N <- as.integer(args[3])	# Number of traits each QTL affects
 msd <- as.double(args[4])	# Standard deviation of mutational effect
+clup <- as.integer(args[5])	# Time window around which to plot close-up values
 # Note selfing rate is not incuded above, as all selfing results will be included together. Defined below
 self <- c(0,0.5,0.9,0.999)
 
@@ -195,8 +195,8 @@ for(a in 0)
 	minmt <- 0
 	varmt <- 0
 	varmi <- 1
-	Gvarmt <- 0
-	Gvarmi <- 1
+	# Gvarmt <- 0
+	# Gvarmi <- 0
 	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,'.pdf'),width=8*gr,height=8)
 	par(mfcol=c(3,1), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 	for(S in self)
@@ -204,7 +204,7 @@ for(a in 0)
 		genl <- vector(mode="list",length=reps)
 		mtl <- vector(mode="list",length=reps)
 		mgvl <- vector(mode="list",length=reps)
-		mgenvl <- vector(mode="list",length=reps)		
+		# mgenvl <- vector(mode="list",length=reps)		
 		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_rep",1,".dat"),head=T)
 		# if(a==1)
 		# {
@@ -219,13 +219,13 @@ for(a in 0)
 		{
 			mtl[[1]] <- t(as.matrix(dat[,c("MeanTrait1")]))
 			mgvl[[1]] <- t(as.matrix(dat[,c("GenVar1")]))
-			mgenvl[[1]] <- t(as.matrix(dat[,c("GeneticVar1")]))
+			# mgenvl[[1]] <- t(as.matrix(dat[,c("GeneticVar1")]))
 		}
 		else
 		{
 			mtl[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanTrait",1:N)])))
 			mgvl[[1]] <- t(as.matrix(rowMeans(dat[,paste0("GenVar",1:N)])))
-			mgenvl[[1]] <- t(as.matrix(rowMeans(dat[,paste0("GeneticVar",1:N)])))
+			# mgenvl[[1]] <- t(as.matrix(rowMeans(dat[,paste0("GeneticVar",1:N)])))
 		}		
 		for(j in 2:reps)
 		{
@@ -242,13 +242,13 @@ for(a in 0)
 			{
 				mtl[[j]] <- t(as.matrix(dat[,c("MeanTrait1")]))
 				mgvl[[j]] <- t(as.matrix(dat[,c("GenVar1")]))
-				mgenvl[[j]] <- t(as.matrix(dat[,c("GeneticVar1")]))
+				# mgenvl[[j]] <- t(as.matrix(dat[,c("GeneticVar1")]))
 			}
 			else
 			{
 				mtl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanTrait",1:N)])))
 				mgvl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("GenVar",1:N)])))
-				mgenvl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("GeneticVar",1:N)])))				
+				# mgenvl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("GeneticVar",1:N)])))				
 			}
 		}
 		mt <- apply(rbind.fill.matrix(mtl),2, mnona)
@@ -256,8 +256,9 @@ for(a in 0)
 		mgenv <- apply(rbind.fill.matrix(mgenvl),2, mnona)		
 		mtci <- bslist(mtl,1000)
 		mgvci <- bslist(mgvl,1000)
-		mgenvci <- bslist(mgenvl,1000)		
-		ng2 <- dim(rbind(mt,mtci,mgv,mgvci,mgenv,mgenvci))[2]
+		# mgenvci <- bslist(mgenvl,1000)		
+		# ng2 <- dim(rbind(mt,mtci,mgv,mgvci,mgenv,mgenvci))[2]
+		ng2 <- dim(rbind(mt,mtci,mgv,mgvci))[2]
 		for(j in 1:reps)
 		{
 			if(length(genl[[j]]) == ng2)
@@ -265,22 +266,24 @@ for(a in 0)
 				break
 			}
 		}
-		thisdat <- as.data.frame(t(rbind(genl[[j]],mt,mtci,mgv,mgvci,mgenv,mgenvci)))
-		colnames(thisdat) <- c("Generation","MeanTrait","MTLowCI","MTHighCI","MeanGenVar","MGVLowCI","MGVHighCI","MeanGeneticVar","MGenVLowCI","MGenVHighCI")
+		# thisdat <- as.data.frame(t(rbind(genl[[j]],mt,mtci,mgv,mgvci,mgenv,mgenvci)))
+		# colnames(thisdat) <- c("Generation","MeanTrait","MTLowCI","MTHighCI","MeanGenVar","MGVLowCI","MGVHighCI","MeanGeneticVar","MGenVLowCI","MGenVHighCI")
+		thisdat <- as.data.frame(t(rbind(genl[[j]],mt,mtci,mgv,mgvci)))
+		colnames(thisdat) <- c("Generation","MeanTrait","MTLowCI","MTHighCI","MeanGenVar","MGVLowCI","MGVHighCI")
 		traitmat[[which(self%in%S)]] <- thisdat
 		maxmt <- max(maxmt,max(thisdat$MTHighCI))
 		minmt <- min(minmt,min(thisdat$MTLowCI))
 		varmt <- max(varmt,max(thisdat$MGVHighCI))
-		Gvarmt <- max(Gvarmt,max(thisdat$MGenVHighCI))		
+		# Gvarmt <- max(Gvarmt,max(thisdat$MGenVHighCI))		
 		if(min(thisdat$MGVLowCI) != 0){
 			varmi <- min(varmi,min(thisdat$MGVLowCI))
 		}
-		if(min(thisdat$MGenVLowCI) != 0){
-			Gvarmi <- min(Gvarmi,min(thisdat$MGenVLowCI))
-		}
+		# if(min(thisdat$MGenVLowCI) != 0){
+			# Gvarmi <- min(Gvarmi,min(thisdat$MGenVLowCI))
+		# }
 	}
-	if(maxmt < 1.0){
-		maxmt <- 1.0
+	if(maxmt < 1/sqrt(N)){
+		maxmt <- 1/sqrt(N)
 	}
 	for(S in self)
 	{
@@ -289,7 +292,7 @@ for(a in 0)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MTLowCI,rev(traitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 #					abline(h=0,lty=3,lwd=1.5)
-			abline(h=1.0,lty=3,lwd=1.5)
+			abline(h=1/sqrt(N),lty=3,lwd=1.5)
 			legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 		}
 		else
@@ -304,28 +307,29 @@ for(a in 0)
 			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5,log="y")
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
-			abline(h=HoCV,lty=2)		# Expected HoC variance
+			abline(h=HoCV,lty=2,col=pcol[1])		# Expected HoC variance
 		}
 		else
 		{
 			lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=pcol[which(self%in%S)],lwd=1.5)
 			polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MGVLowCI,rev(traitmat[[which(self%in%S)]]$MGVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+			abline(h=HoCV*(1-(S/(2-S))),lty=2,col=pcol[1])		# Expected HoC variance, corrected for selfing rate
 		}
 	}
 	
-	for(S in self)
-	{
-		if(which(self%in%S) == 1){
-			plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5,log="y")
-			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-			abline(v=0,lty=2)
-		}
-		else
-		{
-			lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,col=pcol[which(self%in%S)],lwd=1.5)
-			polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MGenVLowCI,rev(traitmat[[which(self%in%S)]]$MGenVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
-		}
-	}
+	# for(S in self)
+	# {
+		# if(which(self%in%S) == 1){
+			# plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
+			# abline(v=0,lty=2)
+		# }
+		# else
+		# {
+			# lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,col=pcol[which(self%in%S)],lwd=1.5)
+			# polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MGenVLowCI,rev(traitmat[[which(self%in%S)]]$MGenVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
+		# }
+	# }
 
 	mtext(paste0("Trait values over time",midh1,endh1,"\n",endp), outer = TRUE, cex = 1.5)
 	dev.off()

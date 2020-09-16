@@ -5,24 +5,23 @@ args <- commandArgs(trailingOnly = TRUE)
 s <- as.double(args[1])
 h <- as.double(args[2])
 S <- as.double(args[3])
-z1 <- as.double(args[4])
-N <- as.integer(args[5])
-msd <- as.double(args[6])
-issv <- as.integer(args[7])
+N <- as.integer(args[4])
+msd <- as.double(args[5])
+issv <- as.integer(args[6])
 
 # Different plot file prefixes
-if(issv==0)
-{
-	pt <- c("20gens","150gens")
-}else if(issv==1)
-{
-	pt <- c("beforeshift","20gens","150gens")
-}
+# if(issv==0)
+# {
+	# pt <- c("20gens","150gens")
+# }else if(issv==1)
+# {
 
+# }
+pt <- c("t0","t1","t2","t3")
 
 for(i in 1:length(pt))
 {
-	dat <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_issv",issv,".count"))
+	dat <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",issv,".count"))
 
 	# Counting how common genotypes are, based on number of QTLs and effect per individuals
 	if(is.na(dat$V2[1])!=T){
@@ -55,7 +54,7 @@ for(i in 1:length(pt))
 	}
 		
 	# QTL count, total effect per individual
-	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_newo',z1,'_msd',msd,'_issv',issv,'.count.pdf'),width=18,height=42)
+	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',issv,'.count.pdf'),width=18,height=42)
 	par(mfrow=c(3,1),mar = c(5.1, 5.1, 4.1, 2.1))
 	barplot(table(dat$V1),xlab="Number of QTLs per individual",ylab="Count",cex.names=2.3,cex.axis=2.5,cex.lab=2.5)
 	if(is.na(dat$V2[1])!=T){
@@ -70,8 +69,8 @@ for(i in 1:length(pt))
 	dev.off()
 	
 	# QTL frequency histogram
-	dfreq <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_newo",z1,"_msd",msd,"_issv",issv,".freq"))
-	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_newo',z1,'_msd',msd,'_issv',issv,'.freq.pdf'),width=12,height=12)
+	dfreq <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",issv,".freq"))
+	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',issv,'.freq.pdf'),width=12,height=12)
 	par(mar = c(5.1, 5.1, 4.1, 2.1))
 	if(is.na(dfreq$V2[1])!=T){
 		barplot(table(dfreq$V2),xlab="QTL frequency",ylab="Count", cex.names=2.3, cex.axis=2.5, cex.lab=2.5)

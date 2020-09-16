@@ -22,6 +22,13 @@ DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersP
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $4}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $5}')
 
+if [ $NTR -le 5 ]
+then
+	RT=500
+else
+	RT=1000
+fi
+
 # Running plot code
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
@@ -45,5 +52,5 @@ else
 	sleep 10
 fi
 
-Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R ${SEL} ${DOM} ${NTR} ${MSD}
+Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R ${SEL} ${DOM} ${NTR} ${MSD} ${RT}
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

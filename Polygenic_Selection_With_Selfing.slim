@@ -28,6 +28,7 @@ initialize() {
 //	defineConstant("msd",0.25);			// Standard Deviation in trait values
 //	defineConstant("rep",1);				// Which replicate is running
 //	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+//	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
 //	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 
 	// Defining where to print stats out to, depending on code location
@@ -41,17 +42,19 @@ initialize() {
 	}
 	
 	defineConstant("ShiftTime",5*N);
-	defineConstant("MaxTime",5*N+501);
+	defineConstant("MaxTime",5*N+runtime+1);
 	defineConstant("oldo",0.0);
 	defineConstant("newo",1/sqrt(nt));
 	defineConstant("mutvar",msd*msd);				// Mutational variance in covariance matrix (= sd^2)
+	defineConstant("t1",round(0.04*runtime));		// Times when to sample haplotypes
+	defineConstant("t2",round(0.3*runtime));
 	
 	initializeMutationType("m1", 0.5, "f", 0.0); 	 	// Neutral mutations
 	initializeMutationType("m2", h, "f", s); 	 			// Selected background mutations
 	initializeMutationType("m3", 0.5, "f", 0.0);  	 	// QTLs		
-	m1.mutationStackPolicy = "f";
-	m2.mutationStackPolicy = "f";
-	m3.mutationStackPolicy = "f";
+	m1.mutationStackPolicy = "l";
+	m2.mutationStackPolicy = "l";
+	m3.mutationStackPolicy = "l";
 	m3.convertToSubstitution = F;
 	m2.color="red";
 	m3.color="green";
@@ -180,7 +183,7 @@ late () {
 	
 	if( rep == 1 )
 	{
-		if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + 20)) | (sim.generation == (ShiftTime + 150)) | (sim.generation == (ShiftTime + 500)) )
+		if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + t1)) | (sim.generation == (ShiftTime + t2)) | (sim.generation == (ShiftTime + runtime)) )
 		{	
 		
 			// Printout folder, depending on local machine or not
@@ -196,23 +199,23 @@ late () {
 			// File suffix
 			if( (sim.generation == (ShiftTime - 1)) )
 			{
-				stext = "0gens";
+				stext = "time0";
 			}
-			else if( (sim.generation == (ShiftTime + 20)) )
+			else if( (sim.generation == (ShiftTime + t1)) )
 			{
-				stext = "20gens";
+				stext = "time1";
 			}
-			else if( (sim.generation == (ShiftTime + 150)) )
+			else if( (sim.generation == (ShiftTime + t2)) )
 			{
-				stext = "150gens";
+				stext = "time2";
 			}
-			else if( (sim.generation == (ShiftTime + 500)) )
+			else if( (sim.generation == (ShiftTime + runtime)) )
 			{
-				stext = "500gens";
+				stext = "time3";
 			}
 
 			// Write VCF file
-			p1.outputVCFSample(50,replace=F,filePath=paste0(c(ftext,stext,".vcf")));
+			p1.outputVCFSample(50,replace=F,outputMultiallelics=F,filePath=paste0(c(ftext,stext,".vcf")));
 
 			// Print table of all QTL positions and effect sizes
 			qtlm = sim.mutationsOfType(m3);
@@ -282,7 +285,7 @@ early () {
 		cumfit = 0.0;						// Cumulative fitness (for mean)
 		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
 		genvar = rep(0.0,nt);			// Genic variance
-		genetvar = rep(0.0,nt);			// Genetic variance
+//		genetvar = rep(0.0,nt);			// Genetic variance
 		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
 		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
 		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
@@ -320,7 +323,7 @@ early () {
 				// Calculating genetic variance
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
-				genetvar[(i-1)] = var(qtle);				
+//				genetvar[(i-1)] = var(qtle);				
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
 					fixeff[(i-1)] = NAN;
@@ -375,7 +378,7 @@ early () {
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
 		line = c(line,paste0(c("GenVar",i)));
-		line = c(line,paste0(c("GeneticVar",i)));
+//		line = c(line,paste0(c("GeneticVar",i)));
 		line = c(line,paste0(c("MeanFixedQTL",i)));
 		line = c(line,paste0(c("PropPosQTL",i)));
 		line = c(line,paste0(c("MeanPosQTL",i)));
