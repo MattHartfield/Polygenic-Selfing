@@ -30,7 +30,7 @@ if [ $NTR -le 5 ]
 then
 	RT=500
 else
-	RT=1000
+	RT=2000
 fi
 
 # Running simulations, parameters in 'PolyselParametersBig.txt'
