@@ -12,7 +12,7 @@ N <- as.integer(args[4])		# Number of traits each QTL affects
 msd <- as.double(args[5])		# Standard deviation of mutational effect
 isnm <- as.integer(args[6])		# Is mutation stopped after optimum shift
 
-filenames <- c('t0','t1','t2','t3')
+filenames <- c('time0','time1','time2','time3')
 
 for(k in filenames){
 

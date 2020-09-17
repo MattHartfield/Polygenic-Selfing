@@ -17,7 +17,7 @@ issv <- as.integer(args[6])
 # {
 
 # }
-pt <- c("t0","t1","t2","t3")
+pt <- c("time0","time1","time2","time3")
 
 for(i in 1:length(pt))
 {
