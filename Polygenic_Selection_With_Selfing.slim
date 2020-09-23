@@ -9,7 +9,7 @@ function (f)gaussfit(float z, float z0, float vs){
 }
 
 initialize() {
-
+	
 	// Set seed
 	theseed = rdunif(1,0,asInteger(2^62)-1);
 	catn("New random seed is " + theseed);
@@ -29,7 +29,7 @@ initialize() {
 	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
 	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
 	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
-
+	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
 	{
@@ -74,8 +74,8 @@ initialize() {
 	rec = ((3.6*0.01)/(1000000-1));
 	
 	// Uncomment if using testing values
-//	mu = 1e-6;
-//	rec = 0.0005;
+	//	mu = 1e-6;
+	//	rec = 0.0005;
 	
 	initializeMutationRate(mu);
 	initializeRecombinationRate(rec);
@@ -109,7 +109,7 @@ fitness(NULL)
 			phens[(i-1)] = sum(mQTL.getValue(paste0(c("e",(i-1)))));
 		}
 	}
-		
+	
 	// Fitness scaling of QTLs based on Gaussian function with selection variance = 1
 	if(sim.generation < ShiftTime)
 	{
@@ -183,8 +183,8 @@ late () {
 	if( rep == 1 )
 	{
 		if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + t1)) | (sim.generation == (ShiftTime + t2)) | (sim.generation == (ShiftTime + runtime)) )
-		{	
-		
+		{
+			
 			// Printout folder, depending on local machine or not
 			if( exists("isloc") )
 			{
@@ -194,7 +194,7 @@ late () {
 			{
 				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_"));
 			}
-		
+			
 			// File suffix
 			if( (sim.generation == (ShiftTime - 1)) )
 			{
@@ -212,10 +212,10 @@ late () {
 			{
 				stext = "time3";
 			}
-
+			
 			// Write VCF file
 			p1.outputVCFSample(50,replace=F,outputMultiallelics=F,filePath=paste0(c(ftext,stext,".vcf")));
-
+			
 			// Print table of all QTL positions and effect sizes
 			qtlm = sim.mutationsOfType(m3);
 			writeFile(paste0(c(ftext,stext,".info")),paste(c("POS","MeanQTL"),sep=" "),append=F);
@@ -233,24 +233,24 @@ late () {
 		}
 	}
 	
-//	if ( (sim.generation == (ShiftTime-1)) & (rep==1) ){
-//	
-
-//	}
-//	
-//	if ( (sim.generation == (ShiftTime + 20)) & (rep==1) ){
-//		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_aftershift.ms")));
-//	}
-//	
-//	if ( (sim.generation == (ShiftTime + 150) ) & (rep==1) ){
-//		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_simend.ms")));
-//	}
+	//	if ( (sim.generation == (ShiftTime-1)) & (rep==1) ){
+	//	
+	
+	//	}
+	//	
+	//	if ( (sim.generation == (ShiftTime + 20)) & (rep==1) ){
+	//		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_aftershift.ms")));
+	//	}
+	//	
+	//	if ( (sim.generation == (ShiftTime + 150) ) & (rep==1) ){
+	//		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_simend.ms")));
+	//	}
 
 }
 
 // Outputting key statistics every 100 generations (or every 10 just after optimum shift)
 early () {
-
+	
 	if(sim.generation == 1 & ShiftTime != 1)
 	{
 		sim.setValue('ptime',100);
@@ -261,7 +261,7 @@ early () {
 	if(sim.generation == ShiftTime)
 	{
 		sim.setValue('ptime',10);
-		sim.setValue('p2time',50);		
+		sim.setValue('p2time',50);
 		catn("Printout now every " + sim.getValue('ptime') + " generations.");
 		// Turn off mutation rate after optimum shift, if option set
 		if(isnm == 1)
@@ -277,14 +277,16 @@ early () {
 		p2.setSelfingRate(0.0);
 		p3.setSelfingRate(1.0);
 	}
-
+	
 	if ( (sim.generation % sim.getValue('ptime') == 1 & sim.generation >= (0.8*ShiftTime) & sim.generation != 1) | ( ShiftTime==1 & sim.generation==3 ) ){
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
 		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
+		geneticvar = rep(0.0,nt);		// Genetic variance
 		genvar = rep(0.0,nt);			// Genic variance
-//		genetvar = rep(0.0,nt);			// Genetic variance
+		ibvar = rep(0.0,nt);				// Inbred variance
+		ldvar = rep(0.0,nt);				// LD variance
 		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
 		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
 		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
@@ -301,7 +303,7 @@ early () {
 					cumphen[(i-1)] = cumphen[(i-1)] + phens[(i-1)];
 					cumphensq[(i-1)] = cumphensq[(i-1)] + (phens[(i-1)])^2;
 				}
-			}			
+			}
 		}
 		
 		qtls = sim.mutationsOfType(m3);
@@ -316,23 +318,7 @@ early () {
 		p3.setSubpopulationSize(0);
 		
 		// Test - can I measure HW variance?
-		catn(size(qtls));
-		catn(sim.mutationFrequencies(p1,qtls));
-		CHW=0;
-		for (mq in qtls)
-		{
-			// Code adapted from recipe 14.4
-			mqf = sapply(p1.individuals, paste0(c("sum(applyValue.genomes.containsMarkerMutation(m3, ",mq.position,"));")));
-			f00=sum(mqf==0)/N;
-			f11=sum(mqf==2)/N;
-			f01=sum(mqf==1)/N;
-			CHW = CHW + (2*f00*f11-(1/2)*f01^2);
-			catn((2*f00*f11-(1/2)*f01^2));
-			catn();
-		}
-		catn();
-		catn(CHW);
-		slimgui.pauseExecution();
+		
 		
 		for(i in 1:nt)
 		{
@@ -341,7 +327,17 @@ early () {
 				// Calculating genetic variance
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
-//				genetvar[(i-1)] = var(qtle);				
+				ibvar[(i-1)] = 0;
+				for (mq in qtls)
+				{
+					// Code adapted from recipe 14.4 for calculating inbred variance
+					mqf = sapply(p1.individuals, paste0(c("sum(applyValue.genomes.containsMarkerMutation(m3, ",mq.position,"));")));
+					mqe = mq.getValue(paste0(c("e",(i-1))));
+					f00=sum(mqf==0)/N;
+					f11=sum(mqf==2)/N;
+					f01=sum(mqf==1)/N;
+					ibvar[(i-1)] = ibvar[(i-1)] + (2*f00*f11-(1/2)*f01^2)*mqe*mqe;
+				}
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
 					fixeff[(i-1)] = NAN;
@@ -365,7 +361,7 @@ early () {
 			else
 			{
 				genvar[(i-1)] = 0.0;
-//				genetvar[(i-1)] = 0.0;
+				ibvar[(i-1)] = 0.0;
 				fixeff[(i-1)] = NAN;
 				proppos[(i-1)] = NAN;
 				fepos[(i-1)] = NAN;
@@ -375,14 +371,14 @@ early () {
 			line = c(line,cumphen[(i-1)]/N);
 			line = c(line,(cumphensq[(i-1)]/N) - (cumphen[(i-1)]/N)^2);
 			line = c(line,genvar[(i-1)]);
-//			line = c(line,genetvar[(i-1)]);
+			line = c(line,ibvar[(i-1)]);
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
 			line = c(line,fepos[(i-1)]);
 		}
 		
 		// Outputting statistics
-		writeFile(fname, paste(line), append=T);	
+		writeFile(fname, paste(line), append=T);
 	}
 }
 
@@ -396,7 +392,7 @@ early () {
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
 		line = c(line,paste0(c("GenVar",i)));
-//		line = c(line,paste0(c("GeneticVar",i)));
+		line = c(line,paste0(c("InbredVar",i)));
 		line = c(line,paste0(c("MeanFixedQTL",i)));
 		line = c(line,paste0(c("PropPosQTL",i)));
 		line = c(line,paste0(c("MeanPosQTL",i)));
