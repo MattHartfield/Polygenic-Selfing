@@ -15,36 +15,38 @@ initialize() {
 	catn("New random seed is " + theseed);
 	setSeed(theseed);
 	
-	defineConstant("N",100);				// Population size
-	defineConstant("QTLf",0.5);			// Fraction of QTL mutations in g2
+	defineConstant("N",5000);				// Population size
+	defineConstant("QTLf",0.1);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
-	defineConstant("s",0.00);				// Background mutation selection coefficient
-	defineConstant("h",0.02);				// Background mutation dominance coefficient
-	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-	defineConstant("nt",1); 				// Number of traits to optimise
-	defineConstant("msd",0.25);			// Standard Deviation in trait values
-	defineConstant("rep",1);				// Which replicate is running
-	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
-	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
-	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//	defineConstant("s",0.00);				// Background mutation selection coefficient
+//	defineConstant("h",0.02);				// Background mutation dominance coefficient
+//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
+//	defineConstant("nt",1); 				// Number of traits to optimise
+//	defineConstant("msd",0.25);			// Standard Deviation in trait values
+//	defineConstant("rep",1);				// Which replicate is running
+//	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
+//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//	defineConstant("mscale",1);			// How much to scale baseline mutation rate by
+//	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
 	{
-		defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_rep",rep,".dat")));
+		defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,,"_mscale",mscale,"_rep",rep,".dat")));
 	}
 	else
 	{
-		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_rep",rep,".dat")));
+		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_rep",rep,".dat")));
 	}
 	
 	defineConstant("ShiftTime",5*N);
 	defineConstant("MaxTime",5*N+runtime+1);
 	defineConstant("oldo",0.0);
 	defineConstant("newo",1/sqrt(nt));
-	defineConstant("mutvar",msd*msd);				// Mutational variance in covariance matrix (= sd^2)
+	defineConstant("Rmsd",msd/sqrt(nt));			// Rescaled mutational variance depending on complexity
+	defineConstant("mutvar",Rmsd*Rmsd);				// Mutational variance in covariance matrix (= sd^2)
 	defineConstant("t1",round(0.04*runtime));		// Times when to sample haplotypes
 	defineConstant("t2",round(0.3*runtime));
 	
@@ -70,7 +72,7 @@ initialize() {
 	}
 	
 	// Uncomment if using Arabidopsis-type parameters
-	mu = 2.5e-9;
+	mu = mscale*2.5e-9;
 	rec = ((3.6*0.01)/(1000000-1));
 	
 	// Uncomment if using testing values
@@ -134,7 +136,7 @@ mutation(m3,p1)
 	}
 	else if (nt == 1)
 	{
-		effects = rnorm(1,QTL_mean,msd);		// note rnorm uses sd of effects
+		effects = rnorm(1,QTL_mean,Rmsd);		// note rnorm uses sd of effects
 		mut.setValue( "e0" , effects);
 	}
 	return T;
@@ -192,7 +194,7 @@ late () {
 			}
 			else
 			{
-				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_"));
+				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_"));
 			}
 			
 			// File suffix
@@ -232,20 +234,6 @@ late () {
 			}
 		}
 	}
-	
-	//	if ( (sim.generation == (ShiftTime-1)) & (rep==1) ){
-	//	
-	
-	//	}
-	//	
-	//	if ( (sim.generation == (ShiftTime + 20)) & (rep==1) ){
-	//		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_aftershift.ms")));
-	//	}
-	//	
-	//	if ( (sim.generation == (ShiftTime + 150) ) & (rep==1) ){
-	//		p1.outputMSSample(100,replace=F,filePath=paste0(c("/scratch/mhartfield/polyself_out/ms/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_newo",newo,"_msd",msd,"_rep",rep,"_simend.ms")));
-	//	}
-
 }
 
 // Outputting key statistics every 100 generations (or every 10 just after optimum shift)
@@ -317,16 +305,15 @@ early () {
 		p2.setSubpopulationSize(0);
 		p3.setSubpopulationSize(0);
 		
-		// Test - can I measure HW variance?
-		
-		
 		for(i in 1:nt)
 		{
 			if(size(qtls) != 0)
 			{
 				// Calculating genetic variance
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
+//				geneticvar[(i-1)] = sum(2*qtlf*(1+qtlf)*qtle*qtle) - (sum(2*qtlf*qtle))^2;
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
+				geneticvar[(i-1)] = 0;
 				ibvar[(i-1)] = 0;
 				for (mq in qtls)
 				{
@@ -337,7 +324,12 @@ early () {
 					f11=sum(mqf==2)/N;
 					f01=sum(mqf==1)/N;
 					ibvar[(i-1)] = ibvar[(i-1)] + (2*f00*f11-(1/2)*f01^2)*mqe*mqe;
+					if(f11!=1)
+					{
+						geneticvar[(i-1)] = geneticvar[(i-1)] + (f01*mqe^2 + f11*(2*mqe)^2 - (f01*mqe + f11*(2*mqe))^2);
+					}					
 				}
+				ldvar[(i-1)] = geneticvar[(i-1)] - genvar[(i-1)] - ibvar[(i-1)];
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
 					fixeff[(i-1)] = NAN;
@@ -360,8 +352,10 @@ early () {
 			}
 			else
 			{
+				geneticvar[(i-1)] = 0.0;
 				genvar[(i-1)] = 0.0;
 				ibvar[(i-1)] = 0.0;
+				ldvar[(i-1)] = 0.0;				
 				fixeff[(i-1)] = NAN;
 				proppos[(i-1)] = NAN;
 				fepos[(i-1)] = NAN;
@@ -370,8 +364,10 @@ early () {
 			// Printing out mean individual phenotype; variance in indv phenotype; population genetic variance
 			line = c(line,cumphen[(i-1)]/N);
 			line = c(line,(cumphensq[(i-1)]/N) - (cumphen[(i-1)]/N)^2);
+			line = c(line,geneticvar[(i-1)]);
 			line = c(line,genvar[(i-1)]);
 			line = c(line,ibvar[(i-1)]);
+			line = c(line,ldvar[(i-1)]);			
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
 			line = c(line,fepos[(i-1)]);
@@ -391,8 +387,10 @@ early () {
 	{
 		line = c(line,paste0(c("MeanTrait",i)));
 		line = c(line,paste0(c("VarTrait",i)));
+		line = c(line,paste0(c("GeneticVar",i)));		
 		line = c(line,paste0(c("GenVar",i)));
 		line = c(line,paste0(c("InbredVar",i)));
+		line = c(line,paste0(c("LDVar",i)));
 		line = c(line,paste0(c("MeanFixedQTL",i)));
 		line = c(line,paste0(c("PropPosQTL",i)));
 		line = c(line,paste0(c("MeanPosQTL",i)));
