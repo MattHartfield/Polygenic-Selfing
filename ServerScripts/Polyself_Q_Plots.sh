@@ -21,13 +21,14 @@ SEL=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersP
 DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $2}')
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $4}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $5}')
+RT=2000
 
-if [ $NTR -le 5 ]
-then
-	RT=500
-else
-	RT=2000
-fi
+# if [ $NTR -le 5 ]
+# then
+# 	RT=500
+# else
+# 	RT=2000
+# fi
 
 # Running plot code
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
@@ -35,6 +36,7 @@ then
 	echo "Deleting old plot files" >&1
 	fds='neutral weakdom strongdom'
 	fsv='contmut stopmut'
+	fmu='lowmut highmut'	
 	rm -rf /data/hartfield/polyself/results/*
 	rm -rf /scratch/mhartfield/polyself_out/plots/
 	mkdir /scratch/mhartfield/polyself_out/plots/ 
@@ -44,6 +46,10 @@ then
 		for fs in $fsv
 		do
 			mkdir /scratch/mhartfield/polyself_out/plots/$fd/$fs/
+			for fm in $fmu
+			do
+				mkdir /scratch/mhartfield/polyself_out/plots/$fd/$fs/$fm/
+			done
 		done
 	done
 	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*
