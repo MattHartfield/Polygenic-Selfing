@@ -11,6 +11,7 @@ self <- as.double(args[3])		# Selfing rate
 N <- as.integer(args[4])		# Number of traits each QTL affects
 msd <- as.double(args[5])		# Standard deviation of mutational effect
 isnm <- as.integer(args[6])		# Is mutation stopped after optimum shift
+mscale <- as.integer(args[7])	# Scaling of mutation rate
 
 filenames <- c('time0','time1','time2','time3')
 
@@ -18,7 +19,7 @@ for(k in filenames){
 
 	# Reading in and sorting data
 #	dat <- read_delim(paste0("VCFout_test_",k,".vcf"),delim='\t',skip=13)[,-c(1,3:9)] %>% column_to_rownames("POS")
-	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:9)] %>% column_to_rownames("POS")
+	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:9)] %>% column_to_rownames("POS")
 	fc <- c()
 	for(a in 0:49){
 		if(a!=49){
@@ -38,7 +39,7 @@ for(k in filenames){
 	hqc <- rev(brewer.pal(11,"RdBu")[1:5])
 	lqc <- brewer.pal(11,"RdBu")[7:11]
 	
-	QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_",k,".info"),delim=" ")
+	QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".info"),delim=" ")
 	QTLd <- QTLd[order(QTLd$POS),]
 #	mq <-  max(QTLd[QTLd$MeanQTL>0,2])
 #	minq <- min(QTLd[QTLd$MeanQTL<0,2])
@@ -62,11 +63,16 @@ for(k in filenames){
 	
 	# Creating sub matrix with stripped down entries; QTLs and other sites, no more than 100
 	if(dim(dat)[1]>100){
-		dat2 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qidx)), Qidx )),]
+		if(length(Qidx) < 100){
+			dat2 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qidx)), Qidx )),]
+		}else if(length(Qidx) >= 100){
+			dat2 <- dat[sort( sample(Qidx, 100) ),]
+		}
+		
 	}
 	
 #	pdf(paste0("Hap_Plot_",k,".pdf"),width=12,height=12)
-	pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,".pdf"),width=12,height=12)
+	pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
 	heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=plotc,scale="none")
 	dev.off()
 	

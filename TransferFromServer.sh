@@ -14,12 +14,17 @@ rm -r HapInfo
 mkdir HapInfo
 fds='neutral weakdom strongdom'
 fsv='contmut stopmut'
+fmu='lowmut highmut'	
 for fd in $fds
 do
 	mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/
 	for fs in $fsv
 	do
 		mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/$fs/
+		for fm in $fmu
+		do
+			mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/$fs/$fm/
+		done
 	done
 done
 	
