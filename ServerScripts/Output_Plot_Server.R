@@ -6,7 +6,7 @@ library(wesanderson)
 library(plyr)
 
 pop <- 5000				# Population size
-tchange <- 5*pop		# Time at which optimum changes
+tchange <- 2*pop		# Time at which optimum changes
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -82,14 +82,14 @@ for(a in 0)
 	}
 	
 	# For different mutation rates
-	for(b in c(1,4))
+	for(b in c(25))
 	{
 		
 		if(b==1){
 			endpb <- " Low mutation rate."
 			endfnb <- '_lowmut'
 			outf3 <- "lowmut"
-		}else if(b==4){
+		}else if(b!=1){
 			endpb <- " High mutation rate."
 			endfnb <- '_highmut'
 			outf3 <- "highmut"		

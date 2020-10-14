@@ -56,29 +56,29 @@ for(i in 1:length(pt))
 		
 	# QTL count, total effect per individual
 	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'.count.pdf'),width=18,height=42)
-	par(mfrow=c(3,1),mar = c(5.1, 5.1, 4.1, 2.1))
-	barplot(table(dat$V1),xlab="Number of QTLs per individual",ylab="Count",cex.names=2.3,cex.axis=2.5,cex.lab=2.5)
+	par(mfrow=c(3,1),mar = c(8.1, 7.1, 4.1, 2.1), mgp = c(5,2,0))
+	barplot(table(dat$V1),xlab="Number of QTLs per individual",ylab="Count",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
 	if(is.na(dat$V2[1])!=T){
-		hist(dat$V2,col="gray70",xlab="Mean QTL effect per individual",ylab="Count",main="",cex.lab=2.5,cex.axis=2.5)
-		barplot(cdat,xlab="Rank of genotype occurrence",ylab="Count",cex.names=2.3,cex.axis=2.5,cex.lab=2.5)
+		hist(dat$V2,col="gray70",xlab="Mean QTL effect per individual",ylab="Count",main="",cex.lab=4.0,cex.axis=4.0)
+		barplot(cdat,xlab="Rank of genotype occurrence",ylab="Count",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
 	}else{
 		cdat <- c(50)
 		names(cdat) <- "NA"
-		barplot(cdat,xlab="Mean QTL effect per individual",ylab="Count",col="white",cex.names=2.3,cex.axis=2.5,cex.lab=2.5)
-		barplot(cdat,xlab="Rank of genotype occurrence",ylab="Count",col="white",cex.names=2.3,cex.axis=2.5,cex.lab=2.5)
+		barplot(cdat,xlab="Mean QTL effect per individual",ylab="Count",col="white",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
+		barplot(cdat,xlab="Rank of genotype occurrence",ylab="Count",col="white",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
 	}
 	dev.off()
 	
 	# QTL frequency histogram
 	dfreq <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".freq"))
 	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'.freq.pdf'),width=12,height=12)
-	par(mar = c(5.1, 5.1, 4.1, 2.1))
+	par(mar = c(10.1, 4.1, 4.1, 2.1), mgp = c(4,2,0))
 	if(is.na(dfreq$V2[1])!=T){
-		barplot(table(dfreq$V2),xlab="QTL frequency",ylab="Count", cex.names=2.3, cex.axis=2.5, cex.lab=2.5)
+		barplot(table(dfreq$V2),xlab="QTL frequency",ylab="Count", cex.names=3.0, cex.axis=4.0, cex.lab=4.0)
 	}else{
 		dfreq <- c(1)
 		names(dfreq) <- "NA"
-		barplot(dfreq,xlab="QTL frequency",ylab="Count", col="white", cex.names=2.3, cex.axis=2.5, cex.lab=2.5, yaxt="n")
+		barplot(dfreq,xlab="QTL frequency",ylab="Count", col="white", cex.names=3.0, cex.axis=4.0, cex.lab=4.0, yaxt="n")
 	}
 	dev.off()
 }

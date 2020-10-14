@@ -41,8 +41,8 @@ initialize() {
 		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_rep",rep,".dat")));
 	}
 	
-	defineConstant("ShiftTime",5*N);
-	defineConstant("MaxTime",5*N+runtime+1);
+	defineConstant("ShiftTime",2*N);
+	defineConstant("MaxTime",2*N+runtime+1);
 	defineConstant("oldo",0.0);
 	defineConstant("newo",1/sqrt(nt));
 	defineConstant("Rmsd",msd/sqrt(nt));			// Rescaled mutational variance depending on complexity

@@ -16,8 +16,8 @@ for (( j=1; j <= NL; ++j ))
 	do
 		# Repeat twice; one where mutation continues after burn-in (0), one where it stops (1)
 		# Also add mutation scaling factor
-		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 0 1 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
-		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 0 4 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt		
+#		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 0 1 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
+		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 0 25 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt		
 #		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " 1 " rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
 	done
 	if [ $(($j % 4)) -eq 1 ]

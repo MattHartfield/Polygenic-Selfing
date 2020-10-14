@@ -12,8 +12,8 @@
 #$ -N Polysel_Self_Sims
 #$ -V
 #$ -cwd
-#$ -t 1-160		# Run command for each line of parameter file
-#$ -l h=c2 		# Run array job on this sub-server
+#$ -t 1-80		# Run command for each line of parameter file
+#$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -26,7 +26,7 @@ MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersB
 ISNM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $6}')
 MSC=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
 REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $8}')
-RT=2000
+RT=1000
 
 # if [ $NTR -le 5 ]
 # then
