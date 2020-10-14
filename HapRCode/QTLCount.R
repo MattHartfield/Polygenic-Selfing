@@ -20,10 +20,42 @@ mscale <- as.double(args[7])
 # }
 pt <- c("time0","time1","time2","time3")
 
+# 1: Number QTLs per individual
+pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'_count1.pdf'),width=40,height=10)
+par(mfrow=c(1,length(pt)),mar = c(12.1, 12.1, 8.1, 2.1), mgp = c(5,3,0), oma=c(3,4,3,0))
+for(i in 1:length(pt))
+{		
+	dat <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".count"))	
+	# QTL count, total effect per individual
+	barplot(table(dat$V1),cex.names=5.0,cex.axis=5.0,cex.lab=5.0)
+	title(paste0("Time ",i),line=3,cex.main=5)
+}
+mtext(text="Number of QTLs per individual",side=1,outer=T,cex=4)
+mtext(text="Count",side=2,outer=T,cex=4)
+dev.off()
+
+# 2: Effect per individual
+pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'_count2.pdf'),width=40,height=10)
+par(mfrow=c(1,length(pt)),mar = c(12.1, 12.1, 4.1, 2.1), mgp = c(5,3,0), oma=c(3,4,0,0))
 for(i in 1:length(pt))
 {
 	dat <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".count"))
+	if(is.na(dat$V2[1])!=T){
+		hist(dat$V2,col="gray70",xlab="",ylab="",main="",cex.lab=5.0,cex.axis=5.0)
+	}else{
+		barplot(cdat,xlab="",ylab="",col="white",cex.names=5.0,cex.axis=5.0,cex.lab=5.0)
+	}
+}
+mtext(text="Mean QTL effect per individual",side=1,outer=T,cex=4)
+mtext(text="Count",side=2,outer=T,cex=4)
+dev.off()
 
+# 3: Effect per individual
+pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'_count3.pdf'),width=40,height=10)
+par(mfrow=c(1,length(pt)),mar = c(12.1, 12.1, 4.1, 2.1), mgp = c(5,3,0), oma=c(3,4,0,0))
+for(i in 1:length(pt))
+{
+	dat <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".count"))
 	# Counting how common genotypes are, based on number of QTLs and effect per individuals
 	if(is.na(dat$V2[1])!=T){
 		cdat <- vector(mode="numeric",length=dim(dat)[1])
@@ -53,32 +85,33 @@ for(i in 1:length(pt))
 		cdat <- sort(cdat,decreasing=T)
 		names(cdat)=c(1:length(cdat))
 	}
-		
-	# QTL count, total effect per individual
-	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'.count.pdf'),width=18,height=42)
-	par(mfrow=c(3,1),mar = c(8.1, 7.1, 4.1, 2.1), mgp = c(5,2,0))
-	barplot(table(dat$V1),xlab="Number of QTLs per individual",ylab="Count",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
+	
 	if(is.na(dat$V2[1])!=T){
-		hist(dat$V2,col="gray70",xlab="Mean QTL effect per individual",ylab="Count",main="",cex.lab=4.0,cex.axis=4.0)
-		barplot(cdat,xlab="Rank of genotype occurrence",ylab="Count",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
+		barplot(cdat,xlab="",ylab="",cex.names=5.0,cex.axis=5.0,cex.lab=5.0)
 	}else{
 		cdat <- c(50)
 		names(cdat) <- "NA"
-		barplot(cdat,xlab="Mean QTL effect per individual",ylab="Count",col="white",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
-		barplot(cdat,xlab="Rank of genotype occurrence",ylab="Count",col="white",cex.names=3.0,cex.axis=4.0,cex.lab=4.0)
+		barplot(cdat,xlab="",ylab="",col="white",cex.names=5.0,cex.axis=5.0,cex.lab=5.0)
 	}
-	dev.off()
-	
-	# QTL frequency histogram
+}
+mtext(text="Rank of genotype occurrence",side=1,outer=T,cex=4)
+mtext(text="Count",side=2,outer=T,cex=4)
+dev.off()
+
+# 4: QTL frequency histogram (separate plot)
+pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'_freq.pdf'),width=40,height=10)
+par(mfrow=c(1,length(pt)),mar = c(12.1, 12.1, 4.1, 2.1), mgp = c(5,3,0), oma=c(3,4,0,0))
+for(i in 1:length(pt))
+{
 	dfreq <- read.table(paste0("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_",pt[i],"_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".freq"))
-	pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_',pt[i],'_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'.freq.pdf'),width=12,height=12)
-	par(mar = c(10.1, 4.1, 4.1, 2.1), mgp = c(4,2,0))
 	if(is.na(dfreq$V2[1])!=T){
-		barplot(table(dfreq$V2),xlab="QTL frequency",ylab="Count", cex.names=3.0, cex.axis=4.0, cex.lab=4.0)
+		barplot(table(dfreq$V2),xlab="",ylab="", cex.names=5.0, cex.axis=5.0, cex.lab=5.0)
 	}else{
 		dfreq <- c(1)
 		names(dfreq) <- "NA"
-		barplot(dfreq,xlab="QTL frequency",ylab="Count", col="white", cex.names=3.0, cex.axis=4.0, cex.lab=4.0, yaxt="n")
+		barplot(dfreq,xlab="",ylab="", col="white", cex.names=5.0, cex.axis=5.0, cex.lab=5.0, yaxt="n")
 	}
-	dev.off()
 }
+mtext(text="QTL frequency",side=1,outer=T,cex=4)
+mtext(text="Count",side=2,outer=T,cex=4)
+dev.off()
