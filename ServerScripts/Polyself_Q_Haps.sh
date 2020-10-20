@@ -11,7 +11,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-8 		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -44,7 +44,7 @@ fi
 
 # Processing data
 #for ISNM in 0 1
-for MSC in 25
+for MSC in 1 25
 do
 	for ISNM in 0
 	do

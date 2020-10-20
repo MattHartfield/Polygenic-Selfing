@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-2		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 

@@ -82,7 +82,7 @@ for(a in 0)
 	}
 	
 	# For different mutation rates
-	for(b in c(25))
+	for(b in c(1,25))
 	{
 		
 		if(b==1){
@@ -356,7 +356,7 @@ for(a in 0)
 		for(S in self)
 		{
 			if(which(self%in%S) == 1){
-				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5,log="y")
+				plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 				polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 				abline(v=0,lty=2)
 				points(x=0,y=HoCV*b,pch=4,cex=2,col=pcol[1])		# Expected HoC variance

@@ -98,7 +98,7 @@ mtext(text="Rank of genotype occurrence",side=1,outer=T,cex=4)
 mtext(text="Count",side=2,outer=T,cex=4)
 dev.off()
 
-# 4: QTL frequency histogram (separate plot)
+# 4: QTL frequency histogram
 pdf(file=paste0('/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/OutputPlots/haps/HS_s',s,'_h',h,'_self',S,'_nt',N,'_msd',msd,'_isnm',isnm,'_mscale',mscale,'_freq.pdf'),width=40,height=10)
 par(mfrow=c(1,length(pt)),mar = c(12.1, 12.1, 4.1, 2.1), mgp = c(5,3,0), oma=c(3,4,0,0))
 for(i in 1:length(pt))

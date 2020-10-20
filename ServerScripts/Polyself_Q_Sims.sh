@@ -12,8 +12,8 @@
 #$ -N Polysel_Self_Sims
 #$ -V
 #$ -cwd
-#$ -t 1-80		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -t 1-160		# Run command for each line of parameter file
+#$ -l h=c1		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -54,7 +54,7 @@ slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d msd=$MSD -d rep=$REP -d i
 # 	NEWOP=$(printf "%.0f" $NEWOP)
 # fi
 
-# Code below tp create VCF with just QTLs, but no longer needed?
+# Code below to create VCF with just QTLs, but no longer needed?
 # if [ $REP -eq 1 ]
 # then
 # # 	if [ $ISSV -eq 0 ]
