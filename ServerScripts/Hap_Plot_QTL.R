@@ -18,7 +18,6 @@ filenames <- c('time0','time1','time2','time3')
 for(k in filenames){
 
 	# Reading in and sorting data
-#	dat <- read_delim(paste0("VCFout_test_",k,".vcf"),delim='\t',skip=13)[,-c(1,3:9)] %>% column_to_rownames("POS")
 	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:9)] %>% column_to_rownames("POS")
 	fc <- c()
 	for(a in 0:49){
@@ -31,18 +30,12 @@ for(k in filenames){
 	}
 	dat <- dat[,fc+1]
 	
-	# Plotting heatmap of just polymorphisms without QTL colour coding. NOTE USE OF 'SCALE=NONE', IMPORTANT!!!!
-	# heatmap(t(data.matrix(dat)),Colv=NA,Rowv=NA,col=c("white","black"),scale="none")
-	
 	# Loading QTLs and assigning colour based on direction, mean strength
-	
 	hqc <- rev(brewer.pal(11,"RdBu")[1:5])
 	lqc <- brewer.pal(11,"RdBu")[7:11]
 	
 	QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".info"),delim=" ")
 	QTLd <- QTLd[order(QTLd$POS),]
-#	mq <-  max(QTLd[QTLd$MeanQTL>0,2])
-#	minq <- min(QTLd[QTLd$MeanQTL<0,2])
 	QTLd <- QTLd %>% mutate(QTLs=ifelse(MeanQTL>=0, ceiling(MeanQTL*8), ceiling(MeanQTL*(-8)) ))
 	QTLd[QTLd$QTLs>5,3] <- 5
 	QTLd <- QTLd %>% mutate(QTLcol=ifelse(MeanQTL>=0, hqc[QTLs], lqc[QTLs] ))
@@ -71,33 +64,15 @@ for(k in filenames){
 		
 	}
 	
-#	pdf(paste0("Hap_Plot_",k,".pdf"),width=12,height=12)
+#	mh <- switch(which(k==filenames),"Time 1","Time 2","Time 3",'Time 4')
 	pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
-	heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=plotc,scale="none")
+	heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=plotc,scale="none",labRow=NULL,labCol=NULL)
+	# if(k=='time3')
+	# {
+		# legend("right",c("Maximum positive","Maximum negative","Neutral"),col=c(brewer.pal(11,"RdBu")[c(1,11)],"black"),fill=T,border=T,)
+	# }
 	dev.off()
 	
 }
 
-# Debug unusual heatmap
-#dat2 <- read.table("dat2_test.dat")
-#heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=c("white","black","red"))
-
-# Old code, did not sort/scale by QTL type, direction
-# QTL info
-# QTLd <- read_delim("VCFout_test_beforeshift.info",delim=" ")
-# QTLd <- QTLd[order(QTLd$POS),]
-# for(b in 1:dim(QTLd)[1]){
-	# if(length(which(row.names(dat)%in%QTLd[b,1]))!=0){
-# #		dat[which(row.names(dat)%in%QTLd[b,1]),dat[which(row.names(dat)%in%QTLd[b,1]),]==1] <- QTLd[b,2]
-		# dat[which(row.names(dat)%in%QTLd[b,1]),dat[which(row.names(dat)%in%QTLd[b,1]),]==1] <- 2
-	# }
-# }
-# #dat[dat==1] <- 0
-
-# # Creating sub matrix with stripped down entries; QTLs and other sites, no more than 100
-# if(dim(dat)[1]>100){
-	# dat2 <- dat[sort(c( sample(which(rowSums(dat==2)==0),100-length(which(rowSums(dat==2)>0))), which(rowSums(dat==2)>0) )),]
-# }
-
-# # Heatmapping
-# heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=c("white","black","red"),scale="none")
+# EOF
