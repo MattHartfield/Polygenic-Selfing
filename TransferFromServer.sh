@@ -27,6 +27,8 @@ do
 		done
 	done
 done
+# Hap plot legend creation
+Rscript /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/HapRCode/LegendPlot.R 
 	
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
 NL=$(($NP/8))
@@ -51,5 +53,7 @@ do
 ./HapsProcess.sh $((8*${NL} + ${j})) &> HapInfo/HapInfo$((8*${NL} + ${j})).out &
 done
 wait
+
+rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegend.pdf
 
 echo 'All data processed'

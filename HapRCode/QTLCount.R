@@ -43,6 +43,8 @@ for(i in 1:length(pt))
 	if(is.na(dat$V2[1])!=T){
 		hist(dat$V2,col="gray70",xlab="",ylab="",main="",cex.lab=5.0,cex.axis=5.0)
 	}else{
+		cdat <- c(50)
+		names(cdat) <- "NA"
 		barplot(cdat,xlab="",ylab="",col="white",cex.names=5.0,cex.axis=5.0,cex.lab=5.0)
 	}
 }

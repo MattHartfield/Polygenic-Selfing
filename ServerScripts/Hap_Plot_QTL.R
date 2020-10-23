@@ -3,6 +3,7 @@
 
 library(tidyverse)
 library(RColorBrewer)
+library(gplots)
 
 args <- commandArgs(trailingOnly = TRUE)
 s <- as.double(args[1])			# Selection coefficient, background mutations
@@ -18,7 +19,9 @@ filenames <- c('time0','time1','time2','time3')
 for(k in filenames){
 
 	# Reading in and sorting data
-	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:9)] %>% column_to_rownames("POS")
+	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
+	del_idx <- grep("MT=2",dat[,1]) # Indices of deleterious variants
+	dat <- dat[,-1] # Removing INFO field
 	fc <- c()
 	for(a in 0:49){
 		if(a!=49){
@@ -29,6 +32,8 @@ for(k in filenames){
 		fc <- c(fc,a,a+50)
 	}
 	dat <- dat[,fc+1]
+	# Replacing '1' with '2' to indicate deleterious variants
+	dat[del_idx,] <- apply(dat[del_idx,],c(1,2),function(x) ifelse(x==1,x<-2,x<-0))
 	
 	# Loading QTLs and assigning colour based on direction, mean strength
 	hqc <- rev(brewer.pal(11,"RdBu")[1:5])
@@ -40,8 +45,8 @@ for(k in filenames){
 	QTLd[QTLd$QTLs>5,3] <- 5
 	QTLd <- QTLd %>% mutate(QTLcol=ifelse(MeanQTL>=0, hqc[QTLs], lqc[QTLs] ))
 	
-	plotc <- c("white","black")
-	QTLc <- 2
+	plotc <- c(rgb(242,242,242,125,max=255),"gray60","black")
+	QTLc <- 3
 	Qidx <- c()
 	for(b in 1:dim(QTLd)[1]){
 		if(length(which(row.names(dat)%in%QTLd[b,1]))!=0){
@@ -64,15 +69,15 @@ for(k in filenames){
 		
 	}
 	
-#	mh <- switch(which(k==filenames),"Time 1","Time 2","Time 3",'Time 4')
+	# Plotting 
+	mh <- switch(which(k==filenames),"Time 1","Time 2","Time 3",'Time 4')
 	pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
-	heatmap(t(data.matrix(dat2)),Colv=NA,Rowv=NA,col=plotc,scale="none",labRow=NULL,labCol=NULL)
-	# if(k=='time3')
-	# {
-		# legend("right",c("Maximum positive","Maximum negative","Neutral"),col=c(brewer.pal(11,"RdBu")[c(1,11)],"black"),fill=T,border=T,)
-	# }
+	#pdf(paste0("HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
+	par(cex.main=3)
+	heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 	dev.off()
-	
+
 }
+
 
 # EOF
