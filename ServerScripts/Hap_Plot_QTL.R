@@ -20,7 +20,9 @@ for(k in filenames){
 
 	# Reading in and sorting data
 	dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
-	del_idx <- grep("MT=2",dat[,1]) # Indices of deleterious variants
+	if(s!=0){
+		del_idx <- grep(paste0("S=",s),dat[,1]) # Indices of deleterious variants
+	}
 	dat <- dat[,-1] # Removing INFO field
 	fc <- c()
 	for(a in 0:49){
@@ -33,7 +35,9 @@ for(k in filenames){
 	}
 	dat <- dat[,fc+1]
 	# Replacing '1' with '2' to indicate deleterious variants
-	dat[del_idx,] <- apply(dat[del_idx,],c(1,2),function(x) ifelse(x==1,x<-2,x<-0))
+	if(s!=0){
+		dat[del_idx,] <- apply(dat[del_idx,],c(1,2),function(x) ifelse(x==1,x<-2,x<-0))
+	}
 	
 	# Loading QTLs and assigning colour based on direction, mean strength
 	hqc <- rev(brewer.pal(11,"RdBu")[1:5])
@@ -59,22 +63,47 @@ for(k in filenames){
 	}
 	plotc <- unlist(plotc)
 	
-	# Creating sub matrix with stripped down entries; QTLs and other sites, no more than 100
-	if(dim(dat)[1]>100){
-		if(length(Qidx) < 100){
-			dat2 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qidx)), Qidx )),]
-		}else if(length(Qidx) >= 100){
-			dat2 <- dat[sort( sample(Qidx, 100) ),]
+	# Separating QTLs into fixed, non-fixed
+	if(length(Qidx)!=0){
+		if(length(which(rowSums(dat[Qidx,]!=0)==100))!=0){
+			Qfx <- Qidx[which(rowSums(dat[Qidx,]!=0)==100)]
+			Qnfx <- Qidx[-which(rowSums(dat[Qidx,]!=0)==100)]
+		}else{
+			Qfx <- Qidx[which(rowSums(dat[Qidx,]!=0)==100)]
+			Qnfx <- Qidx
 		}
-		
+	}else{
+		Qfx <- Qidx
+		Qnfx <- Qidx		
 	}
+	
+	# Creating sub matrix with stripped down entries; All fixed QTLs; selection of other QTLs; other sites if space allows. No more than 100
+	if(dim(dat)[1]>100){
+		if(length(Qfx) >= 100){
+			dat2 <- dat[sort( sample(Qfx, 100) ),]
+		}else if( (length(Qfx) < 100) && ( (length(Qfx) + length(Qnfx)) >= 100) ){
+			dat2 <- dat[sort(c( Qfx, sample(Qnfx, 100-length(Qfx)) )),]
+		}else{
+			dat2 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qidx)), Qidx )),]
+		}
+	}else{
+		dat2 <- dat
+	}
+	
+	# Re-ordering entry numbers, so heatmap plotting works correctly after thinning
+	unm <- sort(unique(as.numeric(as.matrix(dat2)))) # Unique entries of matrix after thinning
+	for(j in 0:(length(unm)-1)){
+		if(unm[j+1]!=j){
+			dat2[dat2==unm[j+1]] <- j
+		}
+	}
+	plotc2 <- plotc[unm+1]
 	
 	# Plotting 
 	mh <- switch(which(k==filenames),"Time 1","Time 2","Time 3",'Time 4')
 	pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
-	#pdf(paste0("HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
 	par(cex.main=3)
-	heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
+	heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 	dev.off()
 
 }

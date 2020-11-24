@@ -11,7 +11,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-8 		# Run command for each line of parameter file
-#$ -l h=c2 		# Run array job on this sub-server
+#$ -l h=c4 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -122,5 +122,5 @@ do
 	done
 done
 
-rm -rf /data/hartfield/polyself/results/*
+#rm -rf /data/hartfield/polyself/results/*
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
