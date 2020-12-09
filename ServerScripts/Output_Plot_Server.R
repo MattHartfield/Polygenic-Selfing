@@ -2,7 +2,7 @@
 # Script to read in polygenic selection simulation outputs and plot
 # 'cu' = 'close-up' version, only plots after optimum shift
 
-library(wesanderson)
+library(RColorBrewer)
 library(plyr)
 
 pop <- 5000				# Population size
@@ -20,7 +20,7 @@ self <- c(0,0.5,0.9,0.999)
 
 HoCV <- 0.005				# Expected House Of Cards Variance (baseline mutation rate)
 reps <- 10					# Number of replicates per parameter set
-pcol <- rev(wes_palette("Darjeeling1")[c(1:2,4:5)])
+pcol <- brewer.pal(n=4,name='Dark2')
 
 # Function for calculating mean
 mnona <- function(x){
