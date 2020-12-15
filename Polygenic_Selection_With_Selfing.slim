@@ -15,21 +15,21 @@ initialize() {
 	catn("New random seed is " + theseed);
 	setSeed(theseed);
 	
-	defineConstant("N",500);				// Population size
+	defineConstant("N",5000);				// Population size
 	defineConstant("QTLf",0.1);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	
 	// Uncomment if running on home machine; comment out otherwise
-	defineConstant("s",0.00);				// Background mutation selection coefficient
-	defineConstant("h",0.02);				// Background mutation dominance coefficient
-	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-	defineConstant("nt",1); 				// Number of traits to optimise
-	defineConstant("msd",0.25);			// Standard Deviation in trait values
-	defineConstant("rep",1);				// Which replicate is running
-	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
-	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
-	defineConstant("mscale",1);			// How much to scale baseline mutation rate by
-	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+//	defineConstant("s",0.00);				// Background mutation selection coefficient
+//	defineConstant("h",0.02);				// Background mutation dominance coefficient
+//	defineConstant("sfrate",0);			// Self-fertilisation rate
+//	defineConstant("nt",1); 				// Number of traits to optimise
+//	defineConstant("msd",0.25);			// Standard Deviation in trait values
+//	defineConstant("rep",1);				// Which replicate is running
+//	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
+//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//	defineConstant("mscale",1);			// How much to scale baseline mutation rate by
+//	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -315,6 +315,7 @@ early () {
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
 				geneticvar[(i-1)] = 0;
 				ibvar[(i-1)] = 0;
+				ldvar[(i-1)] = 0;
 
 				// Code adapted from recipe 14.4 for calculating inbred variance
 				for (mq in qtls)
@@ -325,16 +326,33 @@ early () {
 					f11=sum(mqf==2)/N;
 					f01=sum(mqf==1)/N;
 					ibvar[(i-1)] = ibvar[(i-1)] + (2*f00*f11-(1/2)*f01^2)*mqe*mqe;
-//					if(f11!=1)
-//					{
-//						geneticvar[(i-1)] = geneticvar[(i-1)] + (f01*mqe^2 + f11*(2*mqe)^2 - (f01*mqe + f11*(2*mqe))^2);
-//					}					
+					// If not last QTL in list, calculating covariance LD with other QTLs
+					if(which(qtls==mq)!=(length(qtls)-1))
+					{
+						mqfA1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq.position,"));")));
+						mqfA2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq.position,"));")));
+						fA = sim.mutationFrequencies(p1,qtls[which(qtls==mq)]);
+						for (mq2 in qtls[c((which(qtls==mq)+1):(length(qtls)-1))])
+						{
+							mqe2 = mq2.getValue(paste0(c("e",(i-1))));
+							mqfB1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq2.position,"));")));
+							mqfB2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq2.position,"));")));
+							fB = sim.mutationFrequencies(p1,qtls[which(qtls==mq2)]);
+							fA1B1 = sum(mqfA1*mqfB1)/N;
+							fA1B2 = sum(mqfA1*mqfB2)/N;
+							fA2B1 = sum(mqfA2*mqfB1)/N;
+							fA2B2 = sum(mqfA2*mqfB2)/N;												
+							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B1-fA*fB);
+							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B2-fA*fB);
+							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B1-fA*fB);
+							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B2-fA*fB);
+						}
+					}				
 				}
-//				ldvar[(i-1)] = geneticvar[(i-1)] - genvar[(i-1)] - ibvar[(i-1)];
-
-				// Calculating LD covariance
 				
-
+				// Add all components together to determine genetic variance
+				geneticvar[(i-1)] = genvar[(i-1)] + ibvar[(i-1)] + ldvar[(i-1)];
+				
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
 					fixeff[(i-1)] = NAN;
