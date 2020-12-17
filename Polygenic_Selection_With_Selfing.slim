@@ -270,11 +270,11 @@ early () {
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
-		cumfitsq = 0.0;					// Cumulative square of fitness (for variance)
-		geneticvar = rep(0.0,nt);		// Genetic variance
+		cumfitsq = 0.0;					// Cumulative square of fitness (for genetic variance)
+//		geneticvar = rep(0.0,nt);		// Genetic variance
 		genvar = rep(0.0,nt);			// Genic variance
 		ibvar = rep(0.0,nt);				// Inbred variance
-		ldvar = rep(0.0,nt);				// LD variance
+//		ldvar = rep(0.0,nt);				// LD variance
 		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
 		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
 		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
@@ -313,9 +313,9 @@ early () {
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
 //				geneticvar[(i-1)] = sum(2*qtlf*(1+qtlf)*qtle*qtle) - (sum(2*qtlf*qtle))^2;
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
-				geneticvar[(i-1)] = 0;
+//				geneticvar[(i-1)] = 0;
 				ibvar[(i-1)] = 0;
-				ldvar[(i-1)] = 0;
+//				ldvar[(i-1)] = 0;
 
 				// Code adapted from recipe 14.4 for calculating inbred variance
 				for (mq in qtls)
@@ -327,31 +327,31 @@ early () {
 					f01=sum(mqf==1)/N;
 					ibvar[(i-1)] = ibvar[(i-1)] + (2*f00*f11-(1/2)*f01^2)*mqe*mqe;
 					// If not last QTL in list, calculating covariance LD with other QTLs
-					if(which(qtls==mq)!=(length(qtls)-1))
-					{
-						mqfA1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq.position,"));")));
-						mqfA2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq.position,"));")));
-						fA = sim.mutationFrequencies(p1,qtls[which(qtls==mq)]);
-						for (mq2 in qtls[c((which(qtls==mq)+1):(length(qtls)-1))])
-						{
-							mqe2 = mq2.getValue(paste0(c("e",(i-1))));
-							mqfB1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq2.position,"));")));
-							mqfB2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq2.position,"));")));
-							fB = sim.mutationFrequencies(p1,qtls[which(qtls==mq2)]);
-							fA1B1 = sum(mqfA1*mqfB1)/N;
-							fA1B2 = sum(mqfA1*mqfB2)/N;
-							fA2B1 = sum(mqfA2*mqfB1)/N;
-							fA2B2 = sum(mqfA2*mqfB2)/N;												
-							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B1-fA*fB);
-							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B2-fA*fB);
-							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B1-fA*fB);
-							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B2-fA*fB);
-						}
-					}				
+//					if(which(qtls==mq)!=(length(qtls)-1))
+//					{
+//						mqfA1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq.position,"));")));
+//						mqfA2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq.position,"));")));
+//						fA = sim.mutationFrequencies(p1,qtls[which(qtls==mq)]);
+//						for (mq2 in qtls[c((which(qtls==mq)+1):(length(qtls)-1))])
+//						{
+//							mqe2 = mq2.getValue(paste0(c("e",(i-1))));
+//							mqfB1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq2.position,"));")));
+//							mqfB2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq2.position,"));")));
+//							fB = sim.mutationFrequencies(p1,qtls[which(qtls==mq2)]);
+//							fA1B1 = sum(mqfA1*mqfB1)/N;
+//							fA1B2 = sum(mqfA1*mqfB2)/N;
+//							fA2B1 = sum(mqfA2*mqfB1)/N;
+//							fA2B2 = sum(mqfA2*mqfB2)/N;												
+//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B1-fA*fB);
+//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B2-fA*fB);
+//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B1-fA*fB);
+//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B2-fA*fB);
+//						}
+//					}				
 				}
 				
 				// Add all components together to determine genetic variance
-				geneticvar[(i-1)] = genvar[(i-1)] + ibvar[(i-1)] + ldvar[(i-1)];
+//				geneticvar[(i-1)] = genvar[(i-1)] + ibvar[(i-1)] + ldvar[(i-1)];
 				
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
@@ -375,22 +375,24 @@ early () {
 			}
 			else
 			{
-				geneticvar[(i-1)] = 0.0;
+//				geneticvar[(i-1)] = 0.0;
 				genvar[(i-1)] = 0.0;
 				ibvar[(i-1)] = 0.0;
-				ldvar[(i-1)] = 0.0;				
+//				ldvar[(i-1)] = 0.0;				
 				fixeff[(i-1)] = NAN;
 				proppos[(i-1)] = NAN;
 				fepos[(i-1)] = NAN;
 			}
 			
 			// Printing out mean individual phenotype; variance in indv phenotype; population genetic variance
-			line = c(line,cumphen[(i-1)]/N);
-			line = c(line,(cumphensq[(i-1)]/N) - (cumphen[(i-1)]/N)^2);
-			line = c(line,geneticvar[(i-1)]);
+			mti = cumphen[(i-1)]/N;
+			vti = (cumphensq[(i-1)]/N) - ((cumphen[(i-1)]/N)^2);
+			line = c(line,mti);
+			line = c(line,vti);
+//			line = c(line,geneticvar[(i-1)]);
 			line = c(line,genvar[(i-1)]);
 			line = c(line,ibvar[(i-1)]);
-			line = c(line,ldvar[(i-1)]);			
+			line = c(line,vti-genvar[(i-1)]-ibvar[(i-1)]);	// Residual variance is LD covariance			
 			line = c(line,fixeff[(i-1)]);
 			line = c(line,proppos[(i-1)]);
 			line = c(line,fepos[(i-1)]);
@@ -409,7 +411,7 @@ early () {
 	for(i in 1:nt)
 	{
 		line = c(line,paste0(c("MeanTrait",i)));
-		line = c(line,paste0(c("VarTrait",i)));
+//		line = c(line,paste0(c("VarTrait",i)));
 		line = c(line,paste0(c("GeneticVar",i)));		
 		line = c(line,paste0(c("GenVar",i)));
 		line = c(line,paste0(c("InbredVar",i)));

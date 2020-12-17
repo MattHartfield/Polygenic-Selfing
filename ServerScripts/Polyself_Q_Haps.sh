@@ -10,19 +10,14 @@
 #$ -N Polysel_Self_Haps
 #$ -V
 #$ -cwd
-#$ -t 1-8 		# Run command for each line of parameter file
-#$ -l h=c4 		# Run array job on this sub-server
+#$ -t 1-8		# Run command for each line of parameter file
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
 SEL=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $1}')
 DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $2}')
 SELF=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $3}')
-# NEWOP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $4}')
-# if [ $NEWOP = "1.0" ]
-# then
-# 	NEWOP=$(printf "%.0f" $NEWOP)
-# fi
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $4}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters.txt | awk '{print $5}')
 
@@ -32,11 +27,17 @@ then
 	echo "Deleting old haplotype files" >&1
 	rm -rf /scratch/mhartfield/polyself_out/plots/haps/
 	mkdir /scratch/mhartfield/polyself_out/plots/haps/
-# 	Adding dummy header file to SLiM ms outputs, so they can be parsed by haplostrips
-# 	for file in /scratch/mhartfield/polyself_out/ms/*
-# 	do
-# 		sed -i '1 i\ms 100 1 -t 10\n10000 2000 30000\n' $file
-# 	done
+
+	# Creating BED file for haplotype count analysis
+	rm -rf /data/hartfield/polyself/scripts/HapWindows.bed
+	touch /data/hartfield/polyself/scripts/HapWindows.bed
+	echo "track name=hapbins description="Bins for haplotype analysis" " >> /data/hartfield/polyself/scripts/HapWindows.bed
+	BSIZE=100000
+	ESEQ=$((25000000-$BSIZE))
+	for i in $(seq 0 $BSIZE $ESEQ)
+	do
+		echo "1 ${i} $((i+$BSIZE-1))" >> /data/hartfield/polyself/scripts/HapWindows.bed
+	done
 else
 	echo "Pausing for 10 seconds" >&1
 	sleep 10
@@ -60,8 +61,14 @@ do
 		for fname in ${fstr}
 		do
 			# Creating plots of QTL distribution throughout haplotypes
-	#		/data/hartfield/polyself/scripts/haplostrips/haplostrips -v /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_isnm${ISNM}_${fname}.vcf -i 1:1-25000000 -P /data/hartfield/polyself/scripts/Popinfo.poptable -o /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_newo${NEWOP}_msd${MSD}_isnm${ISNM} -c 0.02 -C "darkred" -T
-			Rscript /data/hartfield/polyself/scripts/Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${MSC}
+			Rscript /data/hartfield/polyself/scripts/Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${MSC} ${fname}
+
+			# Plotting frequency of most common haplotype
+			vcftools --vcf /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}_${fname}.vcf --hapcount /data/hartfield/polyself/scripts/HapWindows.bed --out /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}_${fname}_haps
+#			rm -rf /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}_${fname}.log
+			awk '{print $2,$3,$NF}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}_${fname}_haps.hapcount | tr ":" " " | tr -d "{}" | awk '{print $1,$2,$4}' > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}_${fname}_haps_MajorHap.dat
+			Rscript /data/hartfield/polyself/scripts/Hap_Count_Plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${MSC} ${fname}
+
 			# Producing base file for QTL output info
 			touch /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}.count
 			touch /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_mscale${MSC}.freq
@@ -122,5 +129,5 @@ do
 	done
 done
 
-#rm -rf /data/hartfield/polyself/results/*
+rm -rf /data/hartfield/polyself/results/*
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

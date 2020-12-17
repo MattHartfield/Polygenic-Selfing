@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-160		# Run command for each line of parameter file
-#$ -l h=c4		# Run array job on this sub-server
+#$ -l h=c1		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -28,46 +28,17 @@ MSC=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersB
 REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $8}')
 RT=1000
 
-# if [ $NTR -le 5 ]
-# then
-# 	RT=500
-# else
-# 	RT=2000
-# fi
-
 # Running simulations, parameters in 'PolyselParametersBig.txt'
-# if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
-# then
-# 	echo "Deleting old files" >&1
-# 	rm -rf /scratch/mhartfield/polyself_out/
-# 	mkdir /scratch/mhartfield/polyself_out/
-# 	mkdir /scratch/mhartfield/polyself_out/data/
-# 	mkdir /scratch/mhartfield/polyself_out/haps/
-# 	mkdir /scratch/mhartfield/polyself_out/phendat/
-# else
-# 	echo "Pausing for 10 seconds" >&1
-# 	sleep 10
-# fi
+if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
+then
+	echo "Deleting old files" >&1
+	rm -rf /scratch/mhartfield/polyself_out/
+	mkdir /scratch/mhartfield/polyself_out/
+	mkdir /scratch/mhartfield/polyself_out/data/
+	mkdir /scratch/mhartfield/polyself_out/haps/
+	mkdir /scratch/mhartfield/polyself_out/phendat/
+else
+	echo "Pausing for 10 seconds" >&1
+	sleep 10
+fi
 slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d msd=$MSD -d rep=$REP -d isnm=$ISNM -d runtime=$RT -d mscale=$MSC /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
-# if [ $NEWOP = "1.0" ]
-# then
-# 	NEWOP=$(printf "%.0f" $NEWOP)
-# fi
-
-# Code below to create VCF with just QTLs, but no longer needed?
-# if [ $REP -eq 1 ]
-# then
-# # 	if [ $ISSV -eq 0 ]
-# # 	then
-# # 		fstr="20gens 150gens"
-# # 	fi
-# # 	if [ $ISSV -eq 1 ]
-# # 	then
-# #    	fstr="beforeshift 20gens 150gens"
-# # 	fi
-# 	fstr="time0 time1 time2 time3"
-# 	for fname in ${fstr}
-# 	do
-# 		grep -E "#|MT=3" /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_${fname}.vcf > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_${fname}_QTL.vcf
-# 	done
-# fi

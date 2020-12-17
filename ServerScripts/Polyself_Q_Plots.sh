@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-2		# Run command for each line of parameter file
-#$ -l h=c4 		# Run array job on this sub-server
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -22,13 +22,6 @@ DOM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersP
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $4}')
 MSD=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $5}')
 RT=1000
-
-# if [ $NTR -le 5 ]
-# then
-# 	RT=500
-# else
-# 	RT=2000
-# fi
 
 # Running plot code
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]

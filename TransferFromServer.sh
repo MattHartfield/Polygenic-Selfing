@@ -29,7 +29,8 @@ do
 done
 # Hap plot legend creation
 Rscript /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/HapRCode/LegendPlot.R 
-	
+
+# Making compound plots
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
 NL=$(($NP/8))
 RE=$(($NP%8))
