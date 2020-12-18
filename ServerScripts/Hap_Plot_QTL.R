@@ -100,14 +100,28 @@ for(j in 0:(length(unm)-1)){
 }
 plotc2 <- plotc[unm+1]
 
-# Plotting 
+# Plotting haplotype snapshot
 mh <- switch(which(k==filenames),"Time 1","Time 2","Time 3",'Time 4')
 pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),width=12,height=12)
 par(cex.main=3)
 heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 dev.off()
 
-#}
+# Create bed file for haplotype frequency plot
+# sp <- as.numeric(row.names(dat2))
+# bedout <- matrix(data=NA,nrow=(length(sp)),ncol=3)
+# bedout[,1] <- 1
+# for(j in 1:(length(sp)-1))
+# {
+	# bedout[j+1,2] <- floor((sp[j]+sp[j+1])/2)
+	# bedout[j,3] <- bedout[j+1,2] - 1
+# }
+# bedout[1,2] <- 0
+# bedout[j+1,3] <- 25e6-1
 
+# cat("track name=hapbins description=Bins for haplotype analysis\n",file=paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".bed"))
+# write.table(bedout,file=paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,".bed"),quote=F,row.names=F,col.names=F,append=T)
+
+#}
 
 # EOF

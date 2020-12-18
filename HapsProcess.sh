@@ -10,8 +10,7 @@ NTR=$(sed -n $1p /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ 
 MSD=$(sed -n $1p /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerScripts/PolyselParameters.txt | awk '{print $5}')
 
 #for ISSV in 0 1
-#for MSC in 1 25
-for MSC in 1
+for MSC in 1 25
 do
 	for ISSV in 0
 	do
