@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-160		# Run command for each line of parameter file
-#$ -l h=c1		# Run array job on this sub-server
+#$ -l h=c2		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -29,16 +29,16 @@ REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersB
 RT=1000
 
 # Running simulations, parameters in 'PolyselParametersBig.txt'
-if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
-then
-	echo "Deleting old files" >&1
-	rm -rf /scratch/mhartfield/polyself_out/
-	mkdir /scratch/mhartfield/polyself_out/
-	mkdir /scratch/mhartfield/polyself_out/data/
-	mkdir /scratch/mhartfield/polyself_out/haps/
-	mkdir /scratch/mhartfield/polyself_out/phendat/
-else
-	echo "Pausing for 10 seconds" >&1
-	sleep 10
-fi
+# if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
+# then
+# 	echo "Deleting old files" >&1
+# 	rm -rf /scratch/mhartfield/polyself_out/
+# 	mkdir /scratch/mhartfield/polyself_out/
+# 	mkdir /scratch/mhartfield/polyself_out/data/
+# 	mkdir /scratch/mhartfield/polyself_out/haps/
+# 	mkdir /scratch/mhartfield/polyself_out/phendat/
+# else
+# 	echo "Pausing for 10 seconds" >&1
+# 	sleep 10
+# fi
 slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d msd=$MSD -d rep=$REP -d isnm=$ISNM -d runtime=$RT -d mscale=$MSC /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim

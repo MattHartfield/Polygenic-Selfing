@@ -56,5 +56,6 @@ done
 wait
 
 rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegend.pdf
+rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/LDPlotLegend.pdf
 
 echo 'All data processed'

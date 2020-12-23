@@ -107,6 +107,21 @@ par(cex.main=3)
 heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 dev.off()
 
+# Plotting LD
+datLD <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,"_",k,"_LD.hap.ld"))
+datLD <- datLD %>% mutate(POS1Mb=POS1/1e6,POS2Mb=POS2/1e6)
+
+myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) + 
+	geom_tile(height=1.01,width=1.01,show.legend=F) +
+	labs(x="Position (Mb)",y="Position (Mb)",title=mh) +
+#	scale_fill_continuous(expression(paste("LD (",r^2,")"))) +
+	xlim(0,25) +
+	ylim(0,25) +
+	theme_bw(base_size=24) + 
+	theme(plot.title=element_text(hjust=0.5))
+	
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),plot=myp,device="pdf",width=12,height=12)
+
 # Create bed file for haplotype frequency plot
 # sp <- as.numeric(row.names(dat2))
 # bedout <- matrix(data=NA,nrow=(length(sp)),ncol=3)
