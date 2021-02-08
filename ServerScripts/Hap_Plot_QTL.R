@@ -117,7 +117,7 @@ myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) +
 #	scale_fill_continuous(expression(paste("LD (",r^2,")"))) +
 	xlim(0,25) +
 	ylim(0,25) +
-	theme_bw(base_size=24) + 
+	theme_bw(base_size=36) + 
 	theme(plot.title=element_text(hjust=0.5))
 	
 ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_mscale",mscale,".pdf"),plot=myp,device="pdf",width=12,height=12)
