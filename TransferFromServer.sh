@@ -14,7 +14,7 @@ rm -r HapInfo
 mkdir HapInfo
 fds='neutral weakdom strongdom'
 fsv='contmut stopmut'
-fshi='ishift gshift'	
+fshi='ishift gshift ocsc'
 for fd in $fds
 do
 	mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/
@@ -27,9 +27,10 @@ do
 		done
 	done
 done
+
 # Hap plot legend creation
 Rscript /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/HapRCode/LegendPlot.R 
-
+ 
 # Making compound plots
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
 NL=$(($NP/8))
@@ -54,7 +55,7 @@ do
 ./HapsProcess.sh $((8*${NL} + ${j})) &> HapInfo/HapInfo$((8*${NL} + ${j})).out &
 done
 wait
-
+ 
 rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegend.pdf
 rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/LDPlotLegend.pdf
 

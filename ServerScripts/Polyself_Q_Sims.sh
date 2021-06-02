@@ -12,7 +12,7 @@
 #$ -N Polysel_Self_Sims
 #$ -V
 #$ -cwd
-#$ -t 1-160		# Run command for each line of parameter file
+#$ -t 1-20		# Run command for each line of parameter file
 #$ -l h=c1		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
@@ -24,7 +24,8 @@ SELF=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters
 NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $4}')
 ISNM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $5}')
 STYPE=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $6}')
-REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
+OCSC=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $7}')
+REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $8}')
 RT=1000
 
 # if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
@@ -39,4 +40,4 @@ RT=1000
 # 	echo "Pausing for 10 seconds" >&1
 # 	sleep 10
 # fi
-slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d rep=$REP -d isnm=$ISNM -d runtime=$RT -d stype=$STYPE /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
+slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d rep=$REP -d isnm=$ISNM -d runtime=$RT -d oc_sc=$OCSC -d stype=$STYPE /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim

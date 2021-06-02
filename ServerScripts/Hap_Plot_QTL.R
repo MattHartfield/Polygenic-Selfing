@@ -13,12 +13,13 @@ N <- as.integer(args[4])		# Number of traits each QTL affects
 msd <- as.double(args[5])		# Standard deviation of mutational effect
 isnm <- as.integer(args[6])		# Is mutation stopped after optimum shift
 stype <- as.integer(args[7])	# Optimum shift type
-k <- args[8] 					# Which timepoint to use
+ocsc <- as.integer(args[8])		# Is rescaled outcrossing type or not
+k <- args[9] 					# Which timepoint to use
 
 filenames <- c('time0','time1','time2','time3')
 
 # Reading in and sorting data
-dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
+dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
 if(s!=0){
 	del_idx <- grep(paste0("S=",s),dat[,1]) # Indices of deleterious variants
 }
@@ -42,7 +43,7 @@ if(s!=0){
 hqc <- rev(brewer.pal(11,"RdBu")[1:5])
 lqc <- brewer.pal(11,"RdBu")[7:11]
 
-QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_",k,".info"),delim=" ")
+QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,".info"),delim=" ")
 QTLd <- QTLd[order(QTLd$POS),]
 QTLd <- QTLd %>% mutate(QTLs=ifelse(MeanQTL>=0, ceiling(MeanQTL*8), ceiling(MeanQTL*(-8)) ))
 QTLd[QTLd$QTLs>5,3] <- 5
@@ -100,13 +101,13 @@ plotc2 <- plotc[unm+1]
 
 # Plotting haplotype snapshot
 mh <- switch(which(k==filenames),"Time 1","Time 2","Time 3",'Time 4')
-pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,".pdf"),width=12,height=12)
+pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),width=12,height=12)
 par(cex.main=3)
 heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 dev.off()
 
 # Plotting LD
-datLD <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_",k,"_LD.hap.ld"))
+datLD <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_LD.hap.ld"))
 datLD <- datLD %>% mutate(POS1Mb=POS1/1e6,POS2Mb=POS2/1e6)
 
 myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) + 
@@ -118,7 +119,7 @@ myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) +
 	theme_bw(base_size=36) + 
 	theme(plot.title=element_text(hjust=0.5))
 	
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,".pdf"),plot=myp,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
 
 # Create bed file for haplotype frequency plot
 # sp <- as.numeric(row.names(dat2))

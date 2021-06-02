@@ -23,22 +23,23 @@ initialize() {
 	// Uncomment if running on home machine; comment out otherwise
 //	defineConstant("s",0.00);				// Background mutation selection coefficient
 //	defineConstant("h",0.02);				// Background mutation dominance coefficient
-//	defineConstant("sfrate",0);			// Self-fertilisation rate
+//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
 //	defineConstant("nt",1); 				// Number of traits to optimise
 //	defineConstant("rep",1);				// Which replicate is running
 //	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
 //	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
 //	defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
+//	defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes
 //	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
 	{
-		defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_rep",rep,".dat")));
+		defineConstant("fname",paste0(c("/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM Scripts/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",oc_sc,"_rep",rep,".dat")));
 	}
 	else
 	{
-		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_rep",rep,".dat")));
+		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",oc_sc,"_rep",rep,".dat")));
 	}
 	
 	defineConstant("ShiftTime",2*N);
@@ -74,6 +75,13 @@ initialize() {
 	mu = 4e-08;
 	ATrec = (1-exp(-(2*3.6)/100))/(2e6);	// Recombination rate 3.6cM/Mb, converted using Haldane's formula
 	rec =  mu/(7e-9/ATrec);
+	// If activated, rescales parameters so equivalent to highly selfing = 0.999
+	if(oc_sc == 1 & sfrate == 0){
+		sft = 0.999;
+		Fis = sft/(2-sft);
+		mu = mu/(1 + Fis);
+		rec = rec*(1 - Fis);
+	}
 	
 	// Uncomment if using testing values
 //	mu = 1e-8;
@@ -194,7 +202,7 @@ late () {
 			}
 			else
 			{
-				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_"));
+				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",oc_sc,"_"));
 			}
 			
 			// File suffix
