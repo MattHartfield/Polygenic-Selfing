@@ -12,8 +12,8 @@
 #$ -N Polysel_Self_Plots
 #$ -V
 #$ -cwd
-#$ -t 1-6		# Run command for each line of parameter file
-#$ -l h=c1 		# Run array job on this sub-server
+#$ -t 1-5		# Run command for each line of parameter file
+#$ -l h=c5 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -23,7 +23,7 @@ NTR=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersP
 ISNM=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $5}')
 STYPE=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $6}')
 OCSC=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersPlots.txt | awk '{print $7}')
-RT=1000
+RT=400
 
 # Running plot code
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]

@@ -18,7 +18,7 @@ for (( j=1; j <= NL; ++j ))
 		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " "rep}' ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersBig.txt
 	done
 	SELF=$(sed -n ${j}p ServerScripts/PolyselParameters.txt | awk '{print $3}')
-	if [ "$SELF" -eq 0 ]
+	if [ "$SELF" == 0 ]
 	then
 		sed -n ${j}p ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersPlots.txt
 	fi
