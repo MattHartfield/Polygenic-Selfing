@@ -30,7 +30,7 @@ done
 
 # Hap plot legend creation
 Rscript /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/HapRCode/LegendPlot.R 
- 
+
 # Making compound plots
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
 NL=$(($NP/8))
@@ -57,6 +57,7 @@ done
 wait
  
 rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegend.pdf
+rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegendDel.pdf
 rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/LDPlotLegend.pdf
 
 echo 'All data processed'
