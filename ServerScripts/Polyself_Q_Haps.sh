@@ -10,8 +10,8 @@
 #$ -N Polysel_Self_Haps
 #$ -V
 #$ -cwd
-#$ -t 1-20		# Run command for each line of parameter file
-#$ -l h=c5 		# Run array job on this sub-server
+#$ -t 1-23		# Run command for each line of parameter file
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -45,12 +45,6 @@ do
 
 	# Creating plots of QTL distribution throughout haplotypes
 	Rscript /data/hartfield/polyself/scripts/Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}
-
-	# Plotting frequency of most common haplotype
-# 			vcftools --vcf /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_${fname}.vcf --hapcount /data/hartfield/polyself/scripts/HapWindows.bed --out /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_${fname}_haps
-# 			rm -rf /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_${fname}.log
-# 			awk '{print $2,$3,$NF}' /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_${fname}_haps.hapcount | tr ":" " " | tr -d "{}" | awk '{print $1,$2,$4}' > /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_${fname}_haps_MajorHap.dat
-# 			Rscript /data/hartfield/polyself/scripts/Hap_Count_Plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${fname}
 
 	# Producing base file for QTL output info
 	touch /scratch/mhartfield/polyself_out/plots/haps/HS_${fname}_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}.count
