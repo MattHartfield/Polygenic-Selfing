@@ -2,6 +2,9 @@
 # Script to read in polygenic selection simulation outputs and plot
 # 'cu' = 'close-up' version, only plots after optimum shift
 
+# Edited 22nd Feb 2021
+# Spin-off version to only look at 'rescaled outcross' case
+
 library(RColorBrewer)
 library(plyr)
 
@@ -10,20 +13,19 @@ tchange <- 2*pop		# Time at which optimum changes
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 msd <- 0.25				# Standard deviation of mutational effect
 
-args <- commandArgs(trailingOnly = TRUE)
-s <- as.double(args[1])			# Selection coefficient, background mutations
-h <- as.double(args[2])			# Dominance coefficient
-N <- as.integer(args[3])		# Number of traits each QTL affects
-a <- as.integer(args[4])		# Does mutation continue after optimum shift
-b <- as.integer(args[5])		# Shift type
-ocsc <- as.integer(args[6])		# Using rescaled parameters in outcrossing or not
-clup <- as.integer(args[7])		# Time window around which to plot close-up values
-# Note selfing rate is not incuded above, as all selfing results will be included together. Defined below
-self <- c(0,0.5,0.9,0.99,0.999)
+s <- 0
+h <- 0.02
+self <- c(0,0.999)				# To compare rescaled outcrossers with high selfing
+Fis <- 0.999/(2-0.999)
+HoCV <- 0.08/(1+Fis)			# Expected House Of Cards Variance (with mutation rate 4e-8, scaled by inbreeding coeff)
+reps <- 10						# Number of replicates per parameter set
+a <- 0							# Indicates mutation-continuing option
+b <- 0							# Indicates sudden shift optimum
+pcol <- brewer.pal(n=4,name='Dark2')[c(1,6)]
 
-HoCV <- 0.08						# Expected House Of Cards Variance (with mutation rate 4e-8)
-reps <- 10							# Number of replicates per parameter set
-pcol <- brewer.pal(n=6,name='Dark2')[c(1:4,6)]
+args <- commandArgs(trailingOnly = TRUE)
+N <- as.integer(args[1])			# Number of traits
+clup <- as.integer(args[2])		# Time window around which to plot close-up values
 
 # Function for calculating mean
 mnona <- function(x){
@@ -69,29 +71,14 @@ if(N==1){
 	endh1 <- paste0(N," traits.")
 }
 
-# Start of main plot code
-# For different mutation types ('a')	
-if(a==0){
-	endp <- " Continuous mutation."
-	endfn <- '_withmut'
-	outf2 <- "contmut"
-}else if(a==1){
-	endp <- " No mutation after shift."
-	endfn <- '_nomut'
-	outf2 <- "stopmut"
-}
-
-# For different optimum types ('b')
-	
-if(b==0){
-	endpb <- " Sudden optimum shift."
-	endfnb <- '_ishift'
-	outf3 <- "ishift"
-}else if(b==1){
-	endpb <- " Gradual optimum shift."
-	endfnb <- '_gshift'
-	outf3 <- "gshift"		
-}
+# Plots
+endp <- " Continuous mutation."
+endfn <- '_withmut'
+outf2 <- "contmut"
+		
+endpb <- " Rescaled outcrossing parameters."
+endfnb <- '_ocsc'
+outf3 <- "ocsc"	
 
 xax <- c(0,clup+1)
 
@@ -105,7 +92,7 @@ maxvf <- 0
 minvf <- 1
 maxid <- 0
 minid <- 0
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'.pdf'),width=8*gr,height=8)
 par(mfrow=c(2,2),oma = c(0, 1, 4, 0))
 # First: read in data, determine x, y axes
 for(S in self)
@@ -115,7 +102,11 @@ for(S in self)
 	mfl <- vector(mode="list",length=reps)
 	vfl <- vector(mode="list",length=reps)			
 	idl <- vector(mode="list",length=reps)
-	dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",ocsc,"_rep",1,".dat"),head=T)
+	if(S==0){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",1,".dat"),head=T)	
+	}else if(S==0.999){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",1,".dat"),head=T)	
+	}
 	dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 	genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 	if(N==1)
@@ -131,7 +122,11 @@ for(S in self)
 	idl[[1]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 	for(j in 2:reps)
 	{
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",ocsc,"_rep",j,".dat"),head=T)
+		if(S==0){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",j,".dat"),head=T)
+		}else if(S==0.999){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",j,".dat"),head=T)
+		}
 		dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 		genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 		if(N==1)
@@ -143,7 +138,7 @@ for(S in self)
 			mtl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanTrait",1:N)])))
 		}
 		mfl[[j]] <- t(as.matrix(dat[,c("MeanFitness")]))
-		vfl[[j]] <- t(as.matrix(dat[,c("VarFitness")]))				
+		vfl[[j]] <- t(as.matrix(dat[,c("VarFitness")]))
 		idl[[j]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 	}
 	mt <- apply(rbind.fill.matrix(mtl),2, mnona)
@@ -189,7 +184,7 @@ for(S in self)
 		polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MTLowCI,rev(fitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 		abline(h=1/sqrt(N),lty=3,lwd=1.5)
-		legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("bottomright",legend=c("S = 0 Rescaled", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
@@ -256,7 +251,7 @@ IBvarmt <- 0
 IBvarmi <- 1
 LDvarmt <- 0
 LDvarmi <- 1
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'.pdf'),width=8*gr,height=8)
 par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 for(S in self)
 {
@@ -264,8 +259,12 @@ for(S in self)
 	mgvl <- vector(mode="list",length=reps)
 	mgenvl <- vector(mode="list",length=reps)
 	ibvl <- vector(mode="list",length=reps)
-	ldvl <- vector(mode="list",length=reps)	
-	dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",ocsc,"_rep",1,".dat"),head=T)
+	ldvl <- vector(mode="list",length=reps)
+	if(S==0){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",1,".dat"),head=T)
+	}else if(S==0.999){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",1,".dat"),head=T)
+	}	
 	dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 	genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 	if(N==1)
@@ -284,7 +283,11 @@ for(S in self)
 	}		
 	for(j in 2:reps)
 	{
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",ocsc,"_rep",j,".dat"),head=T)
+		if(S==0){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",j,".dat"),head=T)
+		}else if(S==0.999){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",j,".dat"),head=T)
+		}
 		dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 		genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 		if(N==1)
@@ -342,7 +345,7 @@ for(S in self)
 		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		legend("topright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)												
+		legend("topright",legend=c("S = 0 Rescaled", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
@@ -407,7 +410,7 @@ maxmQ <- 0
 minmQ <- 0
 maxpQ <- 0
 maxpmQ <- 0
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'.pdf'),width=8*gr,height=8)
 par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
 for(S in self)
 {
@@ -415,8 +418,12 @@ for(S in self)
 	fixml <- vector(mode="list",length=reps)
 	mfql <- vector(mode="list",length=reps)
 	ppql <- vector(mode="list",length=reps)
-	mpql <- vector(mode="list",length=reps)						
-	dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",ocsc,"_rep",1,".dat"),head=T)
+	mpql <- vector(mode="list",length=reps)
+	if(S==0){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",1,".dat"),head=T)
+	}else if(S==0.999){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",1,".dat"),head=T)
+	}
 	dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 	genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 	fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
@@ -434,7 +441,11 @@ for(S in self)
 	}
 	for(j in 2:reps)
 	{
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",ocsc,"_rep",j,".dat"),head=T)
+		if(S==0){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",j,".dat"),head=T)
+		}else if(S==0.999){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",j,".dat"),head=T)
+		}
 		dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 		genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 		fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
@@ -515,7 +526,7 @@ for(S in self){
 		plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("bottomright",legend=c("S = 0 Rescaled", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
