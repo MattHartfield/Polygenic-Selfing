@@ -19,7 +19,7 @@ k <- args[9] 					# Which timepoint to use
 filenames <- c('time0','time1','time2','time3')
 
 # Reading in and sorting data
-dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,".vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
+dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
 if(s!=0){
 	del_idx <- grep(paste0("S=",s),dat[,1]) # Indices of deleterious variants
 }
@@ -43,7 +43,7 @@ if(s!=0){
 hqc <- rev(brewer.pal(11,"RdBu")[1:5])
 lqc <- brewer.pal(11,"RdBu")[7:11]
 
-QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,".info"),delim=" ")
+QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.info"),delim=" ")
 QTLd <- QTLd[order(QTLd$POS),]
 QTLd <- QTLd %>% mutate(QTLs=ifelse(MeanQTL>=0, ceiling(MeanQTL*8), ceiling(MeanQTL*(-8)) ))
 QTLd[QTLd$QTLs>5,3] <- 5

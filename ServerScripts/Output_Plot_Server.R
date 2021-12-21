@@ -19,11 +19,11 @@ b <- as.integer(args[5])		# Shift type
 ocsc <- as.integer(args[6])		# Using rescaled parameters in outcrossing or not
 clup <- as.integer(args[7])		# Time window around which to plot close-up values
 # Note selfing rate is not incuded above, as all selfing results will be included together. Defined below
-self <- c(0,0.5,0.9,0.999)
+self <- c(0,0.5,0.9,0.99,0.999)
 
 HoCV <- 0.08						# Expected House Of Cards Variance (with mutation rate 4e-8)
 reps <- 10							# Number of replicates per parameter set
-pcol <- brewer.pal(n=4,name='Dark2')
+pcol <- brewer.pal(n=6,name='Dark2')[c(1:4,6)]
 
 # Function for calculating mean
 mnona <- function(x){

@@ -2,8 +2,8 @@
 # Script to read in polygenic selection simulation outputs and plot
 # 'cu' = 'close-up' version, only plots after optimum shift
 
-# 23rd July 2021
-# OCSC version; plot outcrossing pops with rescaled parameters against highly selfing results
+# Edited 22nd Feb 2021
+# Spin-off version to only look at 'rescaled outcross' case
 
 library(RColorBrewer)
 library(plyr)
@@ -13,18 +13,19 @@ tchange <- 2*pop		# Time at which optimum changes
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 msd <- 0.25				# Standard deviation of mutational effect
 
-args <- commandArgs(trailingOnly = TRUE)
-s <- as.double(args[1])			# Selection coefficient, background mutations
-h <- as.double(args[2])			# Dominance coefficient
-N <- as.integer(args[3])		# Number of traits each QTL affects
-a <- as.integer(args[4])		# Does mutation continue after optimum shift
-b <- as.integer(args[5])		# Shift type
-ocsc <- as.integer(args[6])		# Using rescaled parameters in outcrossing or not
-clup <- as.integer(args[7])		# Time window around which to plot close-up values
-
+s <- 0
+h <- 0.02
+self <- c(0,0.999)				# To compare rescaled outcrossers with high selfing
+Fis <- 0.999/(2-0.999)
+HoCV <- 0.08/(1+Fis)			# Expected House Of Cards Variance (with mutation rate 4e-8, scaled by inbreeding coeff)
 reps <- 10						# Number of replicates per parameter set
-pcol <- brewer.pal(n=4,name='Dark2')
-pcol <- pcol[c(4,1)]
+a <- 0							# Indicates mutation-continuing option
+b <- 0							# Indicates sudden shift optimum
+pcol <- brewer.pal(n=4,name='Dark2')[c(1,4)]
+
+args <- commandArgs(trailingOnly = TRUE)
+N <- as.integer(args[1])			# Number of traits
+clup <- as.integer(args[2])		# Time window around which to plot close-up values
 
 # Function for calculating mean
 mnona <- function(x){
@@ -70,7 +71,7 @@ if(N==1){
 	endh1 <- paste0(N," traits.")
 }
 
-# Start of main plot code
+# Plots
 endp <- " Continuous mutation."
 endfn <- '_withmut'
 outf2 <- "contmut"
@@ -82,7 +83,7 @@ outf3 <- "ocsc"
 xax <- c(0,clup+1)
 
 # First plot: trait value, mean fitness, var fitness, inbreeding depression
-fitmat <- vector(mode="list",length=2)
+fitmat <- vector(mode="list",length=length(self))
 maxmt <- 0
 minmt <- 0
 maxmf <- 0
@@ -91,20 +92,20 @@ maxvf <- 0
 minvf <- 1
 maxid <- 0
 minid <- 0
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Fitness_T',N,'_sel',s,'_h',h,endfn,endfnb,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Fitness_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'.pdf'),width=8*gr,height=8)
 par(mfrow=c(2,2),oma = c(0, 1, 4, 0))
 # First: read in data, determine x, y axes
-for(S in c(1,2))
+for(S in self)
 {
 	genl <- vector(mode="list",length=reps)
 	mtl <- vector(mode="list",length=reps)
 	mfl <- vector(mode="list",length=reps)
 	vfl <- vector(mode="list",length=reps)			
 	idl <- vector(mode="list",length=reps)
-	if(S == 1){
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",1,".dat"),head=T)
-	}else{
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",1,".dat"),head=T)
+	if(S==0){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",1,".dat"),head=T)	
+	}else if(S==0.999){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",1,".dat"),head=T)	
 	}
 	dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 	genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
@@ -120,11 +121,11 @@ for(S in c(1,2))
 	vfl[[1]] <- t(as.matrix(dat[,c("VarFitness")]))
 	idl[[1]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 	for(j in 2:reps)
-	{	
-		if(S == 1){
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",j,".dat"),head=T)
-		}else{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",j,".dat"),head=T)
+	{
+		if(S==0){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",j,".dat"),head=T)
+		}else if(S==0.999){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",j,".dat"),head=T)
 		}
 		dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 		genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
@@ -137,7 +138,7 @@ for(S in c(1,2))
 			mtl[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanTrait",1:N)])))
 		}
 		mfl[[j]] <- t(as.matrix(dat[,c("MeanFitness")]))
-		vfl[[j]] <- t(as.matrix(dat[,c("VarFitness")]))				
+		vfl[[j]] <- t(as.matrix(dat[,c("VarFitness")]))
 		idl[[j]] <- t(as.matrix(dat[,c("InbreedingDepression")]))
 	}
 	mt <- apply(rbind.fill.matrix(mtl),2, mnona)
@@ -158,7 +159,7 @@ for(S in c(1,2))
 	}
 	thisdat <- as.data.frame(t(rbind(genl[[j]],mt,mtci,mf,mfci,vf,vfci,id,idci)))
 	colnames(thisdat) <- c("Generation","MeanTrait","MTLowCI","MTHighCI","MeanFitness","MFLowCI","MFHighCI","VarFitness","VFLowCI","VFHighCI","InbreedingDepression","IDLowCI","IDHighCI")
-	fitmat[[which(c(1,2)%in%S)]] <- thisdat
+	fitmat[[which(self%in%S)]] <- thisdat
 	maxmt <- max(maxmt,max(thisdat$MTHighCI))
 	minmt <- min(minmt,min(thisdat$MTLowCI))
 	maxmf <- max(maxmf,max(thisdat$MFHighCI))
@@ -176,64 +177,64 @@ if(maxmt < 1/sqrt(N)){
 }
 
 # First: Mean trait value
-for(S in c(1,2))
+for(S in self)
 {
-	if(S == 1){
-		plot(fitmat[[S]]$Generation, fitmat[[S]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=xax,ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+	if(which(self%in%S) == 1){
+		plot(fitmat[[which(self%in%S)]]$Generation, fitmat[[which(self%in%S)]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=xax,ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MTLowCI,rev(fitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 		abline(h=1/sqrt(N),lty=3,lwd=1.5)
-		legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("bottomright",legend=c("S = 0 Rescaled", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
-		lines(fitmat[[2]]$Generation,fitmat[[2]]$MeanTrait,col=pcol[2],lwd=1.5)
-		polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$MTLowCI,rev(fitmat[[2]]$MTHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)	
+		lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$MeanTrait,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fitmat[[which(self%in%S)]]$Generation,rev(fitmat[[which(self%in%S)]]$Generation)),c(fitmat[[which(self%in%S)]]$MTLowCI,rev(fitmat[[which(self%in%S)]]$MTHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)	
 	}
 }
 
 # Second: plot mean fitness
-for(S in c(1,2))
+for(S in self)
 {	
-	if(S == 1){
+	if(which(self%in%S) == 1){
 		plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time since optimum shift",ylab="Mean Fitness",xlim=xax,ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		abline(v=0,lty=2)
 		polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MFLowCI,rev(fitmat[[1]]$MFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 	}
 	else
 	{
-		lines(fitmat[[2]]$Generation,fitmat[[2]]$MeanFitness,col=pcol[2],lwd=1.5)
-		polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$MFLowCI,rev(fitmat[[2]]$MFHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$MeanFitness,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fitmat[[which(self%in%S)]]$Generation,rev(fitmat[[which(self%in%S)]]$Generation)),c(fitmat[[which(self%in%S)]]$MFLowCI,rev(fitmat[[which(self%in%S)]]$MFHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
 # Third: plot inbreeding depression
-for(S in c(1,2))
+for(S in self)
 {
-	if(S == 1){
+	if(which(self%in%S) == 1){
 		plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time since optimum shift",ylab="Inbreeding Depression",xlim=xax,ylim=c(minid,maxid),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		abline(v=0,lty=2)
 		polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$IDLowCI,rev(fitmat[[1]]$IDHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 	}
 	else
 	{
-		lines(fitmat[[2]]$Generation,fitmat[[2]]$InbreedingDepression,col=pcol[2],lwd=1.5)
-		polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$IDLowCI,rev(fitmat[[2]]$IDHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$InbreedingDepression,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fitmat[[which(self%in%S)]]$Generation,rev(fitmat[[which(self%in%S)]]$Generation)),c(fitmat[[which(self%in%S)]]$IDLowCI,rev(fitmat[[which(self%in%S)]]$IDHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
 # Fourth: plot variance in fitness
-for(S in c(1,2))
+for(S in self)
 {	
-	if(S == 1){
+	if(which(self%in%S) == 1){
 		plot(fitmat[[1]]$Generation,fitmat[[1]]$VarFitness,type='l',xlab="Time since optimum shift",ylab="Variance in Fitness",xlim=xax,ylim=c(minvf,maxvf),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		abline(v=0,lty=2)
 		polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$VFLowCI,rev(fitmat[[1]]$VFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 	}
 	else
 	{
-		lines(fitmat[[2]]$Generation,fitmat[[2]]$VarFitness,col=pcol[2],lwd=1.5)
-		polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$VFLowCI,rev(fitmat[[2]]$VFHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fitmat[[which(self%in%S)]]$Generation,fitmat[[which(self%in%S)]]$VarFitness,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fitmat[[which(self%in%S)]]$Generation,rev(fitmat[[which(self%in%S)]]$Generation)),c(fitmat[[which(self%in%S)]]$VFLowCI,rev(fitmat[[which(self%in%S)]]$VFHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
@@ -241,7 +242,7 @@ mtext(paste0("Fitness, inbreeding depression over time",midh1,endh1,"\n",endp,en
 dev.off()
 
 # Second plot: genetic variance decomposition over time
-traitmat <- vector(mode="list",length=2)
+traitmat <- vector(mode="list",length=length(self))
 varmt <- 0
 varmi <- 1
 Gvarmt <- 0
@@ -250,20 +251,20 @@ IBvarmt <- 0
 IBvarmi <- 1
 LDvarmt <- 0
 LDvarmi <- 1
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Traits_T',N,'_sel',s,'_h',h,endfn,endfnb,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_Traits_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'.pdf'),width=8*gr,height=8)
 par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
-for(S in c(1,2))
+for(S in self)
 {
 	genl <- vector(mode="list",length=reps)
 	mgvl <- vector(mode="list",length=reps)
 	mgenvl <- vector(mode="list",length=reps)
 	ibvl <- vector(mode="list",length=reps)
 	ldvl <- vector(mode="list",length=reps)
-	if(S == 1){
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",1,".dat"),head=T)
-	}else{
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",1,".dat"),head=T)
-	}
+	if(S==0){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",1,".dat"),head=T)
+	}else if(S==0.999){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",1,".dat"),head=T)
+	}	
 	dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 	genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
 	if(N==1)
@@ -282,10 +283,10 @@ for(S in c(1,2))
 	}		
 	for(j in 2:reps)
 	{
-		if(S == 1){
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",j,".dat"),head=T)
-		}else{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",j,".dat"),head=T)
+		if(S==0){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",j,".dat"),head=T)
+		}else if(S==0.999){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",j,".dat"),head=T)
 		}
 		dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 		genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
@@ -322,7 +323,7 @@ for(S in c(1,2))
 	}
 	thisdat <- as.data.frame(t(rbind(genl[[j]],mgv,mgvci,mgenv,mgenvci,ibv,ibvci,ldv,ldvci)))
 	colnames(thisdat) <- c("Generation","MeanGenVar","MGVLowCI","MGVHighCI","MeanGeneticVar","MGenVLowCI","MGenVHighCI","MeanInbreedVar","MIBVLowCI","MIBVHighCI","MeanLDVar","MLDVLowCI","MLDVHighCI")
-	traitmat[[which(c(1,2)%in%S)]] <- thisdat
+	traitmat[[which(self%in%S)]] <- thisdat
 	varmt <- max(varmt,max(thisdat$MGVHighCI))
 	Gvarmt <- max(Gvarmt,max(thisdat$MGenVHighCI))
 	IBvarmt <- max(IBvarmt,max(thisdat$MIBVHighCI))
@@ -338,64 +339,64 @@ for(S in c(1,2))
 }
 
 # Panel 1: Genetic variance	
-for(S in c(1,2))
+for(S in self)
 {
-	if(S == 1){
-		plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+	if(which(self%in%S) == 1){
+		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		legend("topright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("topright",legend=c("S = 0 Rescaled", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
-		lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanGeneticVar,col=pcol[2],lwd=1.5)
-		polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MGenVLowCI,rev(traitmat[[2]]$MGenVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MGenVLowCI,rev(traitmat[[which(self%in%S)]]$MGenVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
 # Panel 2: Genic variance
-for(S in c(1,2))
+for(S in self)
 {
-	if(S == 1){
-		plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+	if(which(self%in%S) == 1){
+		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-#		points(x=0,y=HoCV,pch=4,cex=2,col=pcol[1])		# Expected HoC variance
+		points(x=0,y=HoCV,pch=4,cex=2,col=pcol[1])		# Expected HoC variance
 	}
 	else
 	{
-		lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanGenVar,col=pcol[2],lwd=1.5)
-		polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MGVLowCI,rev(traitmat[[2]]$MGVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MGVLowCI,rev(traitmat[[which(self%in%S)]]$MGVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
 # Panel 3: Inbreeding covariance
-for(S in c(1,2))
+for(S in self)
 {
-	if(S == 1){
-		plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanInbreedVar,type='l',xlab="Time since optimum shift",ylab="Mean Inbreeding Covariance\nPer Trait",xlim=xax,ylim=c(IBvarmi*0.96, IBvarmt + ((IBvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+	if(which(self%in%S) == 1){
+		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanInbreedVar,type='l',xlab="Time since optimum shift",ylab="Mean Inbreeding Covariance\nPer Trait",xlim=xax,ylim=c(IBvarmi*0.96, IBvarmt + ((IBvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MIBVLowCI,rev(traitmat[[1]]$MIBVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 	}
 	else
 	{
-		lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanInbreedVar,col=pcol[2],lwd=1.5)
-		polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MIBVLowCI,rev(traitmat[[2]]$MIBVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanInbreedVar,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MIBVLowCI,rev(traitmat[[which(self%in%S)]]$MIBVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
 # Panel 4: LD covariance
-for(S in c(1,2))
+for(S in self)
 {
-	if(S == 1){
-		plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanLDVar,type='l',xlab="Time since optimum shift",ylab="Mean LD Covariance\nPer Trait",xlim=xax,ylim=c(LDvarmi*0.96, LDvarmt + ((LDvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+	if(which(self%in%S) == 1){
+		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanLDVar,type='l',xlab="Time since optimum shift",ylab="Mean LD Covariance\nPer Trait",xlim=xax,ylim=c(LDvarmi*0.96, LDvarmt + ((LDvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MLDVLowCI,rev(traitmat[[1]]$MLDVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 	}
 	else
 	{
-		lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanLDVar,col=pcol[2],lwd=1.5)
-		polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MLDVLowCI,rev(traitmat[[2]]$MLDVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanLDVar,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(traitmat[[which(self%in%S)]]$Generation,rev(traitmat[[which(self%in%S)]]$Generation)),c(traitmat[[which(self%in%S)]]$MLDVLowCI,rev(traitmat[[which(self%in%S)]]$MLDVHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 
@@ -403,25 +404,25 @@ mtext(paste0("Genetic variance over time",midh1,endh1,"\n",endp, endpb), outer =
 dev.off()
 
 # Third plot: number of fixed mutants
-fixedm <- vector(mode="list",length=2)
+fixedm <- vector(mode="list",length=length(self))
 maxfix <- 0
 maxmQ <- 0
 minmQ <- 0
 maxpQ <- 0
 maxpmQ <- 0
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_FixedMuts_T',N,'_sel',s,'_h',h,endfn,endfnb,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_FixedMuts_neutral_T',N,'_sel',s,'_h',h,endfn,endfnb,'.pdf'),width=8*gr,height=8)
 par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
-for(S in c(1,2))
+for(S in self)
 {
 	genl <- vector(mode="list",length=reps)
 	fixml <- vector(mode="list",length=reps)
 	mfql <- vector(mode="list",length=reps)
 	ppql <- vector(mode="list",length=reps)
 	mpql <- vector(mode="list",length=reps)
-	if(S == 1){
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",1,".dat"),head=T)
-	}else{
-		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",1,".dat"),head=T)
+	if(S==0){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",1,".dat"),head=T)
+	}else if(S==0.999){
+		dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",1,".dat"),head=T)
 	}
 	dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 	genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
@@ -440,10 +441,10 @@ for(S in c(1,2))
 	}
 	for(j in 2:reps)
 	{
-		if(S == 1){
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",j,".dat"),head=T)
-		}else{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",j,".dat"),head=T)
+		if(S==0){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc",1,"_rep",j,".dat"),head=T)
+		}else if(S==0.999){
+			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",S,"_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_rep",j,".dat"),head=T)
 		}
 		dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
 		genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
@@ -479,7 +480,7 @@ for(S in c(1,2))
 	}
 	thisdat <- as.data.frame(t(rbind(genl[[j]],fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci)))
 	colnames(thisdat) <- c("Generation","FixedMuts","FMLowCI","FMHighCI","MeanFixedQTL","MFQLowCI","MFQHighCI","MeanPropPos","MPPLowCI","MPPHighCI","MeanPosQTL","MPQLowCI","MPQHighCI")
-	fixedm[[which(c(1,2)%in%S)]] <- thisdat
+	fixedm[[which(self%in%S)]] <- thisdat
 	maxfix <- max(maxfix,max(thisdat$FMHighCI))
 	if(sum(!is.na(thisdat$MeanFixedQTL)) != 0){
 		maxmQ <- max(maxmQ,max(thisdat$MFQHighCI,na.rm=T))
@@ -493,58 +494,57 @@ for(S in c(1,2))
 	}
 			
 }
-
 # Panel 1: Number of fixed QTLs
-for(S in c(1,2)){
-	if(S == 1){
+for(S in self){
+	if(which(self%in%S) == 1){
 		plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 	}
 	else
 	{
-		lines(fixedm[[2]]$Generation,fixedm[[2]]$FixedMuts,col=pcol[2],lwd=1.5)
-		polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$FMLowCI,rev(fixedm[[2]]$FMHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$FixedMuts,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$FMLowCI,rev(fixedm[[which(self%in%S)]]$FMHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 # Panel 2: Mean effect of fixed QTLs
-for(S in c(1,2)){
-	if(S == 1){
+for(S in self){
+	if(which(self%in%S) == 1){
 		plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 	}
 	else
 	{
-		lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanFixedQTL,col=pcol[2],lwd=1.5)
-		polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MFQLowCI,rev(fixedm[[2]]$MFQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanFixedQTL,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$MFQLowCI,rev(fixedm[[which(self%in%S)]]$MFQHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 # Panel 3: Proportion of fixed QTLs with positive effects
-for(S in c(1,2)){
-	if(S == 1){
+for(S in self){
+	if(which(self%in%S) == 1){
 		plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("bottomright",legend=c("S = 0 Rescaled", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
-		lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPropPos,col=pcol[2],lwd=1.5)
-		polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPPLowCI,rev(fixedm[[2]]$MPPHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPropPos,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$MPPLowCI,rev(fixedm[[which(self%in%S)]]$MPPHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 # Panel 4: Proportion of fixed QTLs with positive effects
-for(S in c(1,2)){
-	if(S == 1){
+for(S in self){
+	if(which(self%in%S) == 1){
 		plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 	}
 	else
 	{
-		lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPosQTL,col=pcol[2],lwd=1.5)
-		polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPQLowCI,rev(fixedm[[2]]$MPQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		lines(fixedm[[which(self%in%S)]]$Generation,fixedm[[which(self%in%S)]]$MeanPosQTL,col=pcol[which(self%in%S)],lwd=1.5)
+		polygon(c(fixedm[[which(self%in%S)]]$Generation,rev(fixedm[[which(self%in%S)]]$Generation)),c(fixedm[[which(self%in%S)]]$MPQLowCI,rev(fixedm[[which(self%in%S)]]$MPQHighCI)),col=adjustcolor(pcol[which(self%in%S)], alpha.f=0.35),border=F)
 	}
 }
 

@@ -21,16 +21,16 @@ initialize() {
 	defineConstant("msd",0.25);			// Standard Deviation in trait values
 	
 	// Uncomment if running on home machine; comment out otherwise
-//	defineConstant("s",0.00);				// Background mutation selection coefficient
-//	defineConstant("h",0.02);				// Background mutation dominance coefficient
-//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-//	defineConstant("nt",1); 				// Number of traits to optimise
-//	defineConstant("rep",1);				// Which replicate is running
-//	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
-//	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
-//	defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
-//	defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes
-//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+	//	defineConstant("s",0.00);				// Background mutation selection coefficient
+	//	defineConstant("h",0.02);				// Background mutation dominance coefficient
+	//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
+	//	defineConstant("nt",1); 				// Number of traits to optimise
+	//	defineConstant("rep",1);				// Which replicate is running
+	//	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
+	//	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+	//	defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
+	//	defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes
+	//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -84,8 +84,8 @@ initialize() {
 	}
 	
 	// Uncomment if using testing values
-//	mu = 1e-8;
-//	rec = 1e-9;
+	//	mu = 1e-8;
+	//	rec = 1e-9;
 	
 	initializeMutationRate(mu);
 	initializeRecombinationRate(rec);
@@ -188,58 +188,53 @@ late () {
 	}
 	
 	// Print out VCF stats of 50 individuals, along with QTL positions, for calculating haplotype statistics
-	// (Only for first rep)
-	
-	if( rep == 1 )
+	if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + t1)) | (sim.generation == (ShiftTime + t2)) | (sim.generation == (ShiftTime + runtime)) )
 	{
-		if( (sim.generation == (ShiftTime - 1)) | (sim.generation == (ShiftTime + t1)) | (sim.generation == (ShiftTime + t2)) | (sim.generation == (ShiftTime + runtime)) )
+		
+		// Printout folder, depending on local machine or not
+		if( exists("isloc") )
 		{
-			
-			// Printout folder, depending on local machine or not
-			if( exists("isloc") )
+			ftext = "/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_";
+		}
+		else
+		{
+			ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",oc_sc,"_"));
+		}
+		
+		// File suffix
+		if( (sim.generation == (ShiftTime - 1)) )
+		{
+			stext = "time0";
+		}
+		else if( (sim.generation == (ShiftTime + t1)) )
+		{
+			stext = "time1";
+		}
+		else if( (sim.generation == (ShiftTime + t2)) )
+		{
+			stext = "time2";
+		}
+		else if( (sim.generation == (ShiftTime + runtime)) )
+		{
+			stext = "time3";
+		}
+		
+		// Write VCF file
+		p1.outputVCFSample(50,replace=F,outputMultiallelics=F,filePath=paste0(c(ftext,stext,"_rep",rep,".vcf")));
+		
+		// Print table of all QTL positions and effect sizes
+		qtlm = sim.mutationsOfType(m3);
+		writeFile(paste0(c(ftext,stext,"_rep",rep,".info")),paste(c("POS","MeanQTL"),sep=" "),append=F);
+		for(qt in qtlm)
+		{
+			l2 = format("%d",(qt.position + 1));
+			qtm = 0;
+			for(i in 1:nt)
 			{
-				ftext = "/Users/hartfield/Documents/Polygenic Selection Selfing/SLiM scripts/VCFout/VCFout_test_";
+				qtm = qtm + qt.getValue(paste0(c("e",(i-1))));
 			}
-			else
-			{
-				ftext = paste0(c("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",oc_sc,"_"));
-			}
-			
-			// File suffix
-			if( (sim.generation == (ShiftTime - 1)) )
-			{
-				stext = "time0";
-			}
-			else if( (sim.generation == (ShiftTime + t1)) )
-			{
-				stext = "time1";
-			}
-			else if( (sim.generation == (ShiftTime + t2)) )
-			{
-				stext = "time2";
-			}
-			else if( (sim.generation == (ShiftTime + runtime)) )
-			{
-				stext = "time3";
-			}
-			
-			// Write VCF file
-			p1.outputVCFSample(50,replace=F,outputMultiallelics=F,filePath=paste0(c(ftext,stext,".vcf")));
-			
-			// Print table of all QTL positions and effect sizes
-			qtlm = sim.mutationsOfType(m3);
-			writeFile(paste0(c(ftext,stext,".info")),paste(c("POS","MeanQTL"),sep=" "),append=F);
-			for(qt in qtlm)
-			{
-				l2 = format("%d",(qt.position + 1));
-				qtm = 0;
-				for(i in 1:nt)
-				{
-					qtm = qtm + qt.getValue(paste0(c("e",(i-1))));
-				}
-				l2 = c(l2,(qtm/nt));
-				writeFile(paste0(c(ftext,stext,".info")),paste(l2),append=T);
-			}
+			l2 = c(l2,(qtm/nt));
+			writeFile(paste0(c(ftext,stext,"_rep",rep,".info")),paste(l2),append=T);
 		}
 	}
 }
@@ -269,7 +264,7 @@ early () {
 			// Set scaling factor at 1 if sudden optimum shift
 			if(stype == 0)
 			{
-				sim.setValue('scf',1);				
+				sim.setValue('scf',1);
 			}
 		}
 		
@@ -278,7 +273,7 @@ early () {
 		{
 			sim.setValue('scf',(sim.generation - ShiftTime + 1)/100);
 		}
-		
+	
 	}
 	
 	if ((sim.generation % sim.getValue('ptime') == 0 & sim.generation >= (0.8*ShiftTime) & sim.generation != 1) | ( ShiftTime==1 & sim.generation==2 ) ){
@@ -294,10 +289,8 @@ early () {
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
 		cumfitsq = 0.0;					// Cumulative square of fitness (for genetic variance)
-//		geneticvar = rep(0.0,nt);		// Genetic variance
 		genvar = rep(0.0,nt);			// Genic variance
 		ibvar = rep(0.0,nt);				// Inbred variance
-//		ldvar = rep(0.0,nt);				// LD variance
 		fixeff = rep(0.0,nt);			// Mean QTL effects of mutants that fix
 		proppos = rep(0.0,nt);			// Proportion of QTLs with +ve effects
 		fepos = rep(0.0,nt);				// Mean QTL effects of fixed *positive* mutations
@@ -334,12 +327,12 @@ early () {
 			{
 				// Calculating genetic variance
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
-//				geneticvar[(i-1)] = sum(2*qtlf*(1+qtlf)*qtle*qtle) - (sum(2*qtlf*qtle))^2;
+				//				geneticvar[(i-1)] = sum(2*qtlf*(1+qtlf)*qtle*qtle) - (sum(2*qtlf*qtle))^2;
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
-//				geneticvar[(i-1)] = 0;
+				//				geneticvar[(i-1)] = 0;
 				ibvar[(i-1)] = 0;
-//				ldvar[(i-1)] = 0;
-
+				//				ldvar[(i-1)] = 0;
+				
 				// Code adapted from recipe 14.4 for calculating inbred variance
 				for (mq in qtls)
 				{
@@ -348,33 +341,8 @@ early () {
 					f00=sum(mqf==0)/N;
 					f11=sum(mqf==2)/N;
 					f01=sum(mqf==1)/N;
-					ibvar[(i-1)] = ibvar[(i-1)] + (2*f00*f11-(1/2)*f01^2)*mqe*mqe;
-					// If not last QTL in list, calculating covariance LD with other QTLs
-//					if(which(qtls==mq)!=(length(qtls)-1))
-//					{
-//						mqfA1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq.position,"));")));
-//						mqfA2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq.position,"));")));
-//						fA = sim.mutationFrequencies(p1,qtls[which(qtls==mq)]);
-//						for (mq2 in qtls[c((which(qtls==mq)+1):(length(qtls)-1))])
-//						{
-//							mqe2 = mq2.getValue(paste0(c("e",(i-1))));
-//							mqfB1 = sapply(p1.individuals, paste0(c("sum(applyValue.genome1.containsMarkerMutation(m3, ",mq2.position,"));")));
-//							mqfB2 = sapply(p1.individuals, paste0(c("sum(applyValue.genome2.containsMarkerMutation(m3, ",mq2.position,"));")));
-//							fB = sim.mutationFrequencies(p1,qtls[which(qtls==mq2)]);
-//							fA1B1 = sum(mqfA1*mqfB1)/N;
-//							fA1B2 = sum(mqfA1*mqfB2)/N;
-//							fA2B1 = sum(mqfA2*mqfB1)/N;
-//							fA2B2 = sum(mqfA2*mqfB2)/N;												
-//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B1-fA*fB);
-//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA1B2-fA*fB);
-//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B1-fA*fB);
-//							ldvar[(i-1)] = ldvar[(i-1)] + 2*mqe*mqe2*(fA2B2-fA*fB);
-//						}
-//					}				
+					ibvar[(i-1)] = ibvar[(i-1)] + (2*f00*f11-(1/2)*f01^2)*mqe*mqe;		
 				}
-				
-				// Add all components together to determine genetic variance
-//				geneticvar[(i-1)] = genvar[(i-1)] + ibvar[(i-1)] + ldvar[(i-1)];
 				
 				if(size(qtle[which(qtlf==1.0)]) == 0)
 				{
@@ -398,10 +366,8 @@ early () {
 			}
 			else
 			{
-//				geneticvar[(i-1)] = 0.0;
 				genvar[(i-1)] = 0.0;
 				ibvar[(i-1)] = 0.0;
-//				ldvar[(i-1)] = 0.0;				
 				fixeff[(i-1)] = NAN;
 				proppos[(i-1)] = NAN;
 				fepos[(i-1)] = NAN;
@@ -412,7 +378,6 @@ early () {
 			vti = (cumphensq[(i-1)]/N) - ((cumphen[(i-1)]/N)^2);
 			line = c(line,mti);
 			line = c(line,vti);
-//			line = c(line,geneticvar[(i-1)]);
 			line = c(line,genvar[(i-1)]);
 			line = c(line,ibvar[(i-1)]);
 			line = c(line,vti-genvar[(i-1)]-ibvar[(i-1)]);	// Residual variance is LD covariance			
@@ -434,8 +399,8 @@ early () {
 	for(i in 1:nt)
 	{
 		line = c(line,paste0(c("MeanTrait",i)));
-//		line = c(line,paste0(c("VarTrait",i)));
-		line = c(line,paste0(c("GeneticVar",i)));		
+		//		line = c(line,paste0(c("VarTrait",i)));
+		line = c(line,paste0(c("GeneticVar",i)));
 		line = c(line,paste0(c("GenVar",i)));
 		line = c(line,paste0(c("InbredVar",i)));
 		line = c(line,paste0(c("LDVar",i)));
