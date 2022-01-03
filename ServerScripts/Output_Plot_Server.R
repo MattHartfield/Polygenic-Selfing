@@ -189,7 +189,7 @@ for(S in self)
 		polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MTLowCI,rev(fitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 		abline(h=1/sqrt(N),lty=3,lwd=1.5)
-		legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.99", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
@@ -342,7 +342,7 @@ for(S in self)
 		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		legend("topright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)												
+		legend("topright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.99", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)												
 	}
 	else
 	{
@@ -515,7 +515,7 @@ for(S in self){
 		plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		legend("bottomright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.99", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
 	}
 	else
 	{
