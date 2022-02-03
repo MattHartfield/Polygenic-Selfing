@@ -24,6 +24,7 @@ for(i in 1:10){
 	dat <- dat %>% mutate(DIST=POS2-POS1)
 	dat <- dat %>% mutate(LEVEL=cut(dat$DIST,seq(0,25e6,50e4),right=F))
 
+	# Measuring mean over each bin
 	meanLD <- dat %>% group_by(LEVEL) %>% summarize(meanr2=mean(`R^2`))
 	meanLD <- cbind(meanLD,midpoints[as.numeric(meanLD$LEVEL)],i)
 	names(meanLD)[c(3,4)] <- c("midp","Rep")
@@ -34,26 +35,19 @@ for(i in 1:10){
 # Removing long distances (> 20Mb) and scaling to Mb
 mainres <- mainres %>% filter(midp<=20000000)
 mainres <- mainres %>% mutate(distmb=midp/1e6)
+mainres$Rep <- as.factor(mainres$Rep)
 
 # Plotting LD decay
 mh <- switch(which(k==filenames),"Before Optimum Shift","40 Generations After","300 Generations After","1000 Generations After")
-myp <- ggplot(mainres,aes(distmb,meanr2)) + 
+myp <- ggplot(mainres,aes(distmb,meanr2,color=Rep)) + 
 	geom_point() + 
 	geom_smooth() + 
+    scale_color_brewer(palette = "RdBu") + 
 	labs(x="Distance (Mb)",y="Mean LD",title=mh) + 
 	ylim(0,1) + 
 	scale_x_continuous(labels=comma) + 
 	theme_bw(base_size=36) + 
-	theme(plot.title=element_text(hjust=0.5))
+	theme(plot.title=element_text(hjust=0.5)) + 
+	theme(legend.position="none")
 
 ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDDec_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
-
-#ggsave("/data/hartfield/polyself/results/haps/test_point.pdf",p)
-#ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
-
-#pdf("/data/hartfield/polyself/results/haps/test_point.pdf")
-#plot(meanLD$midp,y=meanLD$meanr2)
-#dev.off()
-
-# TO DO:
-# If desired, thin bins so same number of simulations/pairwise comparisons per distance
