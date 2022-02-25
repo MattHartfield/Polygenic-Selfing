@@ -107,7 +107,7 @@ heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale=
 dev.off()
 
 # Plotting LD
-datLD <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_LD.hap.ld"))
+datLD <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1_LD.hap.ld"))
 datLD <- datLD %>% mutate(POS1Mb=POS1/1e6,POS2Mb=POS2/1e6)
 
 myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) + 
