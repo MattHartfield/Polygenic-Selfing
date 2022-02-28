@@ -15,8 +15,21 @@ stype <- as.integer(args[7])	# Optimum shift type
 ocsc <- as.integer(args[8])		# Is rescaled outcrossing type or not
 k <- args[9]
 
-nbins <- 23		# How many to use in analyses (out of 50)
-stopifnot(nbins<=50)
+# Uncomment to try out test values
+# s <- -0.02
+# h <- 0.02
+# self <- 0.99
+# N <- 5
+# msd <- 0.25
+# isnm <- 0
+# stype <- 0
+# ocsc <- 0
+# k <- "time1"
+# i <- 1
+
+maxd <- 12.5 		# Maximum distance to use (in Mb)
+stopifnot(maxd<=25)
+min_ee <- 10		# Minimum number of bin entries to be included in plot
 #midpoints <- seq(0,25e6-50e4,50e4) + 50e4/2
 filenames <- c('time0','time1','time2','time3')
 
@@ -26,9 +39,11 @@ for(i in 1:10){
 	dat <- dat %>% mutate(LEVEL=cut(dat$DIST,seq(0,25e6,50e4),right=F))
 	
 	# Can we count how many LD measurements there are? Can we normalise by smallest value?
-	# Only look at half the genome distance
-	# First check what the smallest bin size is
+	# Only look at part of the genetic distance
+	# First check what the smallest bin size is within desired range
 	
+	dat <- dat %>% filter(DIST<=maxd*1e6)
+	nbins <- length(unique(dat$LEVEL))
 	dim_s <- vector(mode="numeric",length=nbins)
 	for(j in 1:nbins){
 		dim_s[j] <- dim(subset(dat,LEVEL==unique(dat$LEVEL)[j]))[1]
@@ -37,27 +52,31 @@ for(i in 1:10){
 	stopifnot(dim_s[1]>0)	# sanity check - stop if no entries in smallest bin
 	min_e <- min(dim_s[which(dim_s!=0)])
 	
-	# Then subsampling entries, first checking they're not zero
-	dat2 <- sample_n(subset(dat,LEVEL==unique(dat$LEVEL)[1]),min_e,replace=F)
-	for(j in 2:nbins){
-		if(dim_s[j] != 0){
-			dat2 <- rbind(dat2,sample_n(subset(dat,LEVEL==unique(dat$LEVEL)[j]),min_e,replace=F))
-		}		
-	}
+	if(min_e >= min_ee)
+	{
+		# Then subsampling entries, first checking they're not zero
+		dat2 <- sample_n(subset(dat,LEVEL==unique(dat$LEVEL)[1]),min_e,replace=F)
+		for(j in 2:nbins){
+			if(dim_s[j] != 0){
+				dat2 <- rbind(dat2,sample_n(subset(dat,LEVEL==unique(dat$LEVEL)[j]),min_e,replace=F))
+			}
+		}
 	
-	dat2 <- cbind(dat2,i)
-	names(dat2)[10] <- c("Rep")
+		dat2 <- cbind(dat2,i)
+		names(dat2)[10] <- c("Rep")
 	
-	if(i==1){
-		mainres <- dat2
-	}else{
-		mainres <- rbind(mainres,dat2)
+		if(exists("mainres"))
+		{
+			mainres <- rbind(mainres,dat2)
+		}else{
+			mainres <- dat2
+		}
+	
 	}
 	
 }
 
-# Scaling to Mb
-#mainres <- mainres %>% mutate(dist_mid_mb=midp/1e6)
+# Scaling distances to Mb
 mainres <- mainres %>% mutate(DIST_MB=DIST/1e6)
 mainres$Rep <- as.factor(mainres$Rep)
 
@@ -67,7 +86,8 @@ myp <- ggplot(mainres,aes(x=DIST_MB,y=`R^2`,color=Rep)) +
 	geom_point(alpha=0.1) + 
 	geom_smooth() + 
     scale_color_brewer(palette = "RdBu") + 
-	labs(x="Distance (Mb)",y="Mean LD",title=mh) + 
+	labs(x="Distance (Mb)",y=expression(paste("Mean LD (",r^2,")")),title=mh) + 
+	xlim(0,maxd) + 
 	ylim(0,1) + 
 	scale_x_continuous(labels=comma) + 
 	theme_bw(base_size=36) + 
