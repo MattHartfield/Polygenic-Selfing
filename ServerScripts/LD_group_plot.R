@@ -82,9 +82,10 @@ mainres$Rep <- as.factor(mainres$Rep)
 
 # Plotting LD decay
 mh <- switch(which(k==filenames),"Before Optimum Shift","40 Generations After","300 Generations After","1000 Generations After")
-myp <- ggplot(mainres,aes(x=DIST_MB,y=`R^2`,color=Rep)) + 
-	geom_point(alpha=0.1) + 
-	geom_smooth() + 
+myp <- ggplot(mainres,aes(x=DIST_MB,y=`R^2`)) + 
+	geom_point(aes(color=Rep),alpha=0.1) + 
+	geom_smooth(aes(color=Rep)) + 
+	geom_smooth(col='black',size=2,linetype="dashed", se=FALSE) + 
     scale_color_brewer(palette = "RdBu") + 
 	labs(x="Distance (Mb)",y=expression(paste("Mean LD (",r^2,")")),title=mh) + 
 	xlim(0,maxd) + 
