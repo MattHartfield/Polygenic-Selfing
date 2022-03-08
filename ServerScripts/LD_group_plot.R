@@ -15,7 +15,7 @@ stype <- as.integer(args[7])	# Optimum shift type
 ocsc <- as.integer(args[8])		# Is rescaled outcrossing type or not
 k <- args[9]
 
-# Uncomment to try out test values
+# Uncomment to use test values
 # s <- -0.02
 # h <- 0.02
 # self <- 0.99
@@ -80,9 +80,9 @@ for(i in 1:10){
 mainres <- mainres %>% mutate(DIST_MB=DIST/1e6)
 mainres$Rep <- as.factor(mainres$Rep)
 
-# Plotting LD decay
+# Plotting LD decay (r^2 and Dprime)
 mh <- switch(which(k==filenames),"Before Optimum Shift","40 Generations After","300 Generations After","1000 Generations After")
-myp <- ggplot(mainres,aes(x=DIST_MB,y=`R^2`)) + 
+myp1 <- ggplot(mainres,aes(x=DIST_MB,y=`R^2`)) + 
 	geom_point(aes(color=Rep),alpha=0.1) + 
 	geom_smooth(aes(color=Rep)) + 
 	geom_smooth(col='black',size=2,linetype="dashed", se=FALSE) + 
@@ -94,5 +94,20 @@ myp <- ggplot(mainres,aes(x=DIST_MB,y=`R^2`)) +
 	theme_bw(base_size=36) + 
 	theme(plot.title=element_text(hjust=0.5)) + 
 	theme(legend.position="none")
+	
+myp2 <- ggplot(mainres,aes(x=DIST_MB,y=abs(Dprime))) + 
+	geom_point(aes(color=Rep),alpha=0.1) + 
+	geom_smooth(aes(color=Rep)) + 
+	geom_smooth(col='black',size=2,linetype="dashed", se=FALSE) + 
+    scale_color_brewer(palette = "RdBu") + 
+	labs(x="Distance (Mb)",y="Mean LD (D', absolute value)",title=mh) + 
+	xlim(0,maxd) + 
+	ylim(0,1) + 
+	scale_x_continuous(labels=comma) + 
+	theme_bw(base_size=36) + 
+	theme(plot.title=element_text(hjust=0.5)) + 
+	theme(legend.position="none")
 
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDDec_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDDec_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp1,device="pdf",width=12,height=12)
+
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDDec_Dp_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp2,device="pdf",width=12,height=12)
