@@ -15,30 +15,58 @@ library(tidyverse)
 # k <- args[9] 
 
 # Uncomment to use test values
-s <- -0.02
+s <- 0
 h <- 0.02
-self <- 0.99
+#self <- 0.99
 N <- 5
 msd <- 0.25
 isnm <- 0
 stype <- 0
 ocsc <- 0
-k <- "time1"
-i <- 1
+#k <- "time1"
+#i <- 1
 
-# Table of calculations
-## to do here:
-## CREATE TIBBLE OF SCORES, ONE FOR EACH SELF RATE AND SIMULATION REP
-## CALCULATE PSCORE AND ADD TO TIBBLE
-## USE FULL TIBBLE TO GGPLOT OVER TIME, SPLITTING BY SELFING RATE
+timelist <- c('time0','time1','time2','time3')
+selflist <- c(0,0.5,0.9,0.99,0.999)
+replist <- c(1:10)
+outres <- cbind(expand.grid(timelist,selflist,replist),rep(0,dim(expand.grid(timelist,selflist,replist))[1]))
+names(outres) <- c("Time","Self","Rep","Pscore")
+outres <- as_tibble(outres)
 
-# Read in info, frequency files of quantitative trait variants
-infos <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep",i,".info"),delim=" ")
-vcfin <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep",i,".vcf"),delim='\t',skip=12)[,c(2,8)] %>% filter(grepl("MT=3",INFO))
-infos <- infos[infos$POS%in%vcfin$POS,]
+# calculating pscore per timepoint, selfing rate, simulation replicate
 
-FREQS <- vcfin %>% select(INFO) %>% apply(.,1,function(x) strsplit(x,split=";")) %>% lapply(.,function(x) strsplit(x[[1]][7],split="=")[[1]][2]) %>% unlist %>% as.numeric
-FREQS <- FREQS/100
-qtlfr <- cbind(vcfin[1],FREQS) %>% as_tibble
-qtlfr <- inner_join(qtlfr,infos) %>% mutate(pscore=FREQS*MeanQTL)
-colSums(qtlfr)[4] # Polygenic score for sample
+for(a in 1:dim(outres)[1]){
+	
+	intime <- timelist[as.numeric(outres[a,1])]
+	inself <- outres[a,2]
+	inrep <- outres[a,3]
+	
+	# Read in info, frequency files of quantitative trait variants
+	infos <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",inself,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",intime,"_rep",inrep,".info"),delim=" ")
+	vcfin <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",inself,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",intime,"_rep",inrep,".vcf"),delim='\t',skip=12)[,c(2,8)] %>% filter(grepl("MT=3",INFO))
+	infos <- infos[infos$POS%in%vcfin$POS,]
+
+	FREQS <- vcfin %>% select(INFO) %>% apply(.,1,function(x) strsplit(x,split=";")) %>% lapply(.,function(x) strsplit(x[[1]][7],split="=")[[1]][2]) %>% unlist %>% as.numeric
+	FREQS <- FREQS/100
+	qtlfr <- cbind(vcfin[1],FREQS) %>% as_tibble
+	qtlfr <- inner_join(qtlfr,infos) %>% mutate(pscore=FREQS*MeanQTL)
+	outres[a,4] <- colSums(qtlfr)[4] # Polygenic score for sample
+	
+}
+
+# Calculating (i) mean over replicates (ii) sd (iii) 95% CI, then plotting
+plottab <- outres %>% group_by(Time,Self) %>% summarize(mps=mean(Pscore),msd=sd(Pscore),mci=qt(0.975,length(replist)-1)*sd(Pscore)/sqrt(length(replist)))
+plottab$Self <- as.factor(plottab$Self)
+outplot <- ggplot(plottab,aes(x=Time,y=mps,ymin=mps-mci,ymax=mps+mci,color=Self)) +
+		geom_pointrange() + 
+		geom_point() + 
+		geom_line() +
+		labs(x="Timepoint",y="Mean Polygenic Score") +
+		theme_bw(base_size=36)
+		
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/Pscore_s",s,"_h",h,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=outplot,device="pdf",width=12,height=12)
+
+# Stopped 5pm 7th June 2022
+# to do next:
+## Clean up plots, nicer headings, legends etc
+## Measure other properties of interest (number of qtls? mean frequencies?)
