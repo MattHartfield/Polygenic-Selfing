@@ -29,8 +29,8 @@ ocsc <- 0
 timelist <- c('time0','time1','time2','time3')
 selflist <- c(0,0.5,0.9,0.99,0.999)
 replist <- c(1:10)
-outres <- cbind(expand.grid(timelist,selflist,replist),rep(0,dim(expand.grid(timelist,selflist,replist))[1]))
-names(outres) <- c("Time","Self","Rep","Pscore")
+outres <- cbind(expand.grid(timelist,selflist,replist),matrix(data=0,nrow=dim(expand.grid(timelist,selflist,replist))[1],ncol=4))
+names(outres) <- c("Time","Self","Rep","NQTL","Mfr","MQTL","Pscore")
 outres <- as_tibble(outres)
 
 # calculating pscore per timepoint, selfing rate, simulation replicate
@@ -44,19 +44,34 @@ for(a in 1:dim(outres)[1]){
 	# Read in info, frequency files of quantitative trait variants
 	infos <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",inself,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",intime,"_rep",inrep,".info"),delim=" ")
 	vcfin <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",inself,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",intime,"_rep",inrep,".vcf"),delim='\t',skip=12)[,c(2,8)] %>% filter(grepl("MT=3",INFO))
+	outres[a,4] <- dim(vcfin)[1] # Number QTLs in sample
 	infos <- infos[infos$POS%in%vcfin$POS,]
 
 	FREQS <- vcfin %>% select(INFO) %>% apply(.,1,function(x) strsplit(x,split=";")) %>% lapply(.,function(x) strsplit(x[[1]][7],split="=")[[1]][2]) %>% unlist %>% as.numeric
 	FREQS <- FREQS/100
 	qtlfr <- cbind(vcfin[1],FREQS) %>% as_tibble
 	qtlfr <- inner_join(qtlfr,infos) %>% mutate(pscore=FREQS*MeanQTL)
-	outres[a,4] <- colSums(qtlfr)[4] # Polygenic score for sample
-	
+	outres[a,5:7] <- as_tibble_row(c(colMeans(qtlfr)[2:3],colSums(qtlfr)[4])) # Polygenic score for sample (and other metrics)
+		
 }
 
-# Calculating (i) mean over replicates (ii) sd (iii) 95% CI, then plotting
+# Calculating (i) mean of key values over replicates (ii) sd (iii) 95% CI, then plotting
+# Number QTLs
+NQtab <- outres %>% group_by(Time,Self) %>% summarize(mNQ=mean(NQTL),NQsd=sd(NQTL),NQci=qt(0.975,length(replist)-1)*sd(NQTL)/sqrt(length(replist)))
+NQtab$Self <- as.factor(NQtab$Self)
+
+# Mean frequency
+Frtab <- outres %>% group_by(Time,Self) %>% summarize(mFr=mean(Mfr),Frsd=sd(Mfr),Frci=qt(0.975,length(replist)-1)*sd(Mfr)/sqrt(length(replist)))
+Frtab$Self <- as.factor(Frtab$Self)
+
+# Mean allele effect
+AEtab <- outres %>% group_by(Time,Self) %>% summarize(mAE=mean(MQTL),AEsd=sd(MQTL),AEci=qt(0.975,length(replist)-1)*sd(MQTL)/sqrt(length(replist)))
+AEtab$Self <- as.factor(AEtab$Self)
+
+# Polygenic score
 plottab <- outres %>% group_by(Time,Self) %>% summarize(mps=mean(Pscore),msd=sd(Pscore),mci=qt(0.975,length(replist)-1)*sd(Pscore)/sqrt(length(replist)))
 plottab$Self <- as.factor(plottab$Self)
+
 outplot <- ggplot(plottab,aes(x=Time,y=mps,ymin=mps-mci,ymax=mps+mci,color=Self)) +
 		geom_pointrange() + 
 		geom_point() + 
