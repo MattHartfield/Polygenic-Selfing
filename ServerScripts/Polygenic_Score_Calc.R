@@ -2,6 +2,7 @@
 # Plotting polygenic score associated with sample
 
 library(tidyverse)
+library(cowplot)
 
 # args <- commandArgs(trailingOnly = TRUE)
 # s <- as.double(args[1])			# Selection coefficient, background mutations
@@ -18,7 +19,7 @@ library(tidyverse)
 s <- 0
 h <- 0.02
 #self <- 0.99
-N <- 5
+N <- 1
 msd <- 0.25
 isnm <- 0
 stype <- 0
@@ -72,16 +73,41 @@ AEtab$Self <- as.factor(AEtab$Self)
 plottab <- outres %>% group_by(Time,Self) %>% summarize(mps=mean(Pscore),msd=sd(Pscore),mci=qt(0.975,length(replist)-1)*sd(Pscore)/sqrt(length(replist)))
 plottab$Self <- as.factor(plottab$Self)
 
-outplot <- ggplot(plottab,aes(x=Time,y=mps,ymin=mps-mci,ymax=mps+mci,color=Self)) +
-		geom_pointrange() + 
-		geom_point() + 
+op1 <- ggplot(plottab,aes(x=Time,y=mps,group=Self,color=Self)) +
 		geom_line() +
-		labs(x="Timepoint",y="Mean Polygenic Score") +
-		theme_bw(base_size=36)
+		geom_point() + 
+		geom_pointrange(aes(ymin=mps-mci,ymax=mps+mci)) + 
+		labs(x="Timepoint",y="Polygenic Score",color="Self-Fertilisation\nValue") +
+		theme_bw(base_size=30)
 		
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/Pscore_s",s,"_h",h,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=outplot,device="pdf",width=12,height=12)
+op2 <- ggplot(NQtab,aes(x=Time,y=mNQ,group=Self,color=Self)) +
+		geom_line() +
+		geom_point() + 
+		geom_pointrange(aes(ymin=mNQ-NQci,ymax=mNQ+NQci)) + 
+		labs(x="Timepoint",y="Mean Number\nof Mutations",color="Self-Fertilisation\nValue") +
+		theme_bw(base_size=30)
 
-# Stopped 5pm 7th June 2022
-# to do next:
-## Clean up plots, nicer headings, legends etc
-## Measure other properties of interest (number of qtls? mean frequencies?)
+op3 <- ggplot(Frtab,aes(x=Time,y=mFr,group=Self,color=Self)) +
+		geom_line() +
+		geom_point() + 
+		geom_pointrange(aes(ymin=mFr-Frci,ymax=mFr+Frci)) + 
+		labs(x="Timepoint",y="Mean Mutation\nFrequency",color="Self-Fertilisation\nValue") +
+		theme_bw(base_size=30)
+
+op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
+		geom_line() +
+		geom_point() + 
+		geom_pointrange(aes(ymin=mAE-AEci,ymax=mAE+AEci)) + 
+		labs(x="Timepoint",y="Mean Mutation\nEffect",color="Self-Fertilisation\nValue") +
+		theme_bw(base_size=30)
+		
+# All together and printing to file
+# STOPPED 9th June 2022
+# To do: (1) fix joint legend under plots (2) add explicit timestamps on y-axis (3) thicker lines
+opA <- plot_grid(op1 + theme(legend.position="none"),op2 + theme(legend.position="none"),op3 + theme(legend.position="none"),op4 + theme(legend.position="none"),labels=c('A','B','C','D'),label_size=30)
+leg_b <- get_legend(op1 + theme(legend.box.margin=margin(0,0,0,24)))
+opB <- plot_grid(opA,leg_b,rel_widths=c(3,.4))
+
+gr <- (1+sqrt(5))/2
+baseh = 12
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/Pscore_s",s,"_h",h,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=opB,device="pdf",width=baseh*gr,height=baseh)
