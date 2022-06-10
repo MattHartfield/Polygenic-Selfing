@@ -4,28 +4,43 @@
 library(tidyverse)
 library(cowplot)
 
-# args <- commandArgs(trailingOnly = TRUE)
-# s <- as.double(args[1])			# Selection coefficient, background mutations
-# h <- as.double(args[2])			# Dominance coefficient
-# self <- as.double(args[3])		# Selfing rate
-# N <- as.integer(args[4])		# Number of traits each QTL affects
-# msd <- as.double(args[5])		# Standard deviation of mutational effect
-# isnm <- as.integer(args[6])		# Is mutation stopped after optimum shift
-# stype <- as.integer(args[7])	# Optimum shift type
-# ocsc <- as.integer(args[8])		# Is rescaled outcrossing type or not
-# k <- args[9] 
-
-# Uncomment to use test values
-s <- 0
-h <- 0.02
-#self <- 0.99
-N <- 1
-msd <- 0.25
-isnm <- 0
-stype <- 0
+args <- commandArgs(trailingOnly = TRUE)
+s <- as.double(args[1])			# Selection coefficient, background mutations
+h <- as.double(args[2])			# Dominance coefficient
+N <- as.integer(args[3])		# Number of traits each QTL affects
+msd <- as.double(args[4])		# Standard deviation of mutational effect
+isnm <- as.integer(args[5])		# Is mutation stopped after optimum shift
+stype <- as.integer(args[6])	# Optimum shift type
 ocsc <- 0
-#k <- "time1"
-#i <- 1
+
+# Generating headings
+if(s == 0){
+	midh1 <- ", no background deleterious mutation. "
+}else{
+	midh1 <- paste0(" with background deleterious mutation (s = ",s,", h = ",h,"). ")
+}
+
+# For output headings	
+if(N==1){
+	endh1 <- "1 trait."
+}else{
+	endh1 <- paste0(N," traits.")
+}
+
+# For different mutation types
+if(isnm==0){
+	endp <- " Continuous mutation."
+}else if(isnm==1){
+	endp <- " No mutation after shift."
+}
+
+# For different optimum types
+if(stype==0){
+	endpb <- " Sudden optimum shift."
+}else if(stype==1){
+	endpb <- " Gradual optimum shift."
+}
+
 
 timelist <- c('time0','time1','time2','time3')
 selflist <- c(0,0.5,0.9,0.99,0.999)
@@ -35,7 +50,6 @@ names(outres) <- c("Time","Self","Rep","NQTL","Mfr","MQTL","Pscore")
 outres <- as_tibble(outres)
 
 # calculating pscore per timepoint, selfing rate, simulation replicate
-
 for(a in 1:dim(outres)[1]){
 	
 	intime <- timelist[as.numeric(outres[a,1])]
@@ -56,6 +70,18 @@ for(a in 1:dim(outres)[1]){
 		
 }
 
+outres <- outres %>% 
+	mutate(Time=as.character(Time)) %>%
+	mutate(Time=case_when(
+		Time=="time0" ~ "Before\nShift",
+		Time=="time1" ~ "40\nGens",
+		Time=="time2" ~ "300\nGens",
+		Time=="time3" ~ "1000\nGens",
+		)
+	) %>% 
+	mutate(Time=as.factor(Time)) %>%
+	mutate(Time=fct_relevel(Time,"Before\nShift","40\nGens","300\nGens","1000\nGens"))
+
 # Calculating (i) mean of key values over replicates (ii) sd (iii) 95% CI, then plotting
 # Number QTLs
 NQtab <- outres %>% group_by(Time,Self) %>% summarize(mNQ=mean(NQTL),NQsd=sd(NQTL),NQci=qt(0.975,length(replist)-1)*sd(NQTL)/sqrt(length(replist)))
@@ -73,40 +99,46 @@ AEtab$Self <- as.factor(AEtab$Self)
 plottab <- outres %>% group_by(Time,Self) %>% summarize(mps=mean(Pscore),msd=sd(Pscore),mci=qt(0.975,length(replist)-1)*sd(Pscore)/sqrt(length(replist)))
 plottab$Self <- as.factor(plottab$Self)
 
+line_sz <- 1 	# Line thickness
+mr <- 24
 op1 <- ggplot(plottab,aes(x=Time,y=mps,group=Self,color=Self)) +
-		geom_line() +
+		geom_line(size=line_sz) +
 		geom_point() + 
-		geom_pointrange(aes(ymin=mps-mci,ymax=mps+mci)) + 
-		labs(x="Timepoint",y="Polygenic Score",color="Self-Fertilisation\nValue") +
-		theme_bw(base_size=30)
+		geom_pointrange(aes(ymin=mps-mci,ymax=mps+mci),size=line_sz) + 
+		labs(x="Timepoint",y="Polygenic\nScore",color="Self-Fertilisation Value:") +
+		theme_bw(base_size=30) + 
+		theme(plot.margin=margin(mr,mr,mr,mr))
 		
 op2 <- ggplot(NQtab,aes(x=Time,y=mNQ,group=Self,color=Self)) +
-		geom_line() +
+		geom_line(size=line_sz) +
 		geom_point() + 
-		geom_pointrange(aes(ymin=mNQ-NQci,ymax=mNQ+NQci)) + 
-		labs(x="Timepoint",y="Mean Number\nof Mutations",color="Self-Fertilisation\nValue") +
-		theme_bw(base_size=30)
+		geom_pointrange(aes(ymin=mNQ-NQci,ymax=mNQ+NQci),size=line_sz) + 
+		labs(x="Timepoint",y="Mean Number\nof Mutations",color="Self-Fertilisation Value:") +
+		theme_bw(base_size=30) + 
+		theme(plot.margin=margin(mr,mr,mr,mr))
 
 op3 <- ggplot(Frtab,aes(x=Time,y=mFr,group=Self,color=Self)) +
-		geom_line() +
+		geom_line(size=line_sz) +
 		geom_point() + 
-		geom_pointrange(aes(ymin=mFr-Frci,ymax=mFr+Frci)) + 
-		labs(x="Timepoint",y="Mean Mutation\nFrequency",color="Self-Fertilisation\nValue") +
-		theme_bw(base_size=30)
+		geom_pointrange(aes(ymin=mFr-Frci,ymax=mFr+Frci),size=line_sz) + 
+		labs(x="Timepoint",y="Mean\nMutation Frequency",color="Self-Fertilisation Value:") +
+		theme_bw(base_size=30) + 
+		theme(plot.margin=margin(mr,mr,mr,mr))
 
 op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
-		geom_line() +
+		geom_line(size=line_sz) +
 		geom_point() + 
-		geom_pointrange(aes(ymin=mAE-AEci,ymax=mAE+AEci)) + 
-		labs(x="Timepoint",y="Mean Mutation\nEffect",color="Self-Fertilisation\nValue") +
-		theme_bw(base_size=30)
+		geom_pointrange(aes(ymin=mAE-AEci,ymax=mAE+AEci),size=line_sz) + 
+		labs(x="Timepoint",y="Mean\nMutation Effect",color="Self-Fertilisation Value:") +
+		theme_bw(base_size=30) + 
+		theme(plot.margin=margin(mr,mr,mr,mr))
 		
 # All together and printing to file
-# STOPPED 9th June 2022
-# To do: (1) fix joint legend under plots (2) add explicit timestamps on y-axis (3) thicker lines
+# See: https://wilkelab.org/cowplot/articles/shared_legends.html
+title <- ggdraw() + draw_label(paste0("Polygenic score of sample",midh1,endh1,endp,endpb),fontface="bold",x=0,hjust=0,size=24)
 opA <- plot_grid(op1 + theme(legend.position="none"),op2 + theme(legend.position="none"),op3 + theme(legend.position="none"),op4 + theme(legend.position="none"),labels=c('A','B','C','D'),label_size=30)
-leg_b <- get_legend(op1 + theme(legend.box.margin=margin(0,0,0,24)))
-opB <- plot_grid(opA,leg_b,rel_widths=c(3,.4))
+leg_b <- get_legend(op1 + theme(legend.position="bottom"))
+opB <- plot_grid(title,opA,leg_b,ncol=1,rel_heights=c(.05,1,.05))
 
 gr <- (1+sqrt(5))/2
 baseh = 12
