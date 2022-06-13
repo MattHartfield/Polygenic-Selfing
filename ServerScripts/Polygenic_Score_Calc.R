@@ -29,9 +29,9 @@ if(N==1){
 
 # For different mutation types
 if(isnm==0){
-	endp <- " Continuous mutation."
+	endp <- "Continuous mutation."
 }else if(isnm==1){
-	endp <- " No mutation after shift."
+	endp <- "No mutation after shift."
 }
 
 # For different optimum types
@@ -40,7 +40,6 @@ if(stype==0){
 }else if(stype==1){
 	endpb <- " Gradual optimum shift."
 }
-
 
 timelist <- c('time0','time1','time2','time3')
 selflist <- c(0,0.5,0.9,0.99,0.999)
@@ -135,10 +134,10 @@ op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
 		
 # All together and printing to file
 # See: https://wilkelab.org/cowplot/articles/shared_legends.html
-title <- ggdraw() + draw_label(paste0("Polygenic score of sample",midh1,endh1,endp,endpb),fontface="bold",x=0,hjust=0,size=24)
+title <- ggdraw() + draw_label(paste0("Polygenic score of sample",midh1,endh1,"\n",endp,endpb),fontface="bold",x=0,hjust=0,size=24)
 opA <- plot_grid(op1 + theme(legend.position="none"),op2 + theme(legend.position="none"),op3 + theme(legend.position="none"),op4 + theme(legend.position="none"),labels=c('A','B','C','D'),label_size=30)
 leg_b <- get_legend(op1 + theme(legend.position="bottom"))
-opB <- plot_grid(title,opA,leg_b,ncol=1,rel_heights=c(.05,1,.05))
+opB <- plot_grid(title,opA,leg_b,ncol=1,rel_heights=c(.075,1,.05))
 
 gr <- (1+sqrt(5))/2
 baseh = 12

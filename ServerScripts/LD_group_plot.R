@@ -15,22 +15,9 @@ stype <- as.integer(args[7])	# Optimum shift type
 ocsc <- as.integer(args[8])		# Is rescaled outcrossing type or not
 k <- args[9]
 
-# Uncomment to use test values
-# s <- -0.02
-# h <- 0.02
-# self <- 0.99
-# N <- 5
-# msd <- 0.25
-# isnm <- 0
-# stype <- 0
-# ocsc <- 0
-# k <- "time1"
-# i <- 1
-
 maxd <- 12.5 		# Maximum distance to use (in Mb)
 stopifnot(maxd<=25)
 min_ee <- 10		# Minimum number of bin entries to be included in plot
-#midpoints <- seq(0,25e6-50e4,50e4) + 50e4/2
 filenames <- c('time0','time1','time2','time3')
 
 for(i in 1:10){

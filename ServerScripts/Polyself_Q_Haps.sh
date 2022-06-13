@@ -39,6 +39,7 @@ fi
 fstr="time0 time1 time2 time3"
 for fname in ${fstr}
 do
+	echo "Processing data for time ${fname}" >&1
 	# Creating LD file for plots
 	for a in $(seq 1 10)
 	do
@@ -47,9 +48,11 @@ do
 	done
 
 	# Creating plots of QTL distribution throughout haplotypes
+	echo "Plotting haplotype samples" >&1
 	Rscript /data/hartfield/polyself/scripts/Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}
 	
 	# Creating plots of LD decay
+	echo "Plotting LD decay" >&1
 	Rscript /data/hartfield/polyself/scripts/LD_group_plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}
 
 	# Producing base file for QTL output info
@@ -114,6 +117,7 @@ done
 DOPS=$(awk -v ins=$SELF 'BEGIN{if(ins==0) print 0; else print 1}')
 if [ $DOPS -eq 0 -a $OCSC -eq 0 ]
 then
+	echo "Plotting polygenic scores" >&1
 	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
 fi
 
