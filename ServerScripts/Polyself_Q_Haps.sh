@@ -119,6 +119,10 @@ if [ $DOPS -eq 0 -a $OCSC -eq 0 ]
 then
 	echo "Plotting polygenic scores" >&1
 	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
+elif [ $DOPS -eq 0 -a $OCSC -eq 1 ]
+then
+	echo "Plotting polygenic scores (OCSC)" >&1
+	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
 fi
 
 rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

@@ -60,9 +60,9 @@ for(a in 1:dim(outres)[1]){
 	
 	# Read in info, frequency files of quantitative trait variants
 	if(inself==0){
-		inocsc <- 0
-	}else{
 		inocsc <- 1
+	}else{
+		inocsc <- 0
 	}
 	infos <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",inself,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",inocsc,"_",intime,"_rep",inrep,".info"),delim=" ")
 	vcfin <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",inself,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",inocsc,"_",intime,"_rep",inrep,".vcf"),delim='\t',skip=12)[,c(2,8)] %>% filter(grepl("MT=3",INFO))
@@ -142,7 +142,7 @@ op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
 		
 # All together and printing to file
 # See: https://wilkelab.org/cowplot/articles/shared_legends.html
-title <- ggdraw() + draw_label(paste0("Polygenic score of sample (rescaled outcrossing case)",midh1,endh1,"\n",endp,endpb),fontface="bold",x=0,hjust=0,size=24)
+title <- ggdraw() + draw_label(paste0("Polygenic score of sample (rescaled outcrossing case)",midh1,"\n",endh1,endp,endpb),fontface="bold",x=0,hjust=0,size=24)
 opA <- plot_grid(op1 + theme(legend.position="none"),op2 + theme(legend.position="none"),op3 + theme(legend.position="none"),op4 + theme(legend.position="none"),labels=c('A','B','C','D'),label_size=30)
 leg_b <- get_legend(op1 + theme(legend.position="bottom"))
 opB <- plot_grid(title,opA,leg_b,ncol=1,rel_heights=c(.075,1,.05))
