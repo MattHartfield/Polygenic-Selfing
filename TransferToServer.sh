@@ -32,15 +32,4 @@ for (( j=1; j <= NL; ++j ))
 	fi
 done
 
-# # 2: OCSC
-# NL2=$(wc -l < ServerScripts/PolyselParameters_OCSC.txt)
-# for (( j=1; j <= NL2; ++j ))
-# 	do
-# 	for (( i=1; i <= NREPS; ++i ))
-# 	do
-# 		# Adding rep number to each parameter set
-# 		awk -v ln=${j} -v rep=${i} 'NR==ln{print $0 " "rep}' ServerScripts/PolyselParameters_OCSC.txt >> ServerScripts/PolyselParametersBig_OCSC.txt
-# 	done
-# done
-
 rsync -avz /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/Polygenic_Selection_With_Selfing.slim /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/ServerScripts/* mhartfield@qmaster:/data/hartfield/polyself/scripts/

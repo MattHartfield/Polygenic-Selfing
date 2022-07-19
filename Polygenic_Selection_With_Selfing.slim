@@ -20,17 +20,17 @@ initialize() {
 	defineConstant("genl",25000000);		// Length of simulated genome
 	defineConstant("msd",0.25);			// Standard Deviation in trait values
 	
-	// Uncomment if running on home machine; comment out otherwise
-	//	defineConstant("s",0.00);				// Background mutation selection coefficient
-	//	defineConstant("h",0.02);				// Background mutation dominance coefficient
-	//	defineConstant("sfrate",0.0);			// Self-fertilisation rate
-	//	defineConstant("nt",1); 				// Number of traits to optimise
-	//	defineConstant("rep",1);				// Which replicate is running
-	//	defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
-	//	defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
-	//	defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
-	//	defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes
-	//	defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//		Uncomment if running on home machine; comment out otherwise
+//		defineConstant("s",0.00);				// Background mutation selection coefficient
+//		defineConstant("h",0.02);				// Background mutation dominance coefficient
+//		defineConstant("sfrate",0.0);			// Self-fertilisation rate
+//		defineConstant("nt",1); 				// Number of traits to optimise
+//		defineConstant("rep",1);				// Which replicate is running
+//		defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
+//		defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+//		defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
+//		defineConstant("oc_sc",1);				// Scale outcrossing parameters? 0 = no, 1 = yes
+//		defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -75,12 +75,15 @@ initialize() {
 	mu = 4e-08;
 	ATrec = (1-exp(-(2*3.6)/100))/(2e6);	// Recombination rate 3.6cM/Mb, converted using Haldane's formula
 	rec =  mu/(7e-9/ATrec);
+	catn("Baseline rec is " + rec);
 	// If activated, rescales parameters so equivalent to highly selfing = 0.999
 	if(oc_sc == 1 & sfrate == 0){
 		sft = 0.999;
 		Fis = sft/(2-sft);
+		Psi = (sft/(2-sft))*((2-sft-2*(2-3*sft)*rec*(1-rec))/(2-sft*(1-2*rec*(1-rec))));
 		mu = mu/(1 + Fis);
-		rec = rec*(1 - Fis);
+		rec = rec*(1 - 2*Fis + Psi);
+		catn("With Fis of " + Fis + " and Psi of " + Psi + " new rec is " + rec);
 	}
 	
 	// Uncomment if using testing values
@@ -175,6 +178,18 @@ mutation(m3,p3)
 {
 	return F;
 }
+
+// Recombination callback - for rescaled outcrossing case
+//recombination(){
+//	if(oc_sc==0)
+//	{
+//		return F;		// No changes needed if not rescaled outcrossing case
+//	}
+//	else if (oc_sc==1)
+//	{
+//		
+//	}
+//}
 
 // Code to define fitness changes due to QTLs
 late () {
