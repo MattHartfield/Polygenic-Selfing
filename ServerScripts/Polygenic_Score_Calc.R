@@ -22,9 +22,9 @@ if(s == 0){
 
 # For output headings	
 if(N==1){
-	endh1 <- "1 trait."
+	endh1 <- "1 trait. "
 }else{
-	endh1 <- paste0(N," traits.")
+	endh1 <- paste0(N," traits. ")
 }
 
 # For different mutation types
