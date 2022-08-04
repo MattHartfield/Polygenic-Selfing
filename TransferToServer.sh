@@ -24,7 +24,8 @@ for (( j=1; j <= NL; ++j ))
 	if [ "$OCSC" == 1 ]
 	then
 		sed -n ${j}p ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParameters_OCSC.txt
-	else
+	elif [ "$OCSC" == 0 ]
+	then
 		if [ "$SELF" == 0 ]
 		then
 			sed -n ${j}p ServerScripts/PolyselParameters.txt >> ServerScripts/PolyselParametersPlots.txt
