@@ -4,6 +4,7 @@
 # 15th June 2022
 # Version for dealing with OCSC cases
 
+library(RColorBrewer)
 library(tidyverse)
 library(cowplot)
 
@@ -15,6 +16,10 @@ msd <- as.double(args[4])		# Standard deviation of mutational effect
 isnm <- as.integer(args[5])		# Is mutation stopped after optimum shift
 stype <- as.integer(args[6])	# Optimum shift type
 ocsc <- 1
+
+pcol <- brewer.pal(n=4,name='Dark2')
+pcol <- pcol[c(4,1)]
+
 
 # Generating headings
 if(s == 0){
@@ -114,7 +119,8 @@ op1 <- ggplot(plottab,aes(x=Time,y=mps,group=Self,color=Self)) +
 		geom_pointrange(aes(ymin=mps-mci,ymax=mps+mci),size=line_sz) + 
 		labs(x="Timepoint",y="Polygenic\nScore",color="Self-Fertilisation Value:") +
 		theme_bw(base_size=30) + 
-		theme(plot.margin=margin(mr,mr,mr,mr))
+		theme(plot.margin=margin(mr,mr,mr,mr)) +
+		scale_color_manual(values = pcol)
 		
 op2 <- ggplot(NQtab,aes(x=Time,y=mNQ,group=Self,color=Self)) +
 		geom_line(size=line_sz) +
@@ -122,7 +128,8 @@ op2 <- ggplot(NQtab,aes(x=Time,y=mNQ,group=Self,color=Self)) +
 		geom_pointrange(aes(ymin=mNQ-NQci,ymax=mNQ+NQci),size=line_sz) + 
 		labs(x="Timepoint",y="Mean Number\nof Mutations",color="Self-Fertilisation Value:") +
 		theme_bw(base_size=30) + 
-		theme(plot.margin=margin(mr,mr,mr,mr))
+		theme(plot.margin=margin(mr,mr,mr,mr)) +
+		scale_color_manual(values = pcol)
 
 op3 <- ggplot(Frtab,aes(x=Time,y=mFr,group=Self,color=Self)) +
 		geom_line(size=line_sz) +
@@ -130,7 +137,8 @@ op3 <- ggplot(Frtab,aes(x=Time,y=mFr,group=Self,color=Self)) +
 		geom_pointrange(aes(ymin=mFr-Frci,ymax=mFr+Frci),size=line_sz) + 
 		labs(x="Timepoint",y="Mean\nMutation Frequency",color="Self-Fertilisation Value:") +
 		theme_bw(base_size=30) + 
-		theme(plot.margin=margin(mr,mr,mr,mr))
+		theme(plot.margin=margin(mr,mr,mr,mr)) +
+		scale_color_manual(values = pcol)
 
 op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
 		geom_line(size=line_sz) +
@@ -138,7 +146,8 @@ op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
 		geom_pointrange(aes(ymin=mAE-AEci,ymax=mAE+AEci),size=line_sz) + 
 		labs(x="Timepoint",y="Mean\nMutation Effect",color="Self-Fertilisation Value:") +
 		theme_bw(base_size=30) + 
-		theme(plot.margin=margin(mr,mr,mr,mr))
+		theme(plot.margin=margin(mr,mr,mr,mr)) +
+		scale_color_manual(values = pcol)
 		
 # All together and printing to file
 # See: https://wilkelab.org/cowplot/articles/shared_legends.html
