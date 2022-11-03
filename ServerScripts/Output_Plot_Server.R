@@ -339,7 +339,7 @@ for(S in self)
 for(S in self)
 {
 	if(which(self%in%S) == 1){
-		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.5)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5) # Note scaling up max value to ensure enough space for legend
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
 		legend("topright",legend=c("S = 0", "S = 0.5", "S = 0.9", "S = 0.99", "S = 0.999"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)												
@@ -358,7 +358,6 @@ for(S in self)
 		plot(traitmat[[which(self%in%S)]]$Generation,traitmat[[which(self%in%S)]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
 		polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		abline(v=0,lty=2)
-		points(x=0,y=HoCV,pch=4,cex=2,col=pcol[1])		# Expected HoC variance
 	}
 	else
 	{
