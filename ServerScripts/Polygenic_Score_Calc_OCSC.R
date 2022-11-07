@@ -152,7 +152,7 @@ op4 <- ggplot(AEtab,aes(x=Time,y=mAE,group=Self,color=Self)) +
 # All together and printing to file
 # See: https://wilkelab.org/cowplot/articles/shared_legends.html
 title <- ggdraw() + draw_label(paste0("Polygenic score of sample (rescaled outcrossing case)",midh1,"\n",endh1,endp,endpb),fontface="bold",x=0,hjust=0,size=24)
-opA <- plot_grid(op1 + theme(legend.position="none"),op2 + theme(legend.position="none"),op3 + theme(legend.position="none"),op4 + theme(legend.position="none"),labels=c('A','B','C','D'),label_size=30)
+opA <- plot_grid(op1 + theme(legend.position="none"),op2 + theme(legend.position="none"),op3 + theme(legend.position="none"),op4 + theme(legend.position="none"),labels=c('i','ii','iii','iv'),label_size=30)
 leg_b <- get_legend(op1 + theme(legend.position="bottom"))
 opB <- plot_grid(title,opA,leg_b,ncol=1,rel_heights=c(.075,1,.05))
 
