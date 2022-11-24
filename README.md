@@ -6,7 +6,7 @@ Scripts used in the study "Polygenic selection to a changing optimum under self-
 
 `Polygenic_Selection_With_Selfing.slim` is the main [SLiM](https://messerlab.org/slim/ "SLiM") file used to perform simulations. It is currently set up to run via the command-line using the following command to define the main parameters:
 
-`slim -d s=${SEL} -d h=${DOM} -d sfrate=${SELF} -d nt=${NTR} -d rep=${REP} -d isnm=${ISNM} -d runtime=${RT} -d oc\_sc=${OCSC} -d stype=${STYPE} Polygenic\_Selection\_With\_Selfing.slim`
+`slim -d s=${SEL} -d h=${DOM} -d sfrate=${SELF} -d nt=${NTR} -d rep=${REP} -d isnm=${ISNM} -d runtime=${RT} -d oc_sc=${OCSC} -d stype=${STYPE} Polygenic_Selection_With_Selfing.slim`
 
 Where the values in brackets represent input variables:
 - $(SEL} is the deleterious mutation selection coefficient (0 for neutral mutations);
@@ -31,21 +31,21 @@ The folder `ServerScripts` contains scripts used to process resulting simulation
 
 #### R scripts
 
-`Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`  
-`Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`  
+`Rscript Output_Plot_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`  
+`Rscript Output_Plot_Server_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`  
 
 Produces plots of mean trait values; mean and variance in fitness; inbreeding depression; genetic variance components; properties of fixed mutations. Input parameters are as for the simulation; ${CU} denotes the maximum time post-optimum shift with which to plot results. `OCSC` version compares highly selfing case with rescaled outcrossing case. Hence, OCSC should be set to 0 in the first example and 1 in the second.
 
-`Rscript Hap\_Plot\_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
+`Rscript Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
 
 Plots haplotype snapshots and properties of selected mutations. Input parameters are as for the simulation; ${fname} is one of `time0 time1 time2 time3` denoting different times when haplotypes were sampled.
 
-`Rscript LD\_group\_plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
+`Rscript LD_group_plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
 
 Plots Linkage disequilibrium (LD) decay over simulation replicates.
 
-`Rscript Polygenic\_Score\_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
-`Rscript Polygenic\_Score\_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
+`Rscript Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
+`Rscript Polygenic_Score_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
 
 Plots polygenic scores over time.
 
@@ -55,7 +55,7 @@ Plots genic variance and compares it to House-of-Cards expectation.
 
 #### Shell scripts
 
-For completeness I have also included the shell scripts (ending with .sh) that are used to run different parts of the simulations and analyses on the ClubAshworth computer cluster at the Institute of Ecology and Evolution at The University of Edinburgh. These will have to be modified if intended to be run on a different machine, and are included for archiving and illustrating simulation post-processing (e.g., for plotting haplotype information in `Polyself\_Q\_Haps.sh`).
+For completeness I have also included the shell scripts (ending with .sh) that are used to run different parts of the simulations and analyses on the ClubAshworth computer cluster at the Institute of Ecology and Evolution at The University of Edinburgh. These will have to be modified if intended to be run on a different machine, and are included for archiving and illustrating simulation post-processing (e.g., for plotting haplotype information in `Polyself_Q_Haps.sh`).
 
 ### Local files
 
