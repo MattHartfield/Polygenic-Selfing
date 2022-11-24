@@ -31,8 +31,8 @@ The folder `ServerScripts` contains scripts used to process resulting simulation
 
 #### R scripts
 
->Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}
->Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}
+> Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}
+> Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}
 
 Produces plots of mean trait values; mean and variance in fitness; inbreeding depression; genetic variance components; properties of fixed mutations. Input parameters are as for the simulation; ${CU} denotes the maximum time post-optimum shift with which to plot results. `OCSC` version compares highly selfing case with rescaled outcrossing case. Hence, OCSC should be set to 0 in the first example and 1 in the second.
 
@@ -55,7 +55,7 @@ Plots genic variance and compares it to House-of-Cards expectation.
 
 #### Shell scripts
 
-For completeness I have also included the shell scripts (ending with .sh) that are used to run different parts of the simulations and analyses on the ClubAshworth computer cluster at the Institute of Ecology and Evolution at The University of Edinburgh. These will have to be modified if intended to be run on a different machine, and are included for archiving and illustrating simulation post-processing (e.g., for plotting haplotype information in 'Polyself\_Q\_Haps.sh').
+For completeness I have also included the shell scripts (ending with .sh) that are used to run different parts of the simulations and analyses on the ClubAshworth computer cluster at the Institute of Ecology and Evolution at The University of Edinburgh. These will have to be modified if intended to be run on a different machine, and are included for archiving and illustrating simulation post-processing (e.g., for plotting haplotype information in `Polyself\_Q\_Haps.sh`).
 
 ### Local files
 
