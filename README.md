@@ -6,7 +6,7 @@ Scripts used in the study "Polygenic selection to a changing optimum under self-
 
 `Polygenic_Selection_With_Selfing.slim` is the main [SLiM](https://messerlab.org/slim/ "SLiM") file used to perform simulations. It is currently set up to run via the command-line using the following to define the main parameters:
 
-> slim -d s=${SEL} -d h=${DOM} -d sfrate=${SELF} -d nt=${NTR} -d rep=${REP} -d isnm=${ISNM} -d runtime=${RT} -d oc\_sc=${OCSC} -d stype=${STYPE} Polygenic\_Selection\_With\_Selfing.slim
+`slim -d s=${SEL} -d h=${DOM} -d sfrate=${SELF} -d nt=${NTR} -d rep=${REP} -d isnm=${ISNM} -d runtime=${RT} -d oc\_sc=${OCSC} -d stype=${STYPE} Polygenic\_Selection\_With\_Selfing.slim`
 
 Where the values in brackets represent input variables:
 - $(SEL} is the deleterious mutation selection coefficient (0 for neutral mutations);
@@ -31,8 +31,8 @@ The folder `ServerScripts` contains scripts used to process resulting simulation
 
 #### R scripts
 
-> Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}  
-> Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}  
+`Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`
+`Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`
 
 Produces plots of mean trait values; mean and variance in fitness; inbreeding depression; genetic variance components; properties of fixed mutations. Input parameters are as for the simulation; ${CU} denotes the maximum time post-optimum shift with which to plot results. `OCSC` version compares highly selfing case with rescaled outcrossing case. Hence, OCSC should be set to 0 in the first example and 1 in the second.
 
