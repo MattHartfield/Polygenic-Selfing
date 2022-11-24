@@ -4,7 +4,7 @@ Scripts used in the study "Polygenic selection to a changing optimum under self-
 
 ### Main Simulation
 
-`Polygenic_Selection_With_Selfing.slim` is the main [SLiM](https://messerlab.org/slim/ "SLiM") file used to perform simulations. It is currently set up to run via the command-line using the following to define the main parameters:
+`Polygenic_Selection_With_Selfing.slim` is the main [SLiM](https://messerlab.org/slim/ "SLiM") file used to perform simulations. It is currently set up to run via the command-line using the following command to define the main parameters:
 
 `slim -d s=${SEL} -d h=${DOM} -d sfrate=${SELF} -d nt=${NTR} -d rep=${REP} -d isnm=${ISNM} -d runtime=${RT} -d oc\_sc=${OCSC} -d stype=${STYPE} Polygenic\_Selection\_With\_Selfing.slim`
 
@@ -31,25 +31,25 @@ The folder `ServerScripts` contains scripts used to process resulting simulation
 
 #### R scripts
 
-`Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`
-`Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`
+`Rscript Output\_Plot\_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`  
+`Rscript Output\_Plot\_Server\_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${CU}`  
 
 Produces plots of mean trait values; mean and variance in fitness; inbreeding depression; genetic variance components; properties of fixed mutations. Input parameters are as for the simulation; ${CU} denotes the maximum time post-optimum shift with which to plot results. `OCSC` version compares highly selfing case with rescaled outcrossing case. Hence, OCSC should be set to 0 in the first example and 1 in the second.
 
-> Rscript Hap\_Plot\_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}
+`Rscript Hap\_Plot\_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
 
 Plots haplotype snapshots and properties of selected mutations. Input parameters are as for the simulation; ${fname} is one of `time0 time1 time2 time3` denoting different times when haplotypes were sampled.
 
-> Rscript LD\_group\_plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}
+`Rscript LD\_group\_plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
 
-Plots LD decay over simulation replicates.
+Plots Linkage disequilibrium (LD) decay over simulation replicates.
 
-> Rscript Polygenic\_Score\_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
-> Rscript Polygenic\_Score\_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
+`Rscript Polygenic\_Score\_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
+`Rscript Polygenic\_Score\_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
 
 Plots polygenic scores over time.
 
-> Rscript HoCPlot.R
+`Rscript HoCPlot.R`  
 
 Plots genic variance and compares it to House-of-Cards expectation.
 
@@ -65,9 +65,9 @@ These are files that were located on the local machine (i.e., not a cluster) for
 
 `TransferToServer.sh` and `TransferFromServer.sh` are shell files for transferring files to and from the computer cluster. The former modifies the parameter file so it can be used in different circumstances (e.g., adding replicates for simulations). The latter starts executing code to compile individual plots into individual files.
 
-`HapsProcess.sh` runs code to compile plots using PdfJam. It uses the following scripts located in the `HapRCode` folder:
+`HapsProcess.sh` runs code to compile plots using [pdfjam](https://github.com/rrthomas/pdfjam "pdfjam"). It uses the following scripts located in the `HapRCode` folder:
 
-> Rscript LegendPlot.R 
-> Rscript QTLCount.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC}
+`Rscript LegendPlot.R`  
+`Rscript QTLCount.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC}`  
 
 Which (i) produces legends for use with composite plots, and (ii) outputs statistics of quantitative trait mutations (relating to number, effect and frequency).
