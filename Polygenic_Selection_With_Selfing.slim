@@ -15,22 +15,22 @@ initialize() {
 	catn("New random seed is " + theseed);
 	setSeed(theseed);
 	
-	defineConstant("N",5000);				// Population size
+	defineConstant("N",500);				// Population size
 	defineConstant("QTLf",0.1);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	defineConstant("msd",0.25);			// Standard Deviation in trait values
 	
 //		Uncomment if running on home machine; comment out otherwise
-//		defineConstant("s",0.00);				// Background mutation selection coefficient
-//		defineConstant("h",0.02);				// Background mutation dominance coefficient
-//		defineConstant("sfrate",0.0);			// Self-fertilisation rate
-//		defineConstant("nt",1); 				// Number of traits to optimise
-//		defineConstant("rep",1);				// Which replicate is running
-//		defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
-//		defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
-//		defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
-//		defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes, 2 = low mut, rec rates
-//		defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+		defineConstant("s",0.00);				// Background mutation selection coefficient
+		defineConstant("h",0.02);				// Background mutation dominance coefficient
+		defineConstant("sfrate",0.0);			// Self-fertilisation rate
+		defineConstant("nt",5); 				// Number of traits to optimise
+		defineConstant("rep",1);				// Which replicate is running
+		defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
+		defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+		defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
+		defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes, 2 = low mut, rec rates
+		defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -241,19 +241,32 @@ late () {
 		p1.outputVCFSample(50,replace=F,outputMultiallelics=F,filePath=paste0(c(ftext,stext,"_rep",rep,".vcf")));
 		
 		// Print table of all QTL positions and effect sizes
+		
+		// NOTE, THIS IS BEING UPDATED TO GET (i) QTL FREQUENCY (ii) ALL EFFECT SIZES
+		// (JUNE 2023)
+		
 		qtlm = sim.mutationsOfType(m3);
-		writeFile(paste0(c(ftext,stext,"_rep",rep,".info")),paste(c("POS","MeanQTL"),sep=" "),append=F);
+		lh = c("POS","FREQ");
+		for(i in 1:nt)
+		{
+			lh = c(lh,paste0(c("QTL",i)));
+		}
+		lh = c(lh,"MeanQTL");
+		writeFile(paste0(c(ftext,stext,"_rep",rep,".info")),paste(lh,sep=" "),append=F);
 		for(qt in qtlm)
 		{
 			l2 = format("%d",(qt.position + 1));
+			l2 = c(l2,sim.mutationFrequencies(p1,qt));
 			qtm = 0;
 			for(i in 1:nt)
 			{
+				l2 = c(l2,qt.getValue(paste0(c("e",(i-1)))));
 				qtm = qtm + qt.getValue(paste0(c("e",(i-1))));
 			}
 			l2 = c(l2,(qtm/nt));
 			writeFile(paste0(c(ftext,stext,"_rep",rep,".info")),paste(l2),append=T);
 		}
+		slimgui.pauseExecution();
 	}
 }
 
