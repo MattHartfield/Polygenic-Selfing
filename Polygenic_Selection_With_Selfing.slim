@@ -15,22 +15,22 @@ initialize() {
 	catn("New random seed is " + theseed);
 	setSeed(theseed);
 	
-	defineConstant("N",500);				// Population size
+	defineConstant("N",5000);				// Population size
 	defineConstant("QTLf",0.1);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	defineConstant("msd",0.25);			// Standard Deviation in trait values
 	
 //		Uncomment if running on home machine; comment out otherwise
-		defineConstant("s",0.00);				// Background mutation selection coefficient
-		defineConstant("h",0.02);				// Background mutation dominance coefficient
-		defineConstant("sfrate",0.0);			// Self-fertilisation rate
-		defineConstant("nt",5); 				// Number of traits to optimise
-		defineConstant("rep",1);				// Which replicate is running
-		defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
-		defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
-		defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
-		defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes, 2 = low mut, rec rates
-		defineConstant("isloc",1);				// 'Is local machine', for printing to computer
+//		defineConstant("s",0.00);				// Background mutation selection coefficient
+//		defineConstant("h",0.02);				// Background mutation dominance coefficient
+//		defineConstant("sfrate",0.0);			// Self-fertilisation rate
+//		defineConstant("nt",1); 				// Number of traits to optimise
+//		defineConstant("rep",1);				// Which replicate is running
+//		defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
+//		defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
+//		defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
+//		defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes, 2 = low mut, rec rates
+//		defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
 	if( exists("isloc") )
@@ -58,7 +58,7 @@ initialize() {
 	m3.mutationStackPolicy = "l";
 	m3.convertToSubstitution = F;
 	m2.color="red";
-	m3.color="green";
+	m3.color="blue";
 	
 	initializeGenomicElementType("g1", m1, 1.0);
 	initializeGenomicElementType("g2", c(m1,m2,m3), c(0.25, 1.0-0.25-QTLf,QTLf));
@@ -182,18 +182,6 @@ mutation(m3,p3)
 	return F;
 }
 
-// Recombination callback - for rescaled outcrossing case
-//recombination(){
-//	if(oc_sc==0)
-//	{
-//		return F;		// No changes needed if not rescaled outcrossing case
-//	}
-//	else if (oc_sc==1)
-//	{
-//		
-//	}
-//}
-
 // Code to define fitness changes due to QTLs
 late () {
 	
@@ -241,10 +229,6 @@ late () {
 		p1.outputVCFSample(50,replace=F,outputMultiallelics=F,filePath=paste0(c(ftext,stext,"_rep",rep,".vcf")));
 		
 		// Print table of all QTL positions and effect sizes
-		
-		// NOTE, THIS IS BEING UPDATED TO GET (i) QTL FREQUENCY (ii) ALL EFFECT SIZES
-		// (JUNE 2023)
-		
 		qtlm = sim.mutationsOfType(m3);
 		lh = c("POS","FREQ");
 		for(i in 1:nt)
@@ -266,7 +250,6 @@ late () {
 			l2 = c(l2,(qtm/nt));
 			writeFile(paste0(c(ftext,stext,"_rep",rep,".info")),paste(l2),append=T);
 		}
-		slimgui.pauseExecution();
 	}
 }
 
@@ -307,7 +290,7 @@ early () {
 	
 	}
 	
-	if ((sim.generation % sim.getValue('ptime') == 0 & sim.generation >= (0.8*ShiftTime) & sim.generation != 1) | ( ShiftTime==1 & sim.generation==2 ) ){
+	if ((sim.generation % sim.getValue('ptime') == 0 & sim.generation >= (0.1*ShiftTime) & sim.generation != 1) | ( ShiftTime==1 & sim.generation==2 ) ){
 		// Splitting off subpopulations, for measuring inbreeding depression
 		sim.addSubpopSplit("p2",500,p1);
 		sim.addSubpopSplit("p3",500,p1);
@@ -315,7 +298,7 @@ early () {
 		p3.setSelfingRate(1.0);
 	}
 	
-	if ( (sim.generation % sim.getValue('ptime') == 1 & sim.generation >= (0.8*ShiftTime) & sim.generation != 1) | ( ShiftTime==1 & sim.generation==3 ) ){
+	if ( (sim.generation % sim.getValue('ptime') == 1 & sim.generation >= (0.1*ShiftTime) & sim.generation != 1) | ( ShiftTime==1 & sim.generation==3 ) ){
 		cumphen = rep(0.0,nt);			// Cumulative phenotype (for mean)
 		cumphensq = rep(0.0,nt);		// Cumulative square of phenotype (for variance)
 		cumfit = 0.0;						// Cumulative fitness (for mean)
@@ -358,11 +341,8 @@ early () {
 			{
 				// Calculating genetic variance
 				qtle = qtls.getValue(paste0(c("e",(i-1))));
-				//				geneticvar[(i-1)] = sum(2*qtlf*(1+qtlf)*qtle*qtle) - (sum(2*qtlf*qtle))^2;
 				genvar[(i-1)] = sum(2*qtlf*(1.0-qtlf)*qtle*qtle);
-				//				geneticvar[(i-1)] = 0;
 				ibvar[(i-1)] = 0;
-				//				ldvar[(i-1)] = 0;
 				
 				// Code adapted from recipe 14.4 for calculating inbred variance
 				for (mq in qtls)

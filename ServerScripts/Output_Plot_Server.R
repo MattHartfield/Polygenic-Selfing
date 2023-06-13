@@ -100,7 +100,7 @@ for(z in 1:2){
 		xax <- c(0,clup+1)
 		endfz <- '_mainshift'
 	}else if(z==2){
-		xax <- c(-0.2*tchange,0)
+		xax <- c(-0.9*tchange,0)
 		endfz <- '_burnin'
 	}
 	
