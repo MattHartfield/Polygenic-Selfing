@@ -99,6 +99,8 @@ for(j in 0:(length(unm)-1)){
 }
 plotc2 <- plotc[unm+1]
 
+## START OF PLOTS
+
 # Plotting haplotype snapshot
 mh <- switch(which(k==filenames),"Before Optimum Shift","40 Generations After","300 Generations After","1000 Generations After")
 pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),width=12,height=12)
@@ -117,7 +119,18 @@ myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) +
 	ylim(0,25) +
 	theme_bw(base_size=36) + 
 	theme(plot.title=element_text(hjust=0.5))
-	
 ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
+
+# Plotting distribution of trait effects (just for first trait if N = 5)
+max_x <- (QTLd$QTL1 %>% abs %>% max)*1.1
+myt <- ggplot(QTLd,aes(QTL1,FREQ)) + 
+	geom_point(show.legend=F) +
+	labs(x="Effect size, first trait",y="Frequency",title=mh) +
+	xlim(-max_x, max_x) +
+	ylim(0,1) +
+	theme_bw(base_size=36) + 
+	theme(plot.title=element_text(hjust=0.5))
+ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/MutDFE_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myt,device="pdf",width=12,height=12)
+
 
 # EOF
