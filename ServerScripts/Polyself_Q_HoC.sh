@@ -8,7 +8,7 @@
 #$ -N Polysel_Self_HoC
 #$ -V
 #$ -cwd
-#$ -l h=c1 		# Run array job on this sub-server
+#$ -l h=c2 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 

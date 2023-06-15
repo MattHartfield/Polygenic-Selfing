@@ -46,17 +46,17 @@ lqc <- brewer.pal(11,"RdBu")[7:11]
 QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.info"),delim=" ")
 QTLd <- QTLd[order(QTLd$POS),]
 QTLd <- QTLd %>% mutate(QTLs=ifelse(MeanQTL>=0, ceiling(MeanQTL*8), ceiling(MeanQTL*(-8)) ))
-QTLd[QTLd$QTLs>5,3] <- 5
+QTLd[QTLd$QTLs>5,]$QTLs <- 5
 QTLd <- QTLd %>% mutate(QTLcol=ifelse(MeanQTL>=0, hqc[QTLs], lqc[QTLs] ))
 
-plotc <- c(rgb(242,242,242,125,max=255),"gray60","black")
+plotc <- c(rgb(242,242,242,125,max=255),"gray60","black")		# RGB code of entries
 QTLc <- 3
 Qidx <- c()
 for(b in 1:dim(QTLd)[1]){
 	if(length(which(row.names(dat)%in%QTLd[b,1]))!=0){
 		Qidx2 <- which(row.names(dat)%in%QTLd[b,1])
 		dat[Qidx2,dat[Qidx2,]==1] <- QTLc
-		plotc <- c(plotc,QTLd[b,4])
+		plotc <- c(plotc,QTLd[b,]$QTLcol)
 		Qidx <- c(Qidx,Qidx2)
 		QTLc <- QTLc + 1
 	}
@@ -113,7 +113,6 @@ datLD <- datLD %>% mutate(POS1Mb=POS1/1e6,POS2Mb=POS2/1e6)
 myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) + 
 	geom_tile(height=1.01,width=1.01,show.legend=F) +
 	labs(x="Position (Mb)",y="Position (Mb)",title=mh) +
-#	scale_fill_continuous(expression(paste("LD (",r^2,")"))) +
 	xlim(0,25) +
 	ylim(0,25) +
 	theme_bw(base_size=36) + 
