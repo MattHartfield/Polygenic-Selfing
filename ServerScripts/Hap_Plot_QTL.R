@@ -121,7 +121,7 @@ myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) +
 	theme(plot.title=element_text(hjust=0.5))
 ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
 
-# Plotting distribution of trait effects (just for first trait if N = 5)
+# Plotting distribution of trait effects (just for first trait if N > 1)
 max_x <- (QTLd$QTL1 %>% abs %>% max)*1.1
 myt <- ggplot(QTLd,aes(QTL1,FREQ)) + 
 	geom_point(show.legend=F) +
