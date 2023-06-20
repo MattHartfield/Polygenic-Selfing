@@ -63,26 +63,10 @@ for(b in 1:dim(QTLd)[1]){
 }
 plotc <- unlist(plotc)
 
-# Separating QTLs into fixed, non-fixed
-if(length(Qidx)!=0){
-	if(length(which(rowSums(dat[Qidx,]!=0)==100))!=0){
-		Qfx <- Qidx[which(rowSums(dat[Qidx,]!=0)==100)]
-		Qnfx <- Qidx[-which(rowSums(dat[Qidx,]!=0)==100)]
-	}else{
-		Qfx <- Qidx[which(rowSums(dat[Qidx,]!=0)==100)]
-		Qnfx <- Qidx
-	}
-}else{
-	Qfx <- Qidx
-	Qnfx <- Qidx		
-}
-
-# Creating sub matrix with stripped down entries; All fixed QTLs; selection of other QTLs; other sites if space allows. No more than 100
-if(dim(dat)[1]>100){
-	if(length(Qfx) >= 100){
-		dat2 <- dat[sort( sample(Qfx, 100) ),]
-	}else if( (length(Qfx) < 100) && ( (length(Qfx) + length(Qnfx)) >= 100) ){
-		dat2 <- dat[sort(c( Qfx, sample(Qnfx, 100-length(Qfx)) )),]
+# Creating sub matrix with stripped down entries; Selection of QTLs (up to 100) and other sites if space allows. No more than 100
+if(dim(dat)[1]>100){ 
+	if( (length(Qidx) >= 100) ){
+		dat2 <- dat[sort( sample(Qidx, 100) ),]
 	}else{
 		dat2 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qidx)), Qidx )),]
 	}
