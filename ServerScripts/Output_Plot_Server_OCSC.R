@@ -430,161 +430,161 @@ for(z in 1:2){
 	dev.off()
 
 	# Third plot: number of fixed mutants
-	fixedm <- vector(mode="list",length=2)
-	maxfix <- 0
-	maxmQ <- 0
-	minmQ <- 0
-	maxpQ <- 0
-	maxpmQ <- 0
-	pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_FixedMuts_T',N,'_sel',s,'_h',h,endfn,endfnb,endfz,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
-	par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
-	for(S in c(1,2))
-	{
-		genl <- vector(mode="list",length=reps)
-		fixml <- vector(mode="list",length=reps)
-		mfql <- vector(mode="list",length=reps)
-		ppql <- vector(mode="list",length=reps)
-		mpql <- vector(mode="list",length=reps)
-		if(S == 1){
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",1,".dat"),head=T)
-		}else{
-			dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",1,".dat"),head=T)
-		}
-		if(z==1){
-			dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
-		}else if(z==2){
-			dat <- dat[ which(dat$Generation <= tchange),]
-		}
-		genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
-		fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
-		if(N==1)
-		{
-			mfql[[1]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
-			ppql[[1]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
-			mpql[[1]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))				
-		}
-		else
-		{
-			mfql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T)))
-			ppql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T)))
-			mpql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T)))
-		}
-		for(j in 2:reps)
-		{
-			if(S == 1){
-				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",j,".dat"),head=T)
-			}else{
-				dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",j,".dat"),head=T)
-			}
-			if(z==1){
-				dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
-			}else if(z==2){
-				dat <- dat[ which(dat$Generation <= tchange),]
-			}
-			genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
-			fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
-			if(N == 1)
-			{
-				mfql[[j]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
-				ppql[[j]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
-				mpql[[j]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
-			}
-			else
-			{
-				mfql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T)))
-				ppql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T)))
-				mpql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T)))
-			}
-		}
-		fixm <- apply(rbind.fill.matrix(fixml),2, mnona)
-		mfq <- apply(rbind.fill.matrix(mfql),2, mnona)
-		ppq <- apply(rbind.fill.matrix(ppql),2, mnona)
-		mpq <- apply(rbind.fill.matrix(mpql),2, mnona)
-		fixmci <- bslist(fixml,1000)
-		mfqci <- bslist(mfql,1000)
-		ppqci <- bslist(ppql,1000)
-		mpqci <- bslist(mpql,1000)
-		ng3 <- dim(rbind(fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci))[2]
-		for(j in 1:reps)
-		{
-			if(length(genl[[j]]) == ng3)
-			{
-				break
-			}
-		}
-		thisdat <- as.data.frame(t(rbind(genl[[j]],fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci)))
-		colnames(thisdat) <- c("Generation","FixedMuts","FMLowCI","FMHighCI","MeanFixedQTL","MFQLowCI","MFQHighCI","MeanPropPos","MPPLowCI","MPPHighCI","MeanPosQTL","MPQLowCI","MPQHighCI")
-		fixedm[[which(c(1,2)%in%S)]] <- thisdat
-		maxfix <- max(maxfix,max(thisdat$FMHighCI))
-		if(sum(!is.na(thisdat$MeanFixedQTL)) != 0){
-			maxmQ <- max(maxmQ,max(thisdat$MFQHighCI,na.rm=T))
-			minmQ <- min(minmQ,min(thisdat$MFQLowCI,na.rm=T))				
-		}
-		if(sum(!is.na(thisdat$MeanPropPos)) != 0){
-			maxpQ <- max(maxpQ,max(thisdat$MPPHighCI,na.rm=T))
-		}
-		if(sum(!is.na(thisdat$MeanPosQTL)) != 0){			
-			maxpmQ <- max(maxpmQ,max(thisdat$MPQHighCI,na.rm=T))
-		}
+	# fixedm <- vector(mode="list",length=2)
+	# maxfix <- 0
+	# maxmQ <- 0
+	# minmQ <- 0
+	# maxpQ <- 0
+	# maxpmQ <- 0
+	# pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/',outf,'/',outf2,'/',outf3,'/PolyselPlot_FixedMuts_T',N,'_sel',s,'_h',h,endfn,endfnb,endfz,'_ocsc',ocsc,'.pdf'),width=8*gr,height=8)
+	# par(mfrow=c(2,2), oma = c(0, 1, 4, 0), mar = c(5.1, 6.1, 4.1, 2.1))
+	# for(S in c(1,2))
+	# {
+		# genl <- vector(mode="list",length=reps)
+		# fixml <- vector(mode="list",length=reps)
+		# mfql <- vector(mode="list",length=reps)
+		# ppql <- vector(mode="list",length=reps)
+		# mpql <- vector(mode="list",length=reps)
+		# if(S == 1){
+			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",1,".dat"),head=T)
+		# }else{
+			# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",1,".dat"),head=T)
+		# }
+		# if(z==1){
+			# dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+		# }else if(z==2){
+			# dat <- dat[ which(dat$Generation <= tchange),]
+		# }
+		# genl[[1]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+		# fixml[[1]] <- t(as.matrix(dat[,c("FixedMuts")]))
+		# if(N==1)
+		# {
+			# mfql[[1]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
+			# ppql[[1]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
+			# mpql[[1]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))				
+		# }
+		# else
+		# {
+			# mfql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T)))
+			# ppql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T)))
+			# mpql[[1]] <- t(as.matrix(rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T)))
+		# }
+		# for(j in 2:reps)
+		# {
+			# if(S == 1){
+				# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0.999_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc0_rep",j,".dat"),head=T)
+			# }else{
+				# dat <- read.table(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self0_nt",N,"_msd",msd,"_isnm",a,"_stype",b,"_ocsc1_rep",j,".dat"),head=T)
+			# }
+			# if(z==1){
+				# dat <- dat[ intersect(which(dat$Generation <= (tchange + clup + 1)),which(dat$Generation >= tchange)),]
+			# }else if(z==2){
+				# dat <- dat[ which(dat$Generation <= tchange),]
+			# }
+			# genl[[j]] <- t(as.matrix(dat[,c("Generation")]-tchange))
+			# fixml[[j]] <- t(as.matrix(dat[,c("FixedMuts")]))
+			# if(N == 1)
+			# {
+				# mfql[[j]] <- t(as.matrix(dat[,c("MeanFixedQTL1")]))
+				# ppql[[j]] <- t(as.matrix(dat[,c("PropPosQTL1")]))
+				# mpql[[j]] <- t(as.matrix(dat[,c("MeanPosQTL1")]))
+			# }
+			# else
+			# {
+				# mfql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanFixedQTL",1:N)],na.rm=T)))
+				# ppql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("PropPosQTL",1:N)],na.rm=T)))
+				# mpql[[j]] <- t(as.matrix(rowMeans(dat[,paste0("MeanPosQTL",1:N)],na.rm=T)))
+			# }
+		# }
+		# fixm <- apply(rbind.fill.matrix(fixml),2, mnona)
+		# mfq <- apply(rbind.fill.matrix(mfql),2, mnona)
+		# ppq <- apply(rbind.fill.matrix(ppql),2, mnona)
+		# mpq <- apply(rbind.fill.matrix(mpql),2, mnona)
+		# fixmci <- bslist(fixml,1000)
+		# mfqci <- bslist(mfql,1000)
+		# ppqci <- bslist(ppql,1000)
+		# mpqci <- bslist(mpql,1000)
+		# ng3 <- dim(rbind(fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci))[2]
+		# for(j in 1:reps)
+		# {
+			# if(length(genl[[j]]) == ng3)
+			# {
+				# break
+			# }
+		# }
+		# thisdat <- as.data.frame(t(rbind(genl[[j]],fixm,fixmci,mfq,mfqci,ppq,ppqci,mpq,mpqci)))
+		# colnames(thisdat) <- c("Generation","FixedMuts","FMLowCI","FMHighCI","MeanFixedQTL","MFQLowCI","MFQHighCI","MeanPropPos","MPPLowCI","MPPHighCI","MeanPosQTL","MPQLowCI","MPQHighCI")
+		# fixedm[[which(c(1,2)%in%S)]] <- thisdat
+		# maxfix <- max(maxfix,max(thisdat$FMHighCI))
+		# if(sum(!is.na(thisdat$MeanFixedQTL)) != 0){
+			# maxmQ <- max(maxmQ,max(thisdat$MFQHighCI,na.rm=T))
+			# minmQ <- min(minmQ,min(thisdat$MFQLowCI,na.rm=T))				
+		# }
+		# if(sum(!is.na(thisdat$MeanPropPos)) != 0){
+			# maxpQ <- max(maxpQ,max(thisdat$MPPHighCI,na.rm=T))
+		# }
+		# if(sum(!is.na(thisdat$MeanPosQTL)) != 0){			
+			# maxpmQ <- max(maxpmQ,max(thisdat$MPQHighCI,na.rm=T))
+		# }
 				
-	}
+	# }
 	
-	# Panel 1: Number of fixed QTLs
-	for(S in c(1,2)){
-		if(S == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
-			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-			abline(v=0,lty=2)
-		}
-		else
-		{
-			lines(fixedm[[2]]$Generation,fixedm[[2]]$FixedMuts,col=pcol[2],lwd=1.5)
-			polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$FMLowCI,rev(fixedm[[2]]$FMHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
-		}
-	}
-	# Panel 2: Mean effect of fixed QTLs
-	for(S in c(1,2)){
-		if(S == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
-			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-			abline(v=0,lty=2)
-		}
-		else
-		{
-			lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanFixedQTL,col=pcol[2],lwd=1.5)
-			polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MFQLowCI,rev(fixedm[[2]]$MFQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
-		}
-	}
-	# Panel 3: Proportion of fixed QTLs with positive effects
-	for(S in c(1,2)){
-		if(S == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
-			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-			abline(v=0,lty=2)
-			legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
-		}
-		else
-		{
-			lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPropPos,col=pcol[2],lwd=1.5)
-			polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPPLowCI,rev(fixedm[[2]]$MPPHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
-		}
-	}
-	# Panel 4: Proportion of fixed QTLs with positive effects
-	for(S in c(1,2)){
-		if(S == 1){
-			plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
-			polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
-			abline(v=0,lty=2)
-		}
-		else
-		{
-			lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPosQTL,col=pcol[2],lwd=1.5)
-			polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPQLowCI,rev(fixedm[[2]]$MPQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
-		}
-	}
+	# # Panel 1: Number of fixed QTLs
+	# for(S in c(1,2)){
+		# if(S == 1){
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
+			# abline(v=0,lty=2)
+		# }
+		# else
+		# {
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$FixedMuts,col=pcol[2],lwd=1.5)
+			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$FMLowCI,rev(fixedm[[2]]$FMHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		# }
+	# }
+	# # Panel 2: Mean effect of fixed QTLs
+	# for(S in c(1,2)){
+		# if(S == 1){
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
+			# abline(v=0,lty=2)
+		# }
+		# else
+		# {
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanFixedQTL,col=pcol[2],lwd=1.5)
+			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MFQLowCI,rev(fixedm[[2]]$MFQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		# }
+	# }
+	# # Panel 3: Proportion of fixed QTLs with positive effects
+	# for(S in c(1,2)){
+		# if(S == 1){
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
+			# abline(v=0,lty=2)
+			# legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+		# }
+		# else
+		# {
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPropPos,col=pcol[2],lwd=1.5)
+			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPPLowCI,rev(fixedm[[2]]$MPPHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		# }
+	# }
+	# # Panel 4: Proportion of fixed QTLs with positive effects
+	# for(S in c(1,2)){
+		# if(S == 1){
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
+			# abline(v=0,lty=2)
+		# }
+		# else
+		# {
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPosQTL,col=pcol[2],lwd=1.5)
+			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPQLowCI,rev(fixedm[[2]]$MPQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
+		# }
+	# }
 	
-	mtext(paste0("Number of fixed mutants",midh1,endh1,"\n",endp,endpb), outer = TRUE, cex = 1.5)
-	dev.off()
+	# mtext(paste0("Number of fixed mutants",midh1,endh1,"\n",endp,endpb), outer = TRUE, cex = 1.5)
+	# dev.off()
 
 }
 

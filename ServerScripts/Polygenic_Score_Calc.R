@@ -68,7 +68,9 @@ for(a in 1:dim(outres)[1]){
 	FREQS <- FREQS/100
 	qtlfr <- cbind(vcfin[1],FREQS) %>% as_tibble
 	qtlfr <- inner_join(qtlfr,infos) %>% mutate(pscore=FREQS*MeanQTL)
-	outres[a,5:7] <- as_tibble_row(c(colMeans(qtlfr)[2:3],colSums(qtlfr)[4])) # Polygenic score for sample (and other metrics)
+	# Polygenic score for sample (and other metrics)
+	outres[a,5:6] <- qtlfr %>% select(FREQS,MeanQTL) %>% colMeans(.) %>% as_tibble_row(.)
+	outres[a,7] <- qtlfr %>% select(pscore) %>% colSums(.) %>% as_tibble_row(.)
 		
 }
 
