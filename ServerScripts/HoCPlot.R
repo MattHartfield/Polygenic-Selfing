@@ -6,7 +6,7 @@ library(RColorBrewer)
 library(plyr)
 
 pop <- 5000				# Population size
-tchange <- 4*pop		# Time at which optimum changes
+tchange <- 10*pop		# Time at which optimum changes
 gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
 msd <- 0.25				# Standard deviation of mutational effect
 reps <- 10				# Number of replicates per parameter set

@@ -11,7 +11,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-28		# Run command for each line of parameter file (note, not 29 as no need for haplotypes for OCSC = 2)
-#$ -l h=c2 		# Run array job on this sub-server
+#$ -l h=c3 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
