@@ -63,6 +63,20 @@ for(b in 1:dim(QTLd)[1]){
 }
 plotc <- unlist(plotc)
 
+# Separating QTLs into fixed, non-fixed
+if(length(Qidx)!=0){
+	if(length(which(rowSums(dat[Qidx,]!=0)==100))!=0){
+		Qfx <- Qidx[which(rowSums(dat[Qidx,]!=0)==100)]
+		Qnfx <- Qidx[-which(rowSums(dat[Qidx,]!=0)==100)]
+	}else{
+		Qfx <- Qidx[which(rowSums(dat[Qidx,]!=0)==100)]
+		Qnfx <- Qidx
+	}
+}else{
+	Qfx <- Qidx
+	Qnfx <- Qidx		
+}
+
 # Creating sub matrix with stripped down entries; Selection of QTLs (up to 100) and other sites if space allows. No more than 100
 if(dim(dat)[1]>100){ 
 	if( (length(Qidx) >= 100) ){
@@ -74,6 +88,17 @@ if(dim(dat)[1]>100){
 	dat2 <- dat
 }
 
+# Second sub matrix, but omitting fixed mutations
+if(dim(dat)[1]>100){ 
+	if( (length(Qnfx) >= 100) ){
+		dat3 <- dat[sort( sample(Qnfx, 100) ),]
+	}else{
+		dat3 <- dat[sort(c( sample( which(!(c(1:dim(dat)[1])%in%Qidx)) ,100-length(Qnfx)), Qnfx )),]
+	}
+}else{
+	dat3 <- dat
+}
+
 # Re-ordering entry numbers, so heatmap plotting works correctly after thinning
 unm <- sort(unique(as.numeric(as.matrix(dat2)))) # Unique entries of matrix after thinning
 for(j in 0:(length(unm)-1)){
@@ -83,13 +108,26 @@ for(j in 0:(length(unm)-1)){
 }
 plotc2 <- plotc[unm+1]
 
+unm2 <- sort(unique(as.numeric(as.matrix(dat3)))) # Unique entries of matrix after thinning
+for(j in 0:(length(unm2)-1)){
+	if(unm2[j+1]!=j){
+		dat3[dat3==unm2[j+1]] <- j
+	}
+}
+plotc3 <- plotc[unm2+1]
+
 ## START OF PLOTS
 
-# Plotting haplotype snapshot
+# Plotting haplotype snapshot, both with and without fixed mutations
 mh <- switch(which(k==filenames),"Before Optimum Shift","40 Generations After","300 Generations After","1000 Generations After")
 pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),width=12,height=12)
 par(cex.main=3)
 heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
+dev.off()
+
+pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_no_fixed.pdf"),width=12,height=12)
+par(cex.main=3)
+heatmap.2(t(data.matrix(dat3)),Colv=F,Rowv=F,dendrogram="none",col=plotc3,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 dev.off()
 
 # Plotting LD
