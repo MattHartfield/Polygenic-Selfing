@@ -49,7 +49,7 @@ QTLd <- QTLd %>% mutate(QTLs=ifelse(MeanQTL>=0, ceiling(MeanQTL*8), ceiling(Mean
 QTLd[QTLd$QTLs>5,]$QTLs <- 5
 QTLd <- QTLd %>% mutate(QTLcol=ifelse(MeanQTL>=0, hqc[QTLs], lqc[QTLs] ))
 
-plotc <- c(rgb(242,242,242,125,max=255),"gray60","black")		# RGB code of entries
+plotc <- c(rgb(242,242,242,255,max=255),"gray60","black")		# RGB code of entries
 QTLc <- 3
 Qidx <- c()
 for(b in 1:dim(QTLd)[1]){

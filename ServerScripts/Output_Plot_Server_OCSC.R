@@ -198,15 +198,15 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{
 		if(S == 1){
-			plot(fitmat[[S]]$Generation, fitmat[[S]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=xax,ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(fitmat[[S]]$Generation, fitmat[[S]]$MeanTrait,type='l',xlab="Time since optimum shift",ylab="Mean Trait Value",xlim=xax,ylim=c((minmt - ((maxmt-minmt)*0.04)), maxmt + ((maxmt-minmt)*0.04)),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MTLowCI,rev(fitmat[[1]]$MTHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
-			abline(h=1/sqrt(N),lty=3,lwd=1.5)
-			legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+			abline(h=1/sqrt(N),lty=3,lwd=3)
+			legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=3,cex=1.15,pt.cex=1)
 		}
 		else
 		{
-			lines(fitmat[[2]]$Generation,fitmat[[2]]$MeanTrait,col=pcol[2],lwd=1.5)
+			lines(fitmat[[2]]$Generation,fitmat[[2]]$MeanTrait,col=pcol[2],lwd=3)
 			polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$MTLowCI,rev(fitmat[[2]]$MTHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)	
 		}
 	}
@@ -215,13 +215,13 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{	
 		if(S == 1){
-			plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time since optimum shift",ylab="Mean Fitness",xlim=xax,ylim=c(minmf,maxmf),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(fitmat[[1]]$Generation,fitmat[[1]]$MeanFitness,type='l',xlab="Time since optimum shift",ylab="Mean Fitness",xlim=xax,ylim=c(minmf,maxmf),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			abline(v=0,lty=2)
 			polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$MFLowCI,rev(fitmat[[1]]$MFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		}
 		else
 		{
-			lines(fitmat[[2]]$Generation,fitmat[[2]]$MeanFitness,col=pcol[2],lwd=1.5)
+			lines(fitmat[[2]]$Generation,fitmat[[2]]$MeanFitness,col=pcol[2],lwd=3)
 			polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$MFLowCI,rev(fitmat[[2]]$MFHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -230,13 +230,13 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{
 		if(S == 1){
-			plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time since optimum shift",ylab="Inbreeding Depression",xlim=xax,ylim=c(minid,maxid),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(fitmat[[1]]$Generation,fitmat[[1]]$InbreedingDepression,type='l',xlab="Time since optimum shift",ylab="Inbreeding Depression",xlim=xax,ylim=c(minid,maxid),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			abline(v=0,lty=2)
 			polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$IDLowCI,rev(fitmat[[1]]$IDHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		}
 		else
 		{
-			lines(fitmat[[2]]$Generation,fitmat[[2]]$InbreedingDepression,col=pcol[2],lwd=1.5)
+			lines(fitmat[[2]]$Generation,fitmat[[2]]$InbreedingDepression,col=pcol[2],lwd=3)
 			polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$IDLowCI,rev(fitmat[[2]]$IDHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -245,13 +245,13 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{	
 		if(S == 1){
-			plot(fitmat[[1]]$Generation,fitmat[[1]]$VarFitness,type='l',xlab="Time since optimum shift",ylab="Variance in Fitness",xlim=xax,ylim=c(minvf,maxvf),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(fitmat[[1]]$Generation,fitmat[[1]]$VarFitness,type='l',xlab="Time since optimum shift",ylab="Variance in Fitness",xlim=xax,ylim=c(minvf,maxvf),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			abline(v=0,lty=2)
 			polygon(c(fitmat[[1]]$Generation,rev(fitmat[[1]]$Generation)),c(fitmat[[1]]$VFLowCI,rev(fitmat[[1]]$VFHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 		}
 		else
 		{
-			lines(fitmat[[2]]$Generation,fitmat[[2]]$VarFitness,col=pcol[2],lwd=1.5)
+			lines(fitmat[[2]]$Generation,fitmat[[2]]$VarFitness,col=pcol[2],lwd=3)
 			polygon(c(fitmat[[2]]$Generation,rev(fitmat[[2]]$Generation)),c(fitmat[[2]]$VFLowCI,rev(fitmat[[2]]$VFHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -368,14 +368,14 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{
 		if(S == 1){
-			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanGeneticVar,type='l',xlab="Time since optimum shift",ylab="Mean Genetic Variance\nPer Trait",xlim=xax,ylim=c(Gvarmi*0.96, Gvarmt + ((Gvarmt)*0.04)),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGenVLowCI,rev(traitmat[[1]]$MGenVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
-			legend("topright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+			legend("topright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=3,cex=1.15,pt.cex=1)
 		}
 		else
 		{
-			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanGeneticVar,col=pcol[2],lwd=1.5)
+			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanGeneticVar,col=pcol[2],lwd=3)
 			polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MGenVLowCI,rev(traitmat[[2]]$MGenVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -384,14 +384,14 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{
 		if(S == 1){
-			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanGenVar,type='l',xlab="Time since optimum shift",ylab="Mean Genic Variance\nPer Trait",xlim=xax,ylim=c(varmi*0.96, varmt + ((varmt)*0.04)),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MGVLowCI,rev(traitmat[[1]]$MGVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 	#		points(x=0,y=HoCV,pch=4,cex=2,col=pcol[1])		# Expected HoC variance
 		}
 		else
 		{
-			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanGenVar,col=pcol[2],lwd=1.5)
+			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanGenVar,col=pcol[2],lwd=3)
 			polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MGVLowCI,rev(traitmat[[2]]$MGVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -400,13 +400,13 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{
 		if(S == 1){
-			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanInbreedVar,type='l',xlab="Time since optimum shift",ylab="Mean Inbreeding Covariance\nPer Trait",xlim=xax,ylim=c(IBvarmi*0.96, IBvarmt + ((IBvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanInbreedVar,type='l',xlab="Time since optimum shift",ylab="Mean Inbreeding Covariance\nPer Trait",xlim=xax,ylim=c(IBvarmi*0.96, IBvarmt + ((IBvarmt)*0.04)),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MIBVLowCI,rev(traitmat[[1]]$MIBVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 		}
 		else
 		{
-			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanInbreedVar,col=pcol[2],lwd=1.5)
+			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanInbreedVar,col=pcol[2],lwd=3)
 			polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MIBVLowCI,rev(traitmat[[2]]$MIBVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -415,13 +415,13 @@ for(z in 1:2){
 	for(S in c(1,2))
 	{
 		if(S == 1){
-			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanLDVar,type='l',xlab="Time since optimum shift",ylab="Mean LD Covariance\nPer Trait",xlim=xax,ylim=c(LDvarmi*0.96, LDvarmt + ((LDvarmt)*0.04)),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			plot(traitmat[[1]]$Generation,traitmat[[1]]$MeanLDVar,type='l',xlab="Time since optimum shift",ylab="Mean LD Covariance\nPer Trait",xlim=xax,ylim=c(LDvarmi*0.96, LDvarmt + ((LDvarmt)*0.04)),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			polygon(c(traitmat[[1]]$Generation,rev(traitmat[[1]]$Generation)),c(traitmat[[1]]$MLDVLowCI,rev(traitmat[[1]]$MLDVHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			abline(v=0,lty=2)
 		}
 		else
 		{
-			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanLDVar,col=pcol[2],lwd=1.5)
+			lines(traitmat[[2]]$Generation,traitmat[[2]]$MeanLDVar,col=pcol[2],lwd=3)
 			polygon(c(traitmat[[2]]$Generation,rev(traitmat[[2]]$Generation)),c(traitmat[[2]]$MLDVLowCI,rev(traitmat[[2]]$MLDVHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		}
 	}
@@ -532,53 +532,53 @@ for(z in 1:2){
 	# # Panel 1: Number of fixed QTLs
 	# for(S in c(1,2)){
 		# if(S == 1){
-			# plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$FixedMuts,type='l',xlab="Time since optimum shift",ylab="Fixed Mutations",xlim=xax,ylim=c(0, maxfix),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$FMLowCI,rev(fixedm[[1]]$FMHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			# abline(v=0,lty=2)
 		# }
 		# else
 		# {
-			# lines(fixedm[[2]]$Generation,fixedm[[2]]$FixedMuts,col=pcol[2],lwd=1.5)
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$FixedMuts,col=pcol[2],lwd=3)
 			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$FMLowCI,rev(fixedm[[2]]$FMHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		# }
 	# }
 	# # Panel 2: Mean effect of fixed QTLs
 	# for(S in c(1,2)){
 		# if(S == 1){
-			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanFixedQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of fixed QTL",xlim=xax,ylim=c(minmQ, maxmQ),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MFQLowCI,rev(fixedm[[1]]$MFQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			# abline(v=0,lty=2)
 		# }
 		# else
 		# {
-			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanFixedQTL,col=pcol[2],lwd=1.5)
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanFixedQTL,col=pcol[2],lwd=3)
 			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MFQLowCI,rev(fixedm[[2]]$MFQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		# }
 	# }
 	# # Panel 3: Proportion of fixed QTLs with positive effects
 	# for(S in c(1,2)){
 		# if(S == 1){
-			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPropPos,type='l',xlab="Time since optimum shift",ylab="Mean proportion of\npositive-effect QTLs",xlim=xax,ylim=c(0, maxpQ),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPPLowCI,rev(fixedm[[1]]$MPPHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			# abline(v=0,lty=2)
-			# legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=1.5,cex=1.15,pt.cex=1)
+			# legend("bottomright",legend=c("S = 0.999", "S = 0 rescaled"),col=pcol,lty=1,lwd=3,cex=1.15,pt.cex=1)
 		# }
 		# else
 		# {
-			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPropPos,col=pcol[2],lwd=1.5)
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPropPos,col=pcol[2],lwd=3)
 			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPPLowCI,rev(fixedm[[2]]$MPPHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		# }
 	# }
 	# # Panel 4: Proportion of fixed QTLs with positive effects
 	# for(S in c(1,2)){
 		# if(S == 1){
-			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=1.5,cex.lab=1.5,cex.axis=1.5)
+			# plot(fixedm[[1]]$Generation,fixedm[[1]]$MeanPosQTL,type='l',xlab="Time since optimum shift",ylab="Mean effect of positive fixed QTLs",xlim=xax,ylim=c(0, maxpmQ),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5)
 			# polygon(c(fixedm[[1]]$Generation,rev(fixedm[[1]]$Generation)),c(fixedm[[1]]$MPQLowCI,rev(fixedm[[1]]$MPQHighCI)),col=adjustcolor(pcol[1], alpha.f=0.35),border=F)
 			# abline(v=0,lty=2)
 		# }
 		# else
 		# {
-			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPosQTL,col=pcol[2],lwd=1.5)
+			# lines(fixedm[[2]]$Generation,fixedm[[2]]$MeanPosQTL,col=pcol[2],lwd=3)
 			# polygon(c(fixedm[[2]]$Generation,rev(fixedm[[2]]$Generation)),c(fixedm[[2]]$MPQLowCI,rev(fixedm[[2]]$MPQHighCI)),col=adjustcolor(pcol[2], alpha.f=0.35),border=F)
 		# }
 	# }
