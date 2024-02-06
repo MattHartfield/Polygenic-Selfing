@@ -39,7 +39,7 @@ fi
 
 # Creating plots of LD decay
 echo "Plotting change in allele frequencies" >&1
-Rscript /data/hartfield/polyself/scripts/Time_Diff_QuantMuts.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC}
+Rscript /data/hartfield/polyself/scripts/Time_Diff_QuantMuts_AllTime.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC}
 
 # Plotting other stats over different timepoints
 fstr="time0 time1 time2 time3"

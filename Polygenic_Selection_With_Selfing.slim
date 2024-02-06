@@ -45,7 +45,7 @@ initialize() {
 	defineConstant("ShiftTime",10*N);
 	defineConstant("MaxTime",10*N+runtime+1);
 	defineConstant("newo",1/sqrt(nt));
-	defineConstant("Rmsd",msd/sqrt(nt));			// Rescaled mutational variance depending on complexity
+	defineConstant("Rmsd",msd/sqrt(nt));			// Rescaled mutational standard deviation depending on complexity
 	defineConstant("mutvar",Rmsd*Rmsd);				// Mutational variance in covariance matrix (= sd^2)
 	defineConstant("t1",round(0.04*runtime));		// Times when to sample haplotypes
 	defineConstant("t2",round(0.3*runtime));
@@ -53,9 +53,9 @@ initialize() {
 	initializeMutationType("m1", 0.5, "f", 0.0); 	 	// Neutral mutations
 	initializeMutationType("m2", h, "f", s); 	 			// Selected background mutations
 	initializeMutationType("m3", 0.5, "f", 0.0);  	 	// QTLs		
-	m1.mutationStackPolicy = "l";
-	m2.mutationStackPolicy = "l";
-	m3.mutationStackPolicy = "l";
+	m1.mutationStackPolicy = "f";
+	m2.mutationStackPolicy = "f";
+	m3.mutationStackPolicy = "f";
 	m3.convertToSubstitution = F;
 	m2.color="red";
 	m3.color="blue";
