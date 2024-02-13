@@ -83,7 +83,12 @@ initialize() {
 		mu = mu/(1 + Fis);
 		rec = rec*(1 - 2*Fis + Psi);
 	}
-	else if(oc_sc == 2)		// Set OCSC to 2 for special case; mu, rec reduced 10-fold (for HoC diagnostic plot)
+	else if(oc_sc == 2)		// Set OCSC to 2 for special case; mu, rec increased 10-fold (does purging threshold change?)
+	{
+		mu = mu*10;
+		rec = rec*10;
+	}
+	else if(oc_sc == 3)		// Set OCSC to 3 for special case; mu, rec reduced 10-fold (for HoC diagnostic plot)
 	{
 		mu = mu*0.1;
 		rec = rec*0.1;
