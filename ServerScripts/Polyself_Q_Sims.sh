@@ -13,7 +13,7 @@
 #$ -V
 #$ -cwd
 #$ -t 1-290		# Run command for each line of parameter file
-#$ -l h=bigwig		# Run array job on this sub-server
+#$ -l h="bigbird|bigwig"				# Run array job on these sub-servers
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -28,17 +28,18 @@ OCSC=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParameters
 REP=$(sed -n ${SGE_TASK_ID}p /data/hartfield/polyself/scripts/PolyselParametersBig.txt | awk '{print $8}')
 RT=1000
 
-if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
-then
-	echo "Deleting old files" >&1
-	rm -rf /scratch/mhartfield/polyself_out/
-	mkdir /scratch/mhartfield/polyself_out/
-	mkdir /scratch/mhartfield/polyself_out/data/
-	mkdir /scratch/mhartfield/polyself_out/haps/
-	mkdir /scratch/mhartfield/polyself_out/phendat/
-else
-	echo "Pausing for 10 seconds" >&1
-	sleep 10
-fi
+# if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
+# then
+# 	echo "Deleting old files" >&1
+# 	rm -rf /scratch/mhartfield/polyself_out/
+# 	mkdir /scratch/mhartfield/polyself_out/
+# 	mkdir /scratch/mhartfield/polyself_out/data/
+# 	mkdir /scratch/mhartfield/polyself_out/haps/
+# 	mkdir /scratch/mhartfield/polyself_out/phendat/
+# else
+# 	echo "Pausing for 10 seconds" >&1
+# 	sleep 10
+# fi
 
 slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d rep=$REP -d isnm=$ISNM -d runtime=$RT -d oc_sc=$OCSC -d stype=$STYPE /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
+rsync -avz polyself_out/ /data/hartfield/polyself/analyses/

@@ -8,28 +8,29 @@
 # Download data from server
 rm -r /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/*
 rsync -avz mhartfield@qmaster:/data/hartfield/polyself/results/* /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/
+cd /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/
 
 # Processing haplotype plots
 rm -r HapInfo
 mkdir HapInfo
-fds='neutral weakdom strongdom'
+fds='neutral strongdom'
 fsv='contmut stopmut'
 fshi='ishift gshift ocsc'
 for fd in $fds
 do
-	mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/
+	mkdir OutputPlots/haps/$fd/
 	for fs in $fsv
 	do
-		mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/$fs/
+		mkdir OutputPlots/haps/$fd/$fs/
 		for fsh in $fshi
 		do
-			mkdir /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/$fd/$fs/$fsh/
+			mkdir OutputPlots/haps/$fd/$fs/$fsh/
 		done
 	done
 done
 
 # Hap plot legend creation
-Rscript /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/HapRCode/LegendPlot.R 
+Rscript HapRCode/LegendPlot.R 
 
 # Making compound plots
 NP=$(wc -l < ServerScripts/PolyselParameters.txt)
@@ -56,8 +57,8 @@ do
 done
 wait
  
-rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegend.pdf
-rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/HapPlotLegendDel.pdf
-rm /Users/hartfield/Documents/Polygenic\ Selection\ Selfing/SLiM\ Scripts/OutputPlots/haps/LDPlotLegend.pdf
+rm OutputPlots/haps/HapPlotLegend.pdf
+rm OutputPlots/haps/HapPlotLegendDel.pdf
+rm OutputPlots/haps/LDPlotLegend.pdf
 
 echo 'All data processed'

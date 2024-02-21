@@ -13,4 +13,3 @@
 #$ -e /data/hartfield/polyself/scripts/error/
 
 Rscript /data/hartfield/polyself/scripts/HoCPlot.R
-rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

@@ -21,7 +21,7 @@ min_ee <- 10		# Minimum number of bin entries to be included in plot
 filenames <- c('time0','time1','time2','time3')
 
 for(i in 1:10){
-	dat <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep",i,"_LD.hap.ld"))
+	dat <- read_table2(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep",i,"_LD.hap.ld"))
 	dat <- dat %>% mutate(DIST=POS2-POS1)
 	dat <- dat %>% mutate(LEVEL=cut(dat$DIST,seq(0,25e6,50e4),right=F))
 	
@@ -95,6 +95,6 @@ myp2 <- ggplot(mainres,aes(x=DIST_MB,y=abs(Dprime))) +
 	theme(plot.title=element_text(hjust=0.5)) + 
 	theme(legend.position="none")
 
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDDec_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp1,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/data/hartfield/polyself/results/haps/LDDec_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp1,device="pdf",width=12,height=12)
 
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDDec_Dp_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp2,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/data/hartfield/polyself/results/haps/LDDec_Dp_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp2,device="pdf",width=12,height=12)

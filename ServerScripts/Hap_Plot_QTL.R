@@ -19,7 +19,7 @@ k <- args[9] 					# Which timepoint to use
 filenames <- c('time0','time1','time2','time3')
 
 # Reading in and sorting data
-dat <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
+dat <- read_delim(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.vcf"),delim='\t',skip=12)[,-c(1,3:7,9)] %>% column_to_rownames("POS")
 if(s!=0){
 	del_idx <- grep(paste0("S=",s),dat[,1]) # Indices of deleterious variants
 }
@@ -43,7 +43,7 @@ if(s!=0){
 hqc <- rev(brewer.pal(11,"RdBu")[1:5])
 lqc <- brewer.pal(11,"RdBu")[7:11]
 
-QTLd <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.info"),delim=" ")
+QTLd <- read_delim(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1.info"),delim=" ")
 QTLd <- QTLd[order(QTLd$POS),]
 QTLd <- QTLd %>% mutate(QTLs=ifelse(MeanQTL>=0, ceiling(MeanQTL*8), ceiling(MeanQTL*(-8)) ))
 QTLd[QTLd$QTLs>5,]$QTLs <- 5
@@ -120,18 +120,18 @@ plotc3 <- plotc[unm2+1]
 
 # Plotting haplotype snapshot, both with and without fixed mutations
 mh <- switch(which(k==filenames),"Before Optimum Shift","40 Generations After","300 Generations After","1000 Generations After")
-pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),width=12,height=12)
+pdf(paste0("/data/hartfield/polyself/results/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),width=12,height=12)
 par(cex.main=3)
 heatmap.2(t(data.matrix(dat2)),Colv=F,Rowv=F,dendrogram="none",col=plotc2,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 dev.off()
 
-pdf(paste0("/scratch/mhartfield/polyself_out/plots/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_no_fixed.pdf"),width=12,height=12)
+pdf(paste0("/data/hartfield/polyself/results/haps/HS_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_no_fixed.pdf"),width=12,height=12)
 par(cex.main=3)
 heatmap.2(t(data.matrix(dat3)),Colv=F,Rowv=F,dendrogram="none",col=plotc3,scale="none",trace="none",key=F,labRow=F,labCol=F,lwid=c(0.1,1),lhei=c(0.75,4),main=mh)
 dev.off()
 
 # Plotting LD
-datLD <- read_table2(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1_LD.hap.ld"))
+datLD <- read_table2(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_",k,"_rep1_LD.hap.ld"))
 datLD <- datLD %>% mutate(POS1Mb=POS1/1e6,POS2Mb=POS2/1e6)
 
 myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) + 
@@ -141,7 +141,7 @@ myp <- ggplot(datLD,aes(POS1Mb,POS2Mb,fill=`R^2`)) +
 	ylim(0,25) +
 	theme_bw(base_size=36) + 
 	theme(plot.title=element_text(hjust=0.5))
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/data/hartfield/polyself/results/haps/LDP_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myp,device="pdf",width=12,height=12)
 
 # Plotting distribution of trait effects (just for first trait if N > 1)
 max_x <- (QTLd$QTL1 %>% abs %>% max)*1.1
@@ -152,7 +152,7 @@ myt <- ggplot(QTLd,aes(QTL1,FREQ)) +
 	ylim(0,1) +
 	theme_bw(base_size=36) + 
 	theme(plot.title=element_text(hjust=0.5))
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/MutDFE_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myt,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/data/hartfield/polyself/results/haps/MutDFE_",k,"_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,".pdf"),plot=myt,device="pdf",width=12,height=12)
 
 
 # EOF

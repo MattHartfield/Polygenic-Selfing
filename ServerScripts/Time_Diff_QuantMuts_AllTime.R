@@ -21,24 +21,25 @@ i <- 1
 # for(i in 1:10)
 # {
 # Start with initial (pre-shift) timepoint
-ttime0 <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time0_rep",i,".info"),delim=" ")
+ttime0 <- read_delim(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time0_rep",i,".info"),delim=" ")
 ttime0a <- ttime0 %>% select(POS, MeanQTL,FREQ)
 #ttime0x <- ttime0a %>% filter(!duplicated(POS)) %>% arrange(.,POS) # Removing those with duplicated position entries
+ttime0x <- ttime0a %>% arrange(.,POS) # Removing those with duplicated position entries
 
 # Now attaching all other timepoints, only retaining SNPs that appear at initial timepoint
-ttime1 <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time1_rep",i,".info"),delim=" ")
+ttime1 <- read_delim(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time1_rep",i,".info"),delim=" ")
 ttime1a <- ttime1 %>% select(POS,FREQ)
 #ttime1a <- ttime1a %>% filter(!duplicated(POS))
 ttime1x <- ttime1a[which(ttime1a$POS%in%ttime0a$POS),] %>% arrange(.,POS)
 ttime_all <- left_join(ttime0x, ttime1x,by="POS")
 
-ttime2 <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time2_rep",i,".info"),delim=" ")
+ttime2 <- read_delim(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time2_rep",i,".info"),delim=" ")
 ttime2a <- ttime2 %>% select(POS,FREQ)
 #ttime2a <- ttime2a %>% filter(!duplicated(POS))
 ttime2x <- ttime2a[which(ttime2a$POS%in%ttime0a$POS),] %>% arrange(.,POS)
 ttime_all <- left_join(ttime_all, ttime2x,by="POS")
 
-ttime3 <- read_delim(paste0("/scratch/mhartfield/polyself_out/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time3_rep",i,".info"),delim=" ")
+ttime3 <- read_delim(paste0("/data/hartfield/polyself/analyses/haps/polyself_out_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_time3_rep",i,".info"),delim=" ")
 ttime3a <- ttime3 %>% select(POS,FREQ)
 #ttime3a <- ttime3a %>% filter(!duplicated(POS))
 ttime3x <- ttime3a[which(ttime3a$POS%in%ttime0a$POS),] %>% arrange(.,POS)
@@ -72,6 +73,6 @@ myp1 <- ggplot(mainres,aes(x=Timepoint,y=Frequency)) +
 	# theme(plot.title=element_text(hjust=0.5)) + 
 	theme(legend.position="none")
 
-ggsave(filename=paste0("/scratch/mhartfield/polyself_out/plots/haps/TimeChange_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_AllTime.pdf"),plot=myp1,device="pdf",width=12,height=12)
+ggsave(filename=paste0("/data/hartfield/polyself/results/haps/TimeChange_s",s,"_h",h,"_self",self,"_nt",N,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",ocsc,"_AllTime.pdf"),plot=myp1,device="pdf",width=12,height=12)
 
 # EOF

@@ -10,7 +10,7 @@
 #$ -N Polysel_Self_Haps
 #$ -V
 #$ -cwd
-#$ -t 1-28		# Run command for each line of parameter file (note, not 29 as no need for haplotypes for OCSC = 2)
+#$ -t 1-23		# Run command for each line of parameter file (note, not 29 as no need for haplotypes for OCSC = 3)
 #$ -l h=c3 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
@@ -28,8 +28,8 @@ MSD=0.25
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
 	echo "Deleting old haplotype files" >&1
-	rm -rf /scratch/mhartfield/polyself_out/plots/haps/
-	mkdir /scratch/mhartfield/polyself_out/plots/haps/
+	rm -rf /data/hartfield/polyself/results/haps/
+	mkdir /data/hartfield/polyself/results/haps/
 else
 	echo "Pausing for 10 seconds" >&1
 	sleep 10
@@ -37,7 +37,7 @@ fi
 
 # Processing data
 
-# Creating plots of LD decay
+# Creating plots of allele changes over time
 echo "Plotting change in allele frequencies" >&1
 Rscript /data/hartfield/polyself/scripts/Time_Diff_QuantMuts_AllTime.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC}
 
@@ -49,8 +49,8 @@ do
 	# Creating LD file for plots
 	for a in $(seq 1 10)
 	do
-		vcftools --vcf /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}_${fname}_rep${a}.vcf --thin 500000 --maf 0.1 --hap-r2 --out /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}_${fname}_rep${a}_LD
-		rm -rf /scratch/mhartfield/polyself_out/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}_${fname}_rep${a}_LD.log
+		vcftools --vcf /data/hartfield/polyself/analyses/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}_${fname}_rep${a}.vcf --thin 500000 --maf 0.1 --hap-r2 --out /data/hartfield/polyself/analyses/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}_${fname}_rep${a}_LD
+		rm -rf /data/hartfield/polyself/analyses/haps/polyself_out_s${SEL}_h${DOM}_self${SELF}_nt${NTR}_msd${MSD}_isnm${ISNM}_stype${STYPE}_ocsc${OCSC}_${fname}_rep${a}_LD.log
 	done
 
 	# Creating plots of QTL distribution throughout haplotypes
@@ -64,15 +64,13 @@ do
 done
 
 # Plotting polygenic score over timepoints
-DOPS=$(awk -v ins=$SELF 'BEGIN{if(ins==0) print 0; else print 1}')
-if [ $DOPS -eq 0 -a $OCSC -eq 0 ]
-then
-	echo "Plotting polygenic scores" >&1
-	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
-elif [ $DOPS -eq 0 -a $OCSC -eq 1 ]
-then
-	echo "Plotting polygenic scores (OCSC)" >&1
-	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
-fi
-
-rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
+# DOPS=$(awk -v ins=$SELF 'BEGIN{if(ins==0) print 0; else print 1}')
+# if [ $DOPS -eq 0 -a $OCSC -eq 0 ]
+# then
+# 	echo "Plotting polygenic scores" >&1
+# 	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
+# elif [ $DOPS -eq 0 -a $OCSC -eq 1 ]
+# then
+# 	echo "Plotting polygenic scores (OCSC)" >&1
+# 	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
+# fi

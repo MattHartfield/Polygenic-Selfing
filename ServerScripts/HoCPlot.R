@@ -35,16 +35,16 @@ bsCI_HoC <- function(x,bsr){
 }
 
 # Setting up for rep 1
-datL <- read_table2("/scratch/mhartfield/polyself_out/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc0_rep1.dat")
+datL <- read_table2("/data/hartfield/polyself/analyses/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc0_rep1.dat")
 maindtL <- subset(datL,Generation < tchange) %>% select(Generation,GenVar1)
 
-datS <- read_table2("/scratch/mhartfield/polyself_out/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc2_rep1.dat")
+datS <- read_table2("/data/hartfield/polyself/analyses/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc3_rep1.dat")
 maindtS <- subset(datS,Generation < tchange) %>% select(Generation,GenVar1)
 
 # Then getting other reps
 for(i in 2:reps){
-	datL <- read_table2(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc0_rep",i,".dat"))
-	datS <- read_table2(paste0("/scratch/mhartfield/polyself_out/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc2_rep",i,".dat"))	
+	datL <- read_table2(paste0("/data/hartfield/polyself/analyses/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc0_rep",i,".dat"))
+	datS <- read_table2(paste0("/data/hartfield/polyself/analyses/data/polyself_out_s0_h0.02_self0_nt1_msd0.25_isnm0_stype0_ocsc3_rep",i,".dat"))	
 	subdtL <- subset(datL,Generation < tchange) %>% select(GenVar1)
 	subdtS <- subset(datS,Generation < tchange) %>% select(GenVar1)	
 	maindtL <- cbind(maindtL,subdtL)
@@ -58,7 +58,7 @@ CI_GVL <- bsCI_HoC(maindtL[,-1],1000)
 CI_GVS <- bsCI_HoC(maindtS[,-1],1000)
 
 # output
-pdf(file=paste0('/scratch/mhartfield/polyself_out/plots/HoC_Check.pdf'),width=8*gr,height=8)
+pdf(file=paste0('/data/hartfield/polyself/results/HoC_Check.pdf'),width=8*gr,height=8)
 plot(maindtL[,1],log(meanGVL),type='l',xlab="Generation Number",ylab="Genic Variance",xlim=c(8000,10000),ylim=c(-5,-2),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5,yaxt="n")
 axis(2,at=seq(-5,-2,0.5),labels=sprintf("%.3f",exp(seq(-5,-2,0.5))),cex.axis=1.5)
 lines(maindtS[,1],log(meanGVS),col=pcol[2],lwd=3)

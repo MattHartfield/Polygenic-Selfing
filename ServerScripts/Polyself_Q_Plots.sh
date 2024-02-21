@@ -12,7 +12,7 @@
 #$ -N Polysel_Self_Plots
 #$ -V
 #$ -cwd
-#$ -t 1-5		# Run command for each line of parameter file
+#$ -t 1-4		# Run command for each line of parameter file
 #$ -l h=c3 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
@@ -29,29 +29,27 @@ RT=400
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
 	echo "Deleting old plot files" >&1
-	fds='neutral weakdom strongdom'
+	fds='neutral strongdom'
 	fsv='contmut stopmut'
 	fshi='ishift gshift'	
 	rm -rf /data/hartfield/polyself/results/*
-	rm -rf /scratch/mhartfield/polyself_out/plots/
-	mkdir /scratch/mhartfield/polyself_out/plots/ 
 	for fd in $fds
 	do
-		mkdir /scratch/mhartfield/polyself_out/plots/$fd/
+		mkdir /data/hartfield/polyself/results/$fd/
 		for fs in $fsv
 		do
-			mkdir /scratch/mhartfield/polyself_out/plots/$fd/$fs/
+			mkdir /data/hartfield/polyself/results/$fd/$fs/
 			for fsh in $fshi
 			do
-				mkdir /scratch/mhartfield/polyself_out/plots/$fd/$fs/$fsh/
+				mkdir /data/hartfield/polyself/results/$fd/$fs/$fsh/
 			done
 		done
 	done
-	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*
+	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*ocsc0*
+	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*ocsc2*
 else
 	echo "Pausing for 10 seconds" >&1
 	sleep 10
 fi
 
 Rscript /data/hartfield/polyself/scripts/Output_Plot_Server.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${RT}
-rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/

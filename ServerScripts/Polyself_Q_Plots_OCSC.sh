@@ -31,13 +31,12 @@ RT=400
 # Running plot code
 if [ $SGE_TASK_ID -eq $SGE_TASK_FIRST ]
 then
-	rm -rf /scratch/mhartfield/polyself_out/plots/neutral/contmut/ocsc/ /scratch/mhartfield/polyself_out/plots/weakdom/contmut/ocsc/ /scratch/mhartfield/polyself_out/plots/strongdom/contmut/ocsc/
-	mkdir /scratch/mhartfield/polyself_out/plots/neutral/contmut/ocsc/ /scratch/mhartfield/polyself_out/plots/weakdom/contmut/ocsc/ /scratch/mhartfield/polyself_out/plots/strongdom/contmut/ocsc/
-	sed -i 's/NAN/NA/g' /scratch/mhartfield/polyself_out/data/*ocsc1*
+	rm -rf /data/hartfield/polyself/results/neutral/contmut/ocsc/ /data/hartfield/polyself/results/strongdom/contmut/ocsc/
+	mkdir /data/hartfield/polyself/results/neutral/contmut/ocsc/ /data/hartfield/polyself/results/strongdom/contmut/ocsc/
+	sed -i 's/NAN/NA/g' /data/hartfield/polyself/analyses/data/*ocsc1*
 else
 	echo "Pausing for 10 seconds" >&1
 	sleep 10
 fi
 
 Rscript /data/hartfield/polyself/scripts/Output_Plot_Server_OCSC.R ${SEL} ${DOM} ${NTR} ${ISNM} ${STYPE} ${OCSC} ${RT}
-rsync -avz /scratch/mhartfield/polyself_out/plots/* /data/hartfield/polyself/results/
