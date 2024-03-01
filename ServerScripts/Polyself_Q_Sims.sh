@@ -12,8 +12,8 @@
 #$ -N Polysel_Self_Sims
 #$ -V
 #$ -cwd
-#$ -t 1-290		# Run command for each line of parameter file
-#$ -l h="bigbird|bigwig"				# Run array job on these sub-servers
+#$ -t 231-280		# Run command for each line of parameter file
+#$ -l h="c1|c2|c4"				# Run array job on these sub-servers
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 
@@ -42,4 +42,4 @@ RT=1000
 # fi
 
 slim -d s=$SEL -d h=$DOM -d sfrate=$SELF -d nt=$NTR -d rep=$REP -d isnm=$ISNM -d runtime=$RT -d oc_sc=$OCSC -d stype=$STYPE /data/hartfield/polyself/scripts/Polygenic_Selection_With_Selfing.slim
-rsync -avz polyself_out/ /data/hartfield/polyself/analyses/
+rsync -avz /scratch/mhartfield/polyself_out/ /data/hartfield/polyself/analyses/

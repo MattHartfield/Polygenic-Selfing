@@ -15,7 +15,17 @@ initialize() {
 	catn("New random seed is " + theseed);
 	setSeed(theseed);
 	
-	defineConstant("N",5000);				// Population size
+	//		Uncomment if running on home machine; comment out otherwise
+//	defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes, 2 = higher N, 3 = low mut, rec rates
+	
+	if(oc_sc == 2)		// Set OCSC to 2 for special case; N = 10,000
+	{
+		defineConstant("N",10000);				// Population size
+	}
+	else
+	{
+		defineConstant("N",5000);				// Population size
+	}
 	defineConstant("QTLf",0.1);			// Fraction of QTL mutations in g2
 	defineConstant("genl",25000000);		// Length of simulated genome
 	defineConstant("msd",0.25);			// Standard Deviation in trait values
@@ -29,7 +39,6 @@ initialize() {
 //		defineConstant("runtime",500);		// How many generations (+1) to run for after optimum shift
 //		defineConstant("isnm",0);				// 0 = mutation continues after optimum shift; 1 = mutation stopped
 //		defineConstant("stype",0);				// Shift type. 0 = Sudden shift, 1 = gradual shift
-//		defineConstant("oc_sc",0);				// Scale outcrossing parameters? 0 = no, 1 = yes, 2 = low mut, rec rates
 //		defineConstant("isloc",1);				// 'Is local machine', for printing to computer
 	
 	// Defining where to print stats out to, depending on code location
@@ -42,9 +51,17 @@ initialize() {
 		defineConstant("fname",paste0(c("/scratch/mhartfield/polyself_out/data/polyself_out_s",s,"_h",h,"_self",sfrate,"_nt",nt,"_msd",msd,"_isnm",isnm,"_stype",stype,"_ocsc",oc_sc,"_rep",rep,".dat")));
 	}
 	
-	defineConstant("ShiftTime",10*N);
-	defineConstant("MaxTime",10*N+runtime+1);
-	defineConstant("newo",1/sqrt(nt));
+	if(oc_sc == 2)		// Shorter runtime if higher population size
+	{
+		defineConstant("ShiftTime",5*N);
+		defineConstant("MaxTime",5*N+runtime+1);
+	}
+	else
+	{
+		defineConstant("ShiftTime",10*N);
+		defineConstant("MaxTime",10*N+runtime+1);
+	}
+		defineConstant("newo",1/sqrt(nt));
 	defineConstant("Rmsd",msd/sqrt(nt));			// Rescaled mutational standard deviation depending on complexity
 	defineConstant("mutvar",Rmsd*Rmsd);				// Mutational variance in covariance matrix (= sd^2)
 	defineConstant("t1",round(0.04*runtime));		// Times when to sample haplotypes
@@ -83,11 +100,6 @@ initialize() {
 		mu = mu/(1 + Fis);
 		rec = rec*(1 - 2*Fis + Psi);
 	}
-	else if(oc_sc == 2)		// Set OCSC to 2 for special case; mu, rec increased 10-fold (does purging threshold change?)
-	{
-		mu = mu*10;
-		rec = rec*10;
-	}
 	else if(oc_sc == 3)		// Set OCSC to 3 for special case; mu, rec reduced 10-fold (for HoC diagnostic plot)
 	{
 		mu = mu*0.1;
@@ -117,6 +129,11 @@ initialize() {
 	}
 	defineConstant("QTL_matrix",matrix(mat_ent,nrow=nt));
 	print(QTL_matrix);
+	
+	catn("For OCSC = " + oc_sc);
+	catn("Population size N = " + N);
+	catn("Mu = " + mu);
+	catn("Rec = " + rec);
 }
 
 // Calculating fitness contributed by QTLs
