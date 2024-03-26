@@ -12,7 +12,7 @@
 #$ -N Polysel_Self_Sims
 #$ -V
 #$ -cwd
-#$ -t 231-280		# Run command for each line of parameter file
+#$ -t 1-280		# Run command for each line of parameter file
 #$ -l h="c1|c2|c4"				# Run array job on these sub-servers
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/

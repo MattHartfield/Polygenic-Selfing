@@ -6,11 +6,6 @@
 library(RColorBrewer)
 library(plyr)
 
-pop <- 5000				# Population size
-tchange <- 10*pop		# Time at which optimum changes
-gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
-msd <- 0.25				# Standard deviation of mutational effect
-
 args <- commandArgs(trailingOnly = TRUE)
 s <- as.double(args[1])			# Selection coefficient, background mutations
 h <- as.double(args[2])			# Dominance coefficient
@@ -21,6 +16,16 @@ ocsc <- as.integer(args[6])		# Using rescaled parameters in outcrossing or not
 clup <- as.integer(args[7])		# Time window around which to plot close-up values
 # Note selfing rate is not incuded above, as all selfing results will be included together. Defined below
 self <- c(0,0.5,0.9,0.99,0.999)
+gr <- (1+sqrt(5))/2 	# Scaling ratio for plot outputs
+msd <- 0.25				# Standard deviation of mutational effect
+
+if(ocsc==0){
+	pop <- 5000				# Population size
+	tchange <- 10*pop		# Time at which optimum changes	
+}else if(ocsc==2){
+	pop <- 10000				# Population size
+	tchange <- 5*pop			# Time at which optimum changes	
+}
 
 HoCV <- 0.08						# Expected House Of Cards Variance (with mutation rate 4e-8)
 reps <- 10							# Number of replicates per parameter set
@@ -90,7 +95,7 @@ if(ocsc==0){
 	endfoc <- '_ocsc0'
 }else if(ocsc==2){
 	endoc <- " Increased parameters."
-	endfoc <- '_ocsc1'
+	endfoc <- '_ocsc2'
 }else{
 	cat("OCSC has to be 0 or 2, exiting\n")
 	quit(save="no")

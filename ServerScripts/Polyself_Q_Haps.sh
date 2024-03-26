@@ -10,8 +10,8 @@
 #$ -N Polysel_Self_Haps
 #$ -V
 #$ -cwd
-#$ -t 1-23		# Run command for each line of parameter file (note, not 29 as no need for haplotypes for OCSC = 3)
-#$ -l h=c3 		# Run array job on this sub-server
+#$ -t 1-28		# Run command for each line of parameter file (note, not 29 as no need for haplotypes for OCSC = 3)
+#$ -l h=c1 		# Run array job on this sub-server
 #$ -o /data/hartfield/polyself/scripts/output/
 #$ -e /data/hartfield/polyself/scripts/error/
 

@@ -59,7 +59,7 @@ CI_GVS <- bsCI_HoC(maindtS[,-1],1000)
 
 # output
 pdf(file=paste0('/data/hartfield/polyself/results/HoC_Check.pdf'),width=8*gr,height=8)
-plot(maindtL[,1],log(meanGVL),type='l',xlab="Generation Number",ylab="Genic Variance",xlim=c(8000,10000),ylim=c(-5,-2),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5,yaxt="n")
+plot(maindtL[,1],log(meanGVL),type='l',xlab="Generation Number",ylab="Genic Variance",xlim=c(39000,49000),ylim=c(-5,-2),col=pcol[1],lwd=3,cex.lab=1.5,cex.axis=1.5,yaxt="n")
 axis(2,at=seq(-5,-2,0.5),labels=sprintf("%.3f",exp(seq(-5,-2,0.5))),cex.axis=1.5)
 lines(maindtS[,1],log(meanGVS),col=pcol[2],lwd=3)
 abline(h=log(HoCVL),lty=2,col=pcol[1],lwd=2)
