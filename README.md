@@ -16,7 +16,7 @@ Where the values in brackets represent input variables:
 - $(REP} is a number to denote which simulation replicate is running for that parameter set;
 - $(ISNM} denotes whether mutation continues after the optimum shift (0 = yes, 1 = no);
 - $(RT} is the number of generations (plus one) that the simulation runs for after the optimum shift;
-- $(OCSC} determine whether to run a simulation assuming outcrossing but with rescaled parameters to reflect those under high selfing (0 = no, 1 = yes, 2  = a special case where mutation, recombination rates are reduced 10-fold for diagnostic purposes);
+- $(OCSC} determine whether to run a simulation under special cases (0 = default cases; 1 = assuming outcrossing but with rescaled parameters to reflect those under high selfing; 2 =  N = 10,000; 3  = a special case where mutation, recombination rates are reduced 10-fold for diagnostic purposes);
 - $(STYPE} determines the nature of the optimum shift. 0 denotes an instant change, 1 for a gradual change.
 
 Alternatively, if you look at the code you will see a set of commands that are commented out underneath the line `Uncomment if running on home machine; comment out otherwise`. If you remove these comments then this will allow the simulation to run on a local machine without the need for command-line parameters, so commands can be defined in the code itself. This is good for testing but not recommended for running replicate simulations.
@@ -36,7 +36,7 @@ The folder `ServerScripts` contains scripts used to process resulting simulation
 
 Produces plots of mean trait values; mean and variance in fitness; inbreeding depression; genetic variance components; properties of fixed mutations. Input parameters are as for the simulation; ${CU} denotes the maximum time post-optimum shift with which to plot results. `OCSC` version compares highly selfing case with rescaled outcrossing case. Hence, OCSC should be set to 0 in the first example and 1 in the second.
 
-`Rscript Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`  
+`Rscript Hap_Plot_QTL.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}`
 
 Plots haplotype snapshots and properties of selected mutations. Input parameters are as for the simulation; ${fname} is one of `time0 time1 time2 time3` denoting different times when haplotypes were sampled.
 
@@ -44,18 +44,17 @@ Plots haplotype snapshots and properties of selected mutations. Input parameters
 
 Plots Linkage disequilibrium (LD) decay over simulation replicates.
 
-`Rscript Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
-`Rscript Polygenic_Score_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}`  
+`Rscript Time_Diff_QuantMuts_AllTime.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC}`
 
-Plots polygenic scores over time.
+Plots change in trait--mutation frequency change over time.
 
-`Rscript HoCPlot.R`  
+`Rscript HoCPlot.R`
 
 Plots genic variance and compares it to House-of-Cards expectation.
 
 #### Shell scripts
 
-For completeness I have also included the shell scripts (ending with .sh) that are used to run different parts of the simulations and analyses on the ClubAshworth computer cluster at the Institute of Ecology and Evolution at The University of Edinburgh. These will have to be modified if intended to be run on a different machine, and are included for archiving and illustrating simulation post-processing (e.g., for plotting haplotype information in `Polyself_Q_Haps.sh`).
+For completeness I have also included the shell scripts (ending with .sh) that are used to run different parts of the simulations and analyses on the AC3 computer cluster at the Institute of Ecology and Evolution at The University of Edinburgh. These will have to be modified if intended to be run on a different machine, and are included for archiving and illustrating simulation post-processing (e.g., for plotting haplotype information in `Polyself_Q_Haps.sh`).
 
 ### Local files
 

@@ -62,15 +62,3 @@ do
 	Rscript /data/hartfield/polyself/scripts/LD_group_plot.R ${SEL} ${DOM} ${SELF} ${NTR} ${MSD} ${ISNM} ${STYPE} ${OCSC} ${fname}
 
 done
-
-# Plotting polygenic score over timepoints
-# DOPS=$(awk -v ins=$SELF 'BEGIN{if(ins==0) print 0; else print 1}')
-# if [ $DOPS -eq 0 -a $OCSC -eq 0 ]
-# then
-# 	echo "Plotting polygenic scores" >&1
-# 	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
-# elif [ $DOPS -eq 0 -a $OCSC -eq 1 ]
-# then
-# 	echo "Plotting polygenic scores (OCSC)" >&1
-# 	Rscript /data/hartfield/polyself/scripts/Polygenic_Score_Calc_OCSC.R ${SEL} ${DOM} ${NTR} ${MSD} ${ISNM} ${STYPE}
-# fi
